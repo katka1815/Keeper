@@ -1,0 +1,13 @@
+# Všechny textové soubory drží LF, jak jsou dnes na disku.
+# Shell skripty (install.sh, wizard.sh, .command) se s CRLF na Macu a Linuxu
+# nespustí, takže je to tu kvůli rozdávání appky, ne kvůli estetice.
+* text=auto eol=lf
+
+*.sh      text eol=lf
+*.command text eol=lf
+
+# Windows skripty naopak CRLF chtějí.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+*.png binary

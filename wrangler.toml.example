@@ -1,0 +1,54 @@
+name = "rozcestnik"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+[assets]
+directory = "./public/"
+binding = "ASSETS"
+run_worker_first = true
+
+# Tvoje KV úložiště. Necháš prázdné — průvodce instalací ho vytvoří
+# a id sem doplní sám. Ručně: wrangler kv namespace create KV
+[[kv_namespaces]]
+binding = "KV"
+id = ""
+
+# Běží každou hodinu; v 6:00 místního času (dle settings.tz) proběhne denní úklid,
+# promazání "Hotovo", kontrola odkazů a úklid koše.
+[triggers]
+crons = ["0 * * * *"]
+
+# Nepovinné push upozornění na rozbité odkazy přes ntfy.sh – vyplň vlastní téma.
+[vars]
+NTFY_TOPIC = ""
+
+# Heslo pro běžný web tato verze NEPOUŽÍVÁ – odkazy a úkoly jsou otevřené.
+
+# ---- VOLITELNÉ: Google Kalendář (obousměrný) ----
+# Funkce je VYPNUTÁ, dokud nenastavíš CAL_PIN. Kalendář je pak schovaný za PINem,
+# zbytek appky zůstává otevřený. Tyto tři hodnoty NIKDY nepiš sem do souboru –
+# ulož je jako šifrované Worker secrets (po nasazení), aby se nedostaly do gitu:
+#
+#   wrangler secret put CAL_PIN              # tvůj PIN/heslo ke kalendáři
+#   wrangler secret put GOOGLE_CLIENT_ID     # z Google Cloud Console
+#   wrangler secret put GOOGLE_CLIENT_SECRET # z Google Cloud Console
+#
+# V Google Cloud do "Authorized redirect URIs" přidej:
+#   https://<adresa-tvého-workeru>/api/cal/callback
+# Postup krok po kroku je v README.
+
+# ---- VOLITELNÉ: e-mail z Hlídače (Resend) ----
+# Hlídač hlásí nálezy přes ntfy (viz NTFY_TOPIC) a navíc e-mailem, pokud nastavíš:
+#
+#   wrangler secret put RESEND_KEY        # API klíč z resend.com
+#
+# Adresu příjemce zadáš v appce v Nastavení. Bez klíče se e-mail jen přeskočí.
+# Pozor: dokud si v Resendu neověříš vlastní doménu, pošle se jen na adresu
+# vlastníka účtu a z adresy onboarding@resend.dev.
+
+# VOLITELNÉ: ukládání knih do appky (R2 objektové úložiště).
+# Kdo to chce, odkomentuje 3 řádky níže a vytvoří bucket:
+#   wrangler r2 bucket create rozcestnik-books
+# [[r2_buckets]]
+# binding = "BOOKS"
+# bucket_name = "rozcestnik-books"

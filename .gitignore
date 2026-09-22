@@ -1,0 +1,18 @@
+# Lokální stav wrangleru: cache účtu a kopie KV dat z `wrangler dev`.
+# Jsou v tom tvoje data z desky, do repozitáře nepatří.
+.wrangler/
+
+# Osobní config: tvoje KV id a tvoje ntfy téma. Do repozitáře patří jen
+# wrangler.toml.example, ze kterého si ho průvodce vyrobí.
+wrangler.toml
+
+# Lokální secrety pro `wrangler dev` (APP_TOKEN atd.). NIKDY necommitovat.
+.dev.vars
+.env
+.env.*
+
+node_modules/
+*.bak
+*.log
+.DS_Store
+Thumbs.db

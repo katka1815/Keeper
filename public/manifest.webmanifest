@@ -1,0 +1,15 @@
+{
+  "name": "Rozcestník",
+  "short_name": "Rozcestník",
+  "description": "Osobní archiv odkazů, poznámek a úkolů.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F4F2EB",
+  "theme_color": "#246A63",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

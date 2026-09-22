@@ -1,0 +1,1458 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#246A63" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="/icon-180.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Rozcestník" />
+<title>Rozcestník</title>
+<style>
+  :root{--paper:#F4F2EB;--panel:#FBFAF6;--ink:#20262B;--muted:#6B7178;--line:#E4DECF;--lineSoft:#EDE8DC;
+    --teal:#246A63;--plum:#5B3A57;--ok:#2E8B57;--broken:#C0392B;--unknown:#9A8F7A;--warn:#E08A2B;--warnBg:#FBEFDC;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+  a{color:inherit} button{font-family:var(--sans);cursor:pointer}
+  *:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+  header.mast{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;padding:22px 28px 16px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-size:11px;letter-spacing:.28em;color:var(--teal);font-weight:600}
+  .mast h1{font-family:var(--serif);font-size:34px;line-height:1;margin:6px 0 0}
+  .quote-wrap{margin-top:10px;display:flex;align-items:baseline;gap:8px;max-width:600px;min-height:22px}
+  .quote{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--plum);transition:opacity .25s;line-height:1.4}
+  .q-author{font-style:normal;font-size:12px;color:var(--muted)}
+  .linkbtn{background:none;border:none;color:var(--muted);font-size:12px;opacity:.6}
+  .linkbtn:hover{opacity:1;color:var(--teal)}
+  .right{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+  .health{display:flex;gap:13px;flex-wrap:wrap;font-size:13px}
+  .health span{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-size:13px;padding:8px 13px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btn.danger{border-color:var(--broken);color:var(--broken)}
+  .btn:hover{border-color:var(--teal);color:var(--teal)}
+  .btn[disabled]{opacity:.5}
+  .btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .lastcheck{font-size:12px;color:var(--muted);font-style:italic}
+  .panel{display:none;margin:12px 28px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .panel h3{font-family:var(--serif);margin:0 0 10px;color:var(--plum);font-size:16px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--lineSoft)}
+  .row:first-of-type{border-top:none}
+  .set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--lineSoft);font-size:13px;flex-wrap:wrap}
+  .set-row:first-of-type{border-top:none}
+  select,input[type=text],input[type=date],textarea{font-family:var(--sans);font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+  textarea{width:100%;min-height:120px;resize:vertical;line-height:1.4}
+  input[type=color]{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;padding:0;background:none;cursor:pointer}
+  .bret{font-size:11px;padding:3px 5px}
+  .filter{display:flex;gap:14px;align-items:center;padding:14px 28px 0;flex-wrap:wrap}
+  .filter input[type=search]{flex:1;max-width:360px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:15px}
+  .filter label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  section.block-card,.tasks,.inbox{margin:18px 28px 0;border-radius:12px;padding:16px}
+  .tasks,.block-wrap{background:var(--panel);border:1px solid var(--line)}
+  .block-wrap{margin:18px 28px 0;border-radius:12px;padding:16px}
+  .block-wrap h2,.tasks h2,.inbox h2{font-family:var(--serif);font-size:18px;margin:0 0 10px;color:var(--plum)}
+  .blocks{display:flex;flex-direction:column;gap:14px}
+  .block{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+  .block.past{background:var(--warnBg);border-color:var(--warn)}
+  .block-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .block-title{font-family:var(--serif);font-size:16px;color:var(--plum);display:flex;align-items:center;gap:8px}
+  .block-meta{font-size:12px;color:var(--muted)}
+  .countdown{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px}
+  .countdown.past{color:var(--warn)}
+  .cols{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;align-items:flex-start}
+  .col{flex:1;min-width:220px}
+  .col-done{display:flex;flex-direction:column;overflow:hidden}
+  .col-h{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;min-height:30px;gap:6px}
+  .item{display:flex;align-items:center;gap:8px;padding:7px 4px;border-top:1px solid var(--lineSoft)}
+  .item:first-of-type{border-top:none}
+  .item .t{flex:1;font-size:14px;word-break:break-word}
+  .item.done-i .t{color:var(--muted)}
+  .donelist{overflow:auto;min-height:60px}
+  .col-done .donelist{flex:1}
+  .caret{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:2px 6px}
+  .block.collapsed .cols{display:none}
+  .bgrip{cursor:grab;color:var(--muted);font-size:14px;user-select:none}
+  .areagrip{cursor:grab;color:var(--muted);font-size:14px;user-select:none;flex-shrink:0}
+  .area.dragging{opacity:.4}
+  .area.bover{outline:2px dashed var(--teal);outline-offset:2px}
+  .area-move-arrows{display:none}
+  @media (hover:none){.areagrip{display:none}.area-move-arrows{display:inline-flex}}
+  .block.dragging{opacity:.4}
+  .block.bover{outline:2px dashed var(--teal);outline-offset:2px}
+  .tz-list{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff;min-width:220px}
+  .tz-opt{padding:7px 10px;cursor:pointer;font-size:13px;border-top:1px solid var(--lineSoft)}
+  .tz-opt:first-child{border-top:none}
+  .tz-opt:hover{background:var(--paper)}
+  .tz-opt.sel{color:var(--teal);font-weight:600}
+  @media (max-width:640px){.col-done{height:auto !important}.donelist{max-height:300px}.areagrip{display:none}.area-move-arrows{display:inline-flex}}
+  .badge{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--lineSoft);color:var(--muted);font-weight:600}
+  .icon{background:none;border:none;color:var(--muted);font-size:14px;padding:6px 7px;border-radius:5px;line-height:1}
+  .icon:hover{background:var(--paper);color:var(--ink)}
+  .icon.good:hover{color:var(--ok)} .icon.danger:hover{color:var(--broken)} .icon[disabled]{opacity:.3}
+  .add{margin-top:8px;width:100%;background:none;border:1px dashed var(--line);border-radius:8px;padding:9px;font-size:13px;color:var(--muted)}
+  .add:hover{border-color:var(--teal);color:var(--teal)}
+  .edit-inp{flex:1;font-size:14px;padding:5px 8px;border:1px solid var(--teal);border-radius:6px;background:#fff;color:var(--ink)}
+  .empty{font-size:12.5px;color:var(--muted);font-style:italic;padding:8px 4px}
+  .inbox{background:#FBF6E8;border:1px solid #ECE0C2}
+  .inbox h2{color:#7a5d1f}
+  .inbox-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px;border-top:1px solid #efe3c6}
+  .inbox-item:first-of-type{border-top:none}
+  .quickadd{display:flex;gap:8px;align-items:center;margin:18px 28px 0;background:var(--card,#fff);border:1px solid var(--teal);border-radius:12px;padding:10px 12px}
+  .quickadd input{flex:1;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .quickadd .qa-btn{flex:0 0 auto;font-size:18px;line-height:1;padding:8px 14px}
+  .lend-row.ret .t,.row.ret .t{text-decoration:line-through;opacity:.55}
+  .ix-type{font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:#efe3c6;color:#7a5d1f;padding:2px 7px;border-radius:5px}
+  .ix-text{flex:1;min-width:140px;font-size:14px;word-break:break-word}.ix-text a{color:var(--teal)}
+  main.board{display:flex;flex-wrap:wrap;gap:18px;padding:18px 28px 8px;align-items:flex-start}
+.board.unified{display:block;column-width:290px;column-gap:18px}
+.board.unified .area{display:inline-block;width:100%!important;height:auto!important;margin:0 0 18px;vertical-align:top;break-inside:avoid;-webkit-column-break-inside:avoid;resize:none}
+.area{flex:0 0 auto;width:290px;min-width:200px;max-width:100%;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.area>.links{flex:1 1 auto;min-height:0;overflow:auto}
+.area:not([data-area-id]){height:auto!important}
+.area-rz{position:absolute;right:2px;bottom:2px;width:16px;height:16px;cursor:nwse-resize;opacity:.3;touch-action:none;background:linear-gradient(135deg,transparent 45%,var(--muted) 45%,var(--muted) 55%,transparent 55%,transparent 70%,var(--muted) 70%,var(--muted) 80%,transparent 80%)}
+.area:hover .area-rz{opacity:.65}
+.area.snapping{outline:2px solid var(--teal);outline-offset:-2px}
+.board.unified .area-rz{display:none}
+@media(max-width:640px){.area-rz{display:none}}
+@media(max-width:640px){.area{resize:none;width:auto;flex:1 1 100%;height:auto!important;overflow:visible}}
+#hiddenBar{display:flex;flex-wrap:wrap;gap:8px;padding:14px 28px 0}
+#boardBar{display:none;justify-content:flex-end;padding:14px 28px 0}
+.area.collapsed .links,.area.collapsed .add{display:none}
+.area.collapsed .area-head{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.area-head .caret{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px}
+#hiddenBar.side{position:fixed;right:8px;top:88px;flex-direction:column;max-height:74vh;overflow:auto;padding:8px;z-index:40;max-width:190px;background:transparent}
+.harea{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--panel);cursor:pointer;font-size:13px;white-space:nowrap}
+.harea .hdot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.harea .count{margin-left:2px}
+@media(max-width:700px){#hiddenBar.side{position:static;flex-direction:row;max-height:none;max-width:none;padding:14px 16px 0}}
+  .area{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .area.over{border-color:var(--teal);box-shadow:0 0 0 3px rgba(36,106,99,.12)}
+  .area-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--lineSoft);margin-bottom:6px}
+  .area-name{font-family:var(--serif);font-size:18px;margin:0;color:var(--plum);display:flex;align-items:center;gap:8px}
+  .count{font-size:11px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:1px 8px}
+  .ty{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  .tools{display:flex;gap:1px;opacity:.4}.area:hover .tools{opacity:1}
+  .link{display:flex;gap:11px;align-items:flex-start;padding:9px 6px;border-radius:8px;cursor:grab}
+  .link:hover{background:var(--paper)} .link.dragging{opacity:.4}
+  .fav{width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0;margin-top:1px;font-family:var(--serif);color:var(--plum);font-size:14px}
+  .fav img{width:18px;height:18px;border-radius:3px;display:block}
+  .lk-title{font-family:var(--serif);font-size:15px;text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lk-title:hover{color:var(--teal);text-decoration:underline}
+  .lk-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
+  .host{font-family:var(--mono);font-size:11.5px;color:var(--muted)} .when{font-size:11px;color:var(--muted)}
+  .bd{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600;background:#FBEAE8;color:var(--broken)}
+  .note{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .lk-tools{display:flex;gap:1px;opacity:0;flex-wrap:wrap;justify-content:flex-end;max-width:96px}.link:hover .lk-tools{opacity:1}
+  footer{padding:18px 28px 36px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:16px}
+  @media (hover:none){.lk-tools,.tools{opacity:1}}
+  @media (max-width:640px){.mast{flex-direction:column;align-items:flex-start;padding:18px 16px 14px}.right{align-items:flex-start;width:100%}.mast h1{font-size:28px}
+    .filter,.board{padding-left:16px;padding-right:16px}.panel,.tasks,.inbox,.block-wrap,.quickadd{margin-left:16px;margin-right:16px}.lk-tools{opacity:1}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div>
+    <div class="eyebrow" id="eyebrow">OSOBNÍ ARCHIV</div>
+    <h1 id="pageTitle">Rozcestník</h1>
+    <div class="quote-wrap"><span id="quote" class="quote"></span><button class="linkbtn" data-act="toggle-quotes" id="qBtn">✎ citáty</button></div>
+  </div>
+  <div class="right">
+    <div class="health" id="health"></div>
+    <div class="acts">
+      <button class="btn primary" id="checkAll">Zkontrolovat vše</button>
+      <button class="btn" data-act="toggle-settings" id="setBtn">Nastavení</button>
+      <button class="btn" data-act="toggle-trash" id="trashBtn">Koš</button>
+      <button class="btn" data-act="toggle-cal" id="calHeaderBtn">Kalendář</button>
+      <button class="btn" data-act="toggle-share" id="shareHeaderBtn">Sdílení</button>
+      <button class="btn" data-act="toggle-faq" id="faqHeaderBtn">FAQ</button>
+      <button class="btn" data-act="toggle-cycle" id="cycleHeaderBtn">Cyklus</button>
+      <button class="btn" data-act="toggle-lend" id="lendHeaderBtn">Věci</button>
+      <button class="btn" data-act="toggle-money" id="moneyHeaderBtn">Peníze</button>
+      <button class="btn" data-act="toggle-watch" id="watchHeaderBtn">Hlídač</button>
+      <button class="btn" data-act="toggle-book" id="bookHeaderBtn" style="display:none">Knihy</button>
+    </div>
+    <div class="lastcheck" id="lastcheck"></div>
+  </div>
+</header>
+
+<div class="quickadd" id="quickAdd">
+  <input type="text" id="quickTaskInput" placeholder="Rychlý úkol…" />
+  <button class="btn primary qa-btn" data-act="quick-add-task" title="Přidat úkol">+</button>
+</div>
+
+<section class="panel" id="settingsPanel"></section>
+<section class="panel" id="trashPanel"></section>
+<section class="panel" id="quotesPanel">
+  <h3 id="qTitle">Moje citáty <button class="linkbtn" data-act="close-panel" data-panel="quotesPanel" style="float:right;font-size:16px">×</button></h3>
+  <textarea id="bulkQuotes" placeholder="Vlož citáty, každý na svůj řádek…"></textarea>
+  <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+    <input type="text" id="bulkAuthor" placeholder="Autor (volitelně, pro celý seznam)" style="flex:1;min-width:180px"/>
+    <button class="btn primary" data-act="add-quotes-bulk" id="addQuotesBtn">Přidat citáty</button>
+  </div>
+  <div id="quotesList" style="margin-top:10px"></div>
+</section>
+
+<section class="panel" id="newBlockPanel"></section>
+<section class="panel" id="newAreaPanel"></section>
+<section class="panel" id="calPanel"></section>
+<section class="panel" id="sharePanel"></section>
+<section class="panel" id="faqPanel"></section>
+<section class="panel" id="cyclePanel"></section>
+<section class="panel" id="lendPanel"></section>
+<section class="panel" id="moneyPanel"></section>
+<section class="panel" id="watchPanel"></section>
+<section class="panel" id="bookPanel"></section>
+
+<div class="filter">
+  <input type="search" id="search" placeholder="Hledat v odkazech…" />
+  <label><input type="checkbox" id="onlyBroken" /> <span id="obLabel">jen rozbité</span></label>
+</div>
+
+<section class="block-wrap"><h2 id="blocksTitle">Cíle a období</h2><div class="blocks" id="blocksEl"></div>
+  <button class="add" data-act="add-block" id="addBlockBtn">+ Nový blok</button></section>
+
+<section class="inbox" id="inbox" style="display:none"></section>
+<div id="boardBar"></div>
+<div id="hiddenBar" style="display:none"></div>
+<main class="board" id="boardEl"></main>
+<section class="tasks" id="tasksEl"></section>
+<footer id="footer"></footer>
+
+<script>
+/* ---------- i18n ---------- */
+const DICT={
+ cs:{eyebrow:"OSOBNÍ ARCHIV",checkAll:"Zkontrolovat vše",checking:"Kontroluji…",settings:"Nastavení",trash:"Koš",
+  ok:"v pořádku",broken:"rozbité",unknown:"neověřené",lastCheck:"naposledy zkontrolováno ",noCheck:"ještě neproběhla kontrola",
+  search:"Hledat v odkazech…",onlyBroken:"jen rozbité",quotesBtn:"✎ citáty",myQuotes:"Moje citáty",bulkPh:"Vlož citáty, každý na svůj řádek…",
+  bulkAuthor:"Autor (volitelně, pro celý seznam)",addQuotes:"Přidat citáty",noQuotes:"Zatím žádné citáty.",
+  blocksTitle:"Cíle a období",addBlock:"+ Nový blok",want:"Chci zvládnout",doing:"Probíhá",toDoing:"Začít (do Probíhá)",toWant:"Zpět do Chci",done:"Hotovo",addGoal:"+ Přidat cíl",addDone:"+ Přidat splněné",clearDone:"vyčistit",
+  inbox:"Ke zpracování",file:"Zařadit",toTasks:"Mezi úkoly",newArea:"Nová oblast",createArea:"+ Vytvořit oblast",addLink:"+ Přidat odkaz",addItem:"+ Přidat položku",emptyArea:"Zatím prázdné",
+  tasks:"Úkoly a poznámky",addTask:"+ Přidat úkol",sortDue:"Seřadit dle termínu",sortManual:"Ruční pořadí",dailyNote:"Hotové úkoly v 6:00:",move:"přesunout do hotových",del:"smazat",applyNow:"udělat teď",
+  quickTaskPh:"Rychlý úkol…",watchDates:"Termíny",watchTickets:"Vstupenky",watchCalHere:"Do kalendáře tady",watchCalGoogle:"Do Google kalendáře",watchCalOk:"Vloženo do kalendáře.",watchCalPin:"Nejdřív si otevři panel Kalendář a odemkni ho PINem.",watchCalErr:"Vložit do kalendáře se nepovedlo.",watchAllDay:"celý den",watchBtn:"Hlídač",watchTitle:"Hlídač stránek",watchNew:"Nové hlídání",watchName:"Název (pro tebe)",watchPhrase:"Co hledat",watchUrls:"Kde hledat — jedna adresa na řádek",watchUrlsShort:"adres",watchEvery:"Jak často",watchDaily:"denně",watchWeekly:"týdně",watchMonthly:"měsíčně",watchDeep:"Hledat i o úroveň hlouběji",watchDeepShort:"do hloubky",watchAdd:"+ Přidat hlídání",watchEmpty:"Zatím nic nehlídáš.",watchRunNow:"Zkontrolovat teď",watchChecking:"Kontroluju…",watchPause:"Pozastavit",watchResume:"Spustit",watchDelAsk:"Smazat tohle hlídání?",watchLast:"Naposled",watchNever:"zatím nikdy",watchPages:"stránek",watchHitsTitle:"Nálezy k potvrzení",watchAsk:"Tohle jsi hledala?",watchYes:"Ano, je to ono",watchNo:"Ne, to není ono",watchAfter:"Po potvrzení",watchSleep:"pozastavit hlídání",watchDelete:"smazat hlídání",watchKeep:"hlídat dál",faqMore:"Podrobně",watchEditBtn:"Upravit",watchSave:"Uložit změny",watchCancel:"Zrušit",watchEditTitle:"Úprava hlídání",watchFromLink:"Hlídat, jestli to někde hrají",watchAlready:"Tohle už se hlídá — otevřít Hlídač",watchMadeFromLink:"Založeno hlídání „{p}“. Kouká se na adresu té položky, jednou týdně. V Hlídači si můžeš upravit frázi, přidat další adresy nebo změnit interval.",watchLinkArea:"Prolinkovat s oblastí",watchLinkNone:"— nepropojovat —",watchLinked:"Napojeno na oblast",watchLinkedNote:"Termín, který vybereš, se zapíše do popisku téhle položky a po termínu se položka sama smaže do Koše.",watchLinkNoMatch:"V oblasti {a} jsem nenašel položku, jejíž název by odpovídal hlídání.",watchNoteStamp:"Hraje se {d}",watchStamped:"Termín zapsán do oblasti.",watchSrcArea:"Hlídač: výchozí zdroj adres",watchSrcNone:"— žádná —",watchEmail:"Hlídač: e-mail pro upozornění",watchNoneFound:"Nic nenašel.",watchFoundOne:"Našel! Podívej se nahoru.",watchNeedPhrase:"Vyplň co hledat a aspoň jednu adresu.",watchQuiet:"Upozornění nejsou nastavená — nálezy uvidíš jen tady v panelu.",lendBtn:"Věci",moneyBtn:"Peníze",lendTitle:"Půjčené věci",lendOut:"Půjčeno ode mě",lendIn:"Půjčeno mně",lendWhoOut:"Komu",lendWhoIn:"Od koho",lendItem:"Co (kniha, věc…)",lendAdd:"+ Přidat",lendReturned:"Vráceno",lendEmpty:"Zatím nic.",lendDelAsk:"Smazat tento záznam?",
+  moneyTitle:"Půjčené peníze",moneyBase:"Měna souhrnu",moneyRates:"kurzy k",moneyNoRates:"kurzy se nepodařilo načíst",moneyWho:"Jméno",moneyAmount:"Částka",moneyLent:"půjčeno ode mě (dluží mi)",moneyBorrowed:"půjčeno mně (dlužím)",moneyNote:"Poznámka (volitelně)",moneyAdd:"+ Přidat",moneySettle:"Vyrovnáno",moneyDelAsk:"Smazat tento záznam?",moneyEmpty:"Zatím žádné záznamy.",moneyOwesYou:"dluží ti",moneyYouOwe:"dlužíš",moneyEven:"vyrovnáno",
+  setTz:"Časové pásmo",setLang:"Jazyk",setDaily:"Denní úklid hotových úkolů (6:00)",setRet:"Mazat „Hotovo“",weekly:"týdně",monthly:"měsíčně",never:"nikdy",setSep:"Oddělovač autora citátu",
+  trashTitle:"Koš (30 dní)",restore:"obnovit",emptyTrash:"Vysypat koš",trashEmpty:"Koš je prázdný.",
+  pName:"Název:",pAreaType:"Typ – napiš 'odkazy' nebo 'text':",pUrl:"URL odkazu:",pItem:"Text položky:",pTitle:"Název (volitelně):",pNote:"Poznámka (volitelně):",
+  pBlockName:"Název bloku:",pBlockKind:"Typ – napiš 'cyklus' (opakuje se) nebo 'datum' (do data):",pCycle:"Délka cyklu, např. '1 týden', '14 dní', '1 měsíc':",pDate:"Datum (RRRR-MM-DD):",pGoal:"Co chceš zvládnout:",pDoneAdd:"Co se povedlo:",pTaskAdd:"Úkol / poznámka:",pEditU:"URL:",
+  cycleEvery:"každých ",unitDay:"dní",unitWeek:"týd.",unitMonth:"měs.",dl:"do",past:"po termínu",editDl:"Termín (RRRR-MM-DD, prázdné = zrušit):",clearDl:"Zrušit termín",addDl:"+ termín",clearDlAsk:"Zrušit termín u tohoto bloku?",dleft:" d",hleft:" h",hangs:"visí ",
+  nbTitle:"Nový blok",fName:"Název",editTxt:"Upravit text",fNote:"Popisek",fType:"Typ",fCycleLen:"Délka cyklu",fDate:"Datum",fRet:"Mazat „Hotovo“",fColor:"Barva",fCreate:"Vytvořit blok",fCancel:"Zrušit",optCycle:"Cyklický (opakuje se)",optDeadline:"Do data",unitDays:"dní",unitWeeks:"týdnů",unitMonths:"měsíců",blockRet:"mazat:",optLinks:"Odkazy",optText:"Text (knihy, nápady…)",naTitle:"Nová oblast",tzSearchPh:"Hledat město…",tzCurrent:"Vybráno",bookBtn:"Knihy",bookTitle:"Najít knihu",fAuthor:"Autorka / autor",fLang:"Jazyk",fFormat:"Formát",bookGo:"Hledat",bookSearching:"Hledám…",bookNone:"Nic nenalezeno.",pd:"volné dílo",openSrc:"Zdroj",borrow:"Půjčit",insLink:"Vložit do oblasti",saveR2:"Uložit soubor do appky",saving:"Ukládám…",featBook:"Hledání knih (čtecí oblast)",setAreaScroll:"Vypnout scroll bar v oblastech",setUnify:"Sjednotit mřížku (kompaktní)",setHiddenPos:"Schované oblasti",optTop:"nahoře",optSide:"na boku",hideArea:"Schovat oblast",showArea:"Zobrazit oblast",minAreas:"Sbalit oblasti",expandAreas:"Rozbalit oblasti",resetSize:"Výchozí velikost",resize:"Táhni pro změnu velikosti",anyLang:"libovolný",bookInto:"Vložit do:",bookBatch:"Hromadně (víc knih)",bookBatchPh:"Jeden název na řádek, volitelně: Název | Autor",bookBatchGo:"Najít a vložit vše",bookBatchDone:"Hotovo: ",
+  calBtn:"Kalendář",calTitle:"Google Kalendář",calLockMsg:"Zadej PIN pro přístup ke kalendáři.",calPinPh:"PIN ke kalendáři",calUnlock:"Odemknout",calBadPin:"Špatný PIN, nebo kalendář ještě není nastavený (viz README).",calConnect:"Připojit Google Kalendář",calDisconnect:"Odpojit",calConnected:"Připojeno ✓",calNotConn:"Kalendář není připojený.",calReauth:"Spojení vypršelo – připoj kalendář znovu.",calLoading:"Načítám…",calNoEvents:"Žádné události v nejbližších 14 dnech.",calNew:"+ Nová událost",calSummary:"Název",calAllDay:"Celý den",calDate:"Datum",calDateEnd:"Konec (datum)",calStart:"Začátek",calEnd:"Konec",calSave:"Uložit",calCancel:"Zrušit",calEdit:"Upravit",calDel:"Smazat",calRange:"příštích 14 dní",calRefresh:"Obnovit",calOpenG:"Otevřít",calSaving:"Ukládám…",calDelConfirm:"Smazat tuto událost z Google Kalendáře?",calMonth:"Měsíc",calWeek:"Týden",calList:"Seznam",calToday:"Dnes",calDesc:"Popis",calForgetPin:"Odhlásit PIN",calWeekStart:"Týden od",calMonShort:"Po",calSunShort:"Ne",calColor:"Barva",calColorCustom:"vlastní",calColors:"Barvy",calColTimed:"Hodinové",calColAllDay:"Celodenní",calColMulti:"Vícedenní",calColPush:"Propisovat barvy do Googlu",calColRules:"Pravidla podle slov",calColAddRule:"+ Pravidlo",calColKw:"slovo v názvu/popisu",calSaveColors:"Uložit barvy",calColNote:"Pozn.: do Googlu jde jen 11 pevných barev – vybere se nejbližší. V appce vidíš přesný odstín.",
+  shareBtn:"Sdílení",shareTitle:"Sdílení výřezu",shareNew:"+ Nové sdílení",shareLabel:"Název (jen pro tebe)",shareAreas:"Oblasti",shareBlocks:"Cíle (bloky)",shareTasks:"Úkoly",shareTypeText:"text",shareTypeLinks:"odkazy",shareMode:"Režim",shareModeObscure:"Veřejné přes odkaz",shareModePrivate:"Soukromé (heslo)",sharePass:"Heslo pro příjemce",shareAccess:"Přístup",shareAccessRead:"Jen ke čtení",shareAccessEdit:"I k úpravám",shareWarnEdit:"Pozor: kdo má tenhle odkaz (a u soukromého i heslo), může tvá vybraná data i MĚNIT a mazat. U úprav silně doporučujeme soukromý režim s heslem.",shareEditBadge:"✎ úpravy",shareExpiry:"Platnost",shareNever:"Bez konce",shareExp24:"24 hodin",shareExp7:"7 dní",shareExp30:"30 dní",shareNotify:"Upozornit před vypršením (push)",shareCreate:"Vytvořit odkaz",shareCancel:"Zrušit",shareWarnObscure:"Odkaz uvidí každý, kdo ho má. Adresa je náhodná a neuhádnutelná – dokud ji nikomu nepošleš, nikdo ji nenajde.",shareWarnPrivate:"Příjemce bude potřebovat odkaz i heslo. Heslo pošli jinou cestou než odkaz. (Appka nemá účty – soukromí tu drží heslo u odkazu.)",shareCopy:"Kopírovat",shareSend:"Sdílet…",shareMail:"E-mailem",shareCopied:"Zkopírováno ✓",shareNone:"Zatím žádná sdílení.",shareExpires:"Platí do",shareExtend:"Prodloužit",shareLink:"Odkaz",shareRevokeConfirm:"Opravdu zrušit tento sdílený odkaz?",shareMustPick:"Vyber aspoň jednu věc ke sdílení.",shareMustPass:"Zadej heslo pro soukromé sdílení.",shareHasPass:"🔒 heslo",shareExpiredTxt:"prošlé",shareMailSubject:"Sdílím s tebou",faqBtn:"FAQ",faqTitle:"Časté otázky",
+  cfLink:"Můj Cloudflare",setTitle:"Název stránky",dangerZone:"Nebezpečná zóna",wipeAll:"Smazat všechna data",wipeAllDesc:"Trvale a nevratně smaže celou desku, úkoly, cíle, citáty, koš, sdílení i data cyklu.",wipeAsk:"Tohle NEVRATNĚ smaže všechna tvá data. Pokračovat?",wipeType:"Pro potvrzení napiš",wipeWord:"SMAZAT",wipeDone:"Smazáno.",wipeCycle:"Smazat jen data cyklu",wipeCycleAsk:"Smazat všechna data o cyklu? Nevratné.",
+  footer:"Data běží na tvém Cloudflare Workeru a synchronizují se mezi telefonem i webem. Úklid v 6:00 a odpočty jedou podle tvého časového pásma."},
+ en:{eyebrow:"PERSONAL ARCHIVE",checkAll:"Check all",checking:"Checking…",settings:"Settings",trash:"Trash",
+  ok:"ok",broken:"broken",unknown:"unchecked",lastCheck:"last checked ",noCheck:"not checked yet",
+  search:"Search links…",onlyBroken:"broken only",quotesBtn:"✎ quotes",myQuotes:"My quotes",bulkPh:"Paste quotes, one per line…",
+  bulkAuthor:"Author (optional, for whole list)",addQuotes:"Add quotes",noQuotes:"No quotes yet.",
+  blocksTitle:"Goals & periods",addBlock:"+ New block",want:"Want to do",doing:"Doing",toDoing:"Start (to Doing)",toWant:"Back to Want",done:"Done",addGoal:"+ Add goal",addDone:"+ Add done",clearDone:"clear",
+  inbox:"To process",file:"File",toTasks:"To tasks",newArea:"New area",createArea:"+ Create area",addLink:"+ Add link",addItem:"+ Add item",emptyArea:"Empty",
+  tasks:"Tasks & notes",addTask:"+ Add task",sortDue:"Sort by deadline",sortManual:"Manual order",dailyNote:"Done tasks at 6:00:",move:"move to done",del:"delete",applyNow:"do now",
+  quickTaskPh:"Quick task…",watchDates:"Dates",watchTickets:"Tickets",watchCalHere:"Add to calendar here",watchCalGoogle:"Add to Google Calendar",watchCalOk:"Added to your calendar.",watchCalPin:"Open the Calendar panel and unlock it with your PIN first.",watchCalErr:"Could not add it to the calendar.",watchAllDay:"all day",watchBtn:"Watcher",watchTitle:"Page watcher",watchNew:"New watch",watchName:"Name (for you)",watchPhrase:"What to look for",watchUrls:"Where to look — one address per line",watchUrlsShort:"addresses",watchEvery:"How often",watchDaily:"daily",watchWeekly:"weekly",watchMonthly:"monthly",watchDeep:"Also look one level deeper",watchDeepShort:"deep",watchAdd:"+ Add watch",watchEmpty:"Nothing watched yet.",watchRunNow:"Check now",watchChecking:"Checking…",watchPause:"Pause",watchResume:"Resume",watchDelAsk:"Delete this watch?",watchLast:"Last run",watchNever:"never yet",watchPages:"pages",watchHitsTitle:"Findings to confirm",watchAsk:"Is this what you were looking for?",watchYes:"Yes, that is it",watchNo:"No, not this",watchAfter:"After confirming",watchSleep:"pause the watch",watchDelete:"delete the watch",watchKeep:"keep watching",faqMore:"In detail",watchEditBtn:"Edit",watchSave:"Save changes",watchCancel:"Cancel",watchEditTitle:"Editing a watch",watchFromLink:"Watch for performances",watchAlready:"Already watched — open the Watcher",watchMadeFromLink:"Created the watch \u201e{p}\u201c. It looks at this item's address once a week. In the Watcher you can edit the phrase, add more addresses or change the interval.",watchLinkArea:"Link to an area",watchLinkNone:"— don't link —",watchLinked:"Linked to area",watchLinkedNote:"The date you pick is written into this item's note, and the item deletes itself to the Trash once the date has passed.",watchLinkNoMatch:"No item in {a} has a name matching this watch.",watchNoteStamp:"Playing {d}",watchStamped:"Date written into the area.",watchSrcArea:"Watcher: default source of addresses",watchSrcNone:"— none —",watchEmail:"Watcher: e-mail for alerts",watchNoneFound:"Found nothing.",watchFoundOne:"Found something! See above.",watchNeedPhrase:"Fill in what to look for and at least one address.",watchQuiet:"Alerts are not configured — findings will only show up here in the panel.",lendBtn:"Items",moneyBtn:"Money",lendTitle:"Borrowed & lent items",lendOut:"Lent by me",lendIn:"Lent to me",lendWhoOut:"To whom",lendWhoIn:"From whom",lendItem:"What (book, item…)",lendAdd:"+ Add",lendReturned:"Returned",lendEmpty:"Nothing yet.",lendDelAsk:"Delete this record?",
+  moneyTitle:"Money owed",moneyBase:"Summary currency",moneyRates:"rates as of",moneyNoRates:"couldn't load rates",moneyWho:"Name",moneyAmount:"Amount",moneyLent:"I lent (they owe me)",moneyBorrowed:"I borrowed (I owe)",moneyNote:"Note (optional)",moneyAdd:"+ Add",moneySettle:"Settled",moneyDelAsk:"Delete this record?",moneyEmpty:"No records yet.",moneyOwesYou:"owes you",moneyYouOwe:"you owe",moneyEven:"even",
+  setTz:"Time zone",setLang:"Language",setDaily:"Daily cleanup of done tasks (6:00)",setRet:"Clear “Done”",weekly:"weekly",monthly:"monthly",never:"never",setSep:"Quote author separator",
+  trashTitle:"Trash (30 days)",restore:"restore",emptyTrash:"Empty trash",trashEmpty:"Trash is empty.",
+  pName:"Name:",pAreaType:"Type – write 'links' or 'text':",pUrl:"Link URL:",pItem:"Item text:",pTitle:"Title (optional):",pNote:"Note (optional):",
+  pBlockName:"Block name:",pBlockKind:"Type – write 'cycle' (repeats) or 'date' (deadline):",pCycle:"Cycle length, e.g. '1 week', '14 days', '1 month':",pDate:"Date (YYYY-MM-DD):",pGoal:"What do you want to do:",pDoneAdd:"What got done:",pTaskAdd:"Task / note:",pEditU:"URL:",
+  cycleEvery:"every ",unitDay:"days",unitWeek:"wk",unitMonth:"mo",dl:"due",past:"overdue",editDl:"Deadline (YYYY-MM-DD, empty = remove):",clearDl:"Remove deadline",addDl:"+ deadline",clearDlAsk:"Remove the deadline from this block?",dleft:" d",hleft:" h",hangs:"carried ",
+  nbTitle:"New block",fName:"Name",editTxt:"Edit text",fNote:"Description",fType:"Type",fCycleLen:"Cycle length",fDate:"Date",fRet:"Clear “Done”",fColor:"Color",fCreate:"Create block",fCancel:"Cancel",optCycle:"Cyclic (repeats)",optDeadline:"Deadline",unitDays:"days",unitWeeks:"weeks",unitMonths:"months",blockRet:"clear:",optLinks:"Links",optText:"Text (books, ideas…)",naTitle:"New area",tzSearchPh:"Search city…",tzCurrent:"Selected",bookBtn:"Books",bookTitle:"Find a book",fAuthor:"Author",fLang:"Language",fFormat:"Format",bookGo:"Search",bookSearching:"Searching…",bookNone:"Nothing found.",pd:"public domain",openSrc:"Source",borrow:"Borrow",insLink:"Add to area",saveR2:"Save file to app",saving:"Saving…",featBook:"Book search (reading area)",setAreaScroll:"Turn off scrollbar in areas",setUnify:"Unify grid (compact)",setHiddenPos:"Hidden areas",optTop:"top",optSide:"side",hideArea:"Hide area",showArea:"Show area",minAreas:"Minimize areas",expandAreas:"Expand areas",resetSize:"Reset size",resize:"Drag to resize",anyLang:"any",bookInto:"Add to:",bookBatch:"Batch (many books)",bookBatchPh:"One title per line, optional: Title | Author",bookBatchGo:"Find & add all",bookBatchDone:"Done: ",
+  calBtn:"Calendar",calTitle:"Google Calendar",calLockMsg:"Enter PIN to access the calendar.",calPinPh:"Calendar PIN",calUnlock:"Unlock",calBadPin:"Wrong PIN, or the calendar isn't set up yet (see README).",calConnect:"Connect Google Calendar",calDisconnect:"Disconnect",calConnected:"Connected ✓",calNotConn:"Calendar not connected.",calReauth:"Connection expired – reconnect the calendar.",calLoading:"Loading…",calNoEvents:"No events in the next 14 days.",calNew:"+ New event",calSummary:"Title",calAllDay:"All day",calDate:"Date",calDateEnd:"End (date)",calStart:"Start",calEnd:"End",calSave:"Save",calCancel:"Cancel",calEdit:"Edit",calDel:"Delete",calRange:"next 14 days",calRefresh:"Refresh",calOpenG:"Open",calSaving:"Saving…",calDelConfirm:"Delete this event from Google Calendar?",calMonth:"Month",calWeek:"Week",calList:"List",calToday:"Today",calDesc:"Description",calForgetPin:"Forget PIN",calWeekStart:"Week from",calMonShort:"Mon",calSunShort:"Sun",calColor:"Color",calColorCustom:"custom",calColors:"Colors",calColTimed:"Timed",calColAllDay:"All-day",calColMulti:"Multi-day",calColPush:"Push colors to Google",calColRules:"Keyword rules",calColAddRule:"+ Rule",calColKw:"word in title/description",calSaveColors:"Save colors",calColNote:"Note: Google supports only 11 fixed colors – the nearest is used. The app shows the exact shade.",
+  shareBtn:"Sharing",shareTitle:"Share a selection",shareNew:"+ New share",shareLabel:"Label (for you only)",shareAreas:"Areas",shareBlocks:"Goals (blocks)",shareTasks:"Tasks",shareTypeText:"text",shareTypeLinks:"links",shareMode:"Mode",shareModeObscure:"Public via link",shareModePrivate:"Private (password)",sharePass:"Password for the recipient",shareAccess:"Access",shareAccessRead:"Read only",shareAccessEdit:"Allow editing",shareWarnEdit:"Heads up: anyone with this link (and the password, if private) can also CHANGE and delete your selected data. For editing we strongly recommend private mode with a password.",shareEditBadge:"✎ edit",shareExpiry:"Validity",shareNever:"No end",shareExp24:"24 hours",shareExp7:"7 days",shareExp30:"30 days",shareNotify:"Notify before expiry (push)",shareCreate:"Create link",shareCancel:"Cancel",shareWarnObscure:"Anyone with the link can see it. The address is random and unguessable – until you send it to someone, no one will find it.",shareWarnPrivate:"The recipient needs both the link and the password. Send the password via a different channel than the link. (No accounts here – privacy is the password on the link.)",shareCopy:"Copy",shareSend:"Share…",shareMail:"Email",shareCopied:"Copied ✓",shareNone:"No shares yet.",shareExpires:"Valid until",shareExtend:"Extend",shareLink:"Link",shareRevokeConfirm:"Really revoke this shared link?",shareMustPick:"Pick at least one thing to share.",shareMustPass:"Enter a password for a private share.",shareHasPass:"🔒 password",shareExpiredTxt:"expired",shareMailSubject:"Sharing with you",faqBtn:"FAQ",faqTitle:"FAQ",
+  cfLink:"My Cloudflare",setTitle:"Page title",dangerZone:"Danger zone",wipeAll:"Delete all data",wipeAllDesc:"Permanently and irreversibly wipes the whole board, tasks, goals, quotes, trash, shares and cycle data.",wipeAsk:"This will IRREVERSIBLY delete all your data. Continue?",wipeType:"To confirm, type",wipeWord:"DELETE",wipeDone:"Deleted.",wipeCycle:"Delete cycle data only",wipeCycleAsk:"Delete all cycle data? This is irreversible.",
+  footer:"Data runs on your Cloudflare Worker and syncs between phone and web. The 6:00 cleanup and countdowns follow your time zone."}
+};
+let L=DICT.cs;
+
+/* ---------- state ---------- */
+let state={board:{},inbox:[]}, saveTimer=null, drag=null, editing=null, skipCommit=false;
+let calState={pin:"",unlocked:false,connected:false,events:[],editId:null,creating:false,createDate:null,loading:false,err:"",view:"month",cursor:new Date()};
+let calCycleMap=null;
+function cycleOverlayOn(){const s=state.board.settings;return !!(s&&s.cycleCfg&&s.cycleCfg.overlay);}
+let shareState={list:[],creating:false,created:null,extendToken:null};
+const $=(id)=>document.getElementById(id);
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
+function normUrl(u){u=(u||"").trim();if(!u)return"";if(!/^https?:\/\//i.test(u))u="https://"+u;return u;}
+function host(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch{return u||"";}}
+function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function rel(ts){if(!ts)return"–";const s=(Date.now()-ts)/1000;if(s<50)return"teď";const m=s/60;if(m<60)return Math.floor(m)+" min";const h=m/60;if(h<24)return Math.floor(h)+" h";return Math.floor(h/24)+" d";}
+function ring(st){return st==="ok"?"var(--ok)":st==="broken"?"var(--broken)":st==="unknown"?"var(--unknown)":"var(--line)";}
+const tzGuess=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone;}catch{return"Europe/Prague";}};
+const TZ_CITIES=[["Pacific/Midway","Midway"],["Pacific/Honolulu","Honolulu"],["America/Anchorage","Anchorage"],["America/Los_Angeles","Los Angeles"],["America/Vancouver","Vancouver"],["America/Denver","Denver"],["America/Phoenix","Phoenix"],["America/Chicago","Chicago"],["America/Mexico_City","Mexico City"],["America/New_York","New York"],["America/Toronto","Toronto"],["America/Bogota","Bogotá"],["America/Halifax","Halifax"],["America/St_Johns","St. John's"],["America/Sao_Paulo","São Paulo"],["America/Argentina/Buenos_Aires","Buenos Aires"],["Atlantic/South_Georgia","South Georgia"],["Atlantic/Azores","Azores"],["Atlantic/Cape_Verde","Cape Verde"],["UTC","UTC"],["Europe/London","London"],["Europe/Lisbon","Lisbon"],["Africa/Casablanca","Casablanca"],["Europe/Prague","Prague"],["Europe/Paris","Paris"],["Europe/Berlin","Berlin"],["Europe/Madrid","Madrid"],["Europe/Rome","Rome"],["Europe/Stockholm","Stockholm"],["Europe/Warsaw","Warsaw"],["Africa/Lagos","Lagos"],["Europe/Athens","Athens"],["Europe/Helsinki","Helsinki"],["Europe/Kyiv","Kyiv"],["Europe/Bucharest","Bucharest"],["Africa/Cairo","Cairo"],["Africa/Johannesburg","Cape Town"],["Europe/Istanbul","Istanbul"],["Europe/Moscow","Moscow"],["Africa/Nairobi","Nairobi"],["Asia/Riyadh","Riyadh"],["Asia/Tehran","Tehran"],["Asia/Dubai","Dubai"],["Asia/Baku","Baku"],["Asia/Kabul","Kabul"],["Asia/Karachi","Karachi"],["Asia/Tashkent","Tashkent"],["Asia/Kolkata","Mumbai"],["Asia/Kathmandu","Kathmandu"],["Asia/Dhaka","Dhaka"],["Asia/Almaty","Almaty"],["Asia/Yangon","Yangon"],["Asia/Bangkok","Bangkok"],["Asia/Jakarta","Jakarta"],["Asia/Shanghai","Shanghai"],["Asia/Hong_Kong","Hong Kong"],["Asia/Singapore","Singapore"],["Asia/Taipei","Taipei"],["Australia/Perth","Perth"],["Asia/Tokyo","Tokyo"],["Asia/Seoul","Seoul"],["Australia/Darwin","Darwin"],["Australia/Adelaide","Adelaide"],["Australia/Sydney","Sydney"],["Australia/Brisbane","Brisbane"],["Pacific/Guadalcanal","Honiara"],["Pacific/Noumea","Nouméa"],["Pacific/Auckland","Auckland"],["Pacific/Fiji","Suva"],["Pacific/Tongatapu","Nukuʻalofa"],["Pacific/Kiritimati","Kiritimati"]];
+function tzOffsetLabel(tz){try{const f=new Intl.DateTimeFormat("en-US",{timeZone:tz,timeZoneName:"shortOffset"});const p=f.formatToParts(new Date()).find(x=>x.type==="timeZoneName");if(p)return p.value.replace("GMT","UTC").replace(/^UTC$/,"UTC+0");}catch(e){}return "";}
+function cityOf(tz){const m=TZ_CITIES.find(([z])=>z===tz);return m?m[1]:tz;}
+let tzQuery="";
+
+function local(ts,tz){let p={};try{const f=new Intl.DateTimeFormat("en-GB",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit",weekday:"long"});for(const x of f.formatToParts(new Date(ts)))p[x.type]=x.value;}catch{const d=new Date(ts);p={year:d.getFullYear(),month:d.getMonth()+1,day:d.getDate(),weekday:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][d.getDay()]};}
+  const y=+p.year,m=+p.month,d=+p.day,wd={Monday:0,Tuesday:1,Wednesday:2,Thursday:3,Friday:4,Saturday:5,Sunday:6}[p.weekday];
+  const dayIndex=Math.floor(Date.UTC(y,m-1,d)/86400000);return{y,m,d,wd,dayIndex,weekIndex:Math.floor((dayIndex-wd)/7),monthIndex:y*12+(m-1)};}
+function periodsHanging(goal,block,tz){const a=local(goal.addedAt||Date.now(),tz),n=local(Date.now(),tz);const N=block.cycleN||1;
+  if(block.cycleUnit==="week")return Math.max(0,Math.floor((n.weekIndex-a.weekIndex)/N));
+  if(block.cycleUnit==="month")return Math.max(0,Math.floor((n.monthIndex-a.monthIndex)/N));
+  return Math.max(0,Math.floor((n.dayIndex-a.dayIndex)/N));}
+function dlFromInput(s){if(!s)return NaN;const d=new Date(s+"T00:00:00");if(isNaN(d.getTime()))return NaN;d.setDate(d.getDate()+1);return d.getTime();}
+function dlToInput(ms){if(!ms||isNaN(ms))return "";const d=new Date(ms-1),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
+function countdown(deadline){const ms=deadline-Date.now(),past=ms<0,abs=Math.abs(ms),h=abs/3600000;
+  if(h<48)return{past,text:(past?"-":"")+Math.max(0,Math.round(h))+L.hleft};return{past,text:(past?"-":"")+Math.round(h/24)+L.dleft};}
+
+/* ---------- api ---------- */
+async function api(path,opts={}){const r=await fetch(path,{...opts,headers:{"content-type":"application/json",...(opts.headers||{})}});return r.json();}
+let lastBoardStr="";
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{const body=JSON.stringify(state);lastBoardStr=JSON.stringify(state.board);api("/api/state",{method:"PUT",body}).finally(()=>{saveTimer=null;});},400);}
+function saveNow(){clearTimeout(saveTimer);saveTimer=null;const body=JSON.stringify(state);lastBoardStr=JSON.stringify(state.board);return api("/api/state",{method:"PUT",body});}
+const tz=()=>state.board.settings.tz||"Europe/Prague";
+
+/* ---------- kurzy měn + půjčování ---------- */
+const CURRENCIES=["CZK","EUR","USD","GBP","PLN"];
+let fxRates=null,fxDay="";
+async function ensureFx(){if(fxRates)return;try{const r=await api("/api/fx");if(r&&r.rates){fxRates=r.rates;fxDay=r.day||"";}}catch(e){}}
+function conv(amount,cur,base){if(cur===base)return amount;if(!fxRates)return null;const rc=fxRates[cur],rb=fxRates[base];if(!rc||!rb)return null;return amount*rb/rc;}
+function money(n,cur){const v=Math.round((n||0)*100)/100;return v.toLocaleString(L===DICT.en?"en":"cs",{minimumFractionDigits:0,maximumFractionDigits:2})+" "+cur;}
+
+function renderLend(){const p=$("lendPanel");if(!p)return;const lo=state.board.loans||{out:[],in:[]};
+  const sec=(title,arr,dir,whoPh)=>{
+    const rows=arr.length?arr.map(it=>`<div class="row lend-row ${it.returned?"ret":""}"><span class="t" style="font-size:13.5px;flex:1;min-width:0"><b>${esc(it.who)}</b> · ${esc(it.item)}${it.date?` <span class="when">· ${esc(it.date)}</span>`:""}</span><button class="icon good" data-act="lend-ret" data-dir="${dir}" data-id="${it.id}" title="${L.lendReturned}">✓</button><button class="icon danger" data-act="lend-del" data-dir="${dir}" data-id="${it.id}">×</button></div>`).join(""):`<div class="empty">${L.lendEmpty}</div>`;
+    return `<div class="block" style="border-left:5px solid var(--teal);padding:12px;margin-top:12px"><b style="color:var(--teal)">${title}</b><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0"><input type="text" data-lf="who-${dir}" placeholder="${whoPh}" style="flex:1;min-width:100px"/><input type="text" data-lf="item-${dir}" placeholder="${L.lendItem}" style="flex:2;min-width:130px"/><input type="date" data-lf="date-${dir}" style="min-width:130px"/><button class="btn primary" data-act="lend-add" data-dir="${dir}">${L.lendAdd}</button></div>${rows}</div>`;};
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="lendPanel" style="float:right;font-size:16px">×</button>`;
+  p.innerHTML=`<h3>${L.lendTitle} ${close}</h3>${sec(L.lendOut,lo.out,"out",L.lendWhoOut)}${sec(L.lendIn,lo.in,"in",L.lendWhoIn)}`;}
+
+function renderMoney(){const p=$("moneyPanel");if(!p)return;const base=state.board.settings.baseCur||"CZK";const ds=state.board.debts||[];
+  const people={};
+  ds.forEach(d=>{const k=(d.who||"").trim().toLowerCase()||"—";if(!people[k])people[k]={who:d.who||"—",net:0,items:[],unconv:false};const c=conv(d.amount,d.cur,base);if(!d.settled){if(c==null)people[k].unconv=true;else people[k].net+=(d.dir==="lent"?1:-1)*c;}people[k].items.push(d);});
+  const curOpts=sel=>CURRENCIES.map(c=>`<option value="${c}" ${c===sel?"selected":""}>${c}</option>`).join("");
+  const baseSel=`<select data-act="money-base">${curOpts(base)}</select>`;
+  const fxNote=fxRates?`${L.moneyRates} ${esc(fxDay)}`:L.moneyNoRates;
+  const addForm=`<div class="block" style="border-left:5px solid var(--plum);padding:12px;margin-top:8px"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="text" data-mf="who" placeholder="${L.moneyWho}" style="flex:1;min-width:100px"/><input type="number" step="0.01" data-mf="amount" placeholder="${L.moneyAmount}" style="width:100px"/><select data-mf="cur">${curOpts(base)}</select><select data-mf="dir"><option value="lent">${L.moneyLent}</option><option value="borrowed">${L.moneyBorrowed}</option></select><input type="date" data-mf="date" style="min-width:130px"/><input type="text" data-mf="note" placeholder="${L.moneyNote}" style="flex:1;min-width:100px"/><button class="btn primary" data-act="money-add">${L.moneyAdd}</button></div></div>`;
+  const arr=Object.values(people).sort((a,b)=>Math.abs(b.net)-Math.abs(a.net));
+  const body=arr.length?arr.map(pp=>{const pos=pp.net>=0;const even=Math.abs(pp.net)<0.005&&!pp.unconv;const netTxt=(pp.unconv?"≈ ":"")+money(Math.abs(pp.net),base);const label=even?L.moneyEven:(pos?L.moneyOwesYou:L.moneyYouOwe);
+    const items=pp.items.map(d=>{const c=conv(d.amount,d.cur,base);const cv=(c!=null&&d.cur!==base)?` <span class="when">(≈ ${money(c,base)})</span>`:"";return `<div class="row ${d.settled?"ret":""}"><span class="t" style="font-size:13px;flex:1;min-width:0">${d.dir==="lent"?"→":"←"} ${money(d.amount,d.cur)}${cv}${d.date?` <span class="when">· ${esc(d.date)}</span>`:""}${d.note?` · ${esc(d.note)}`:""}</span><button class="icon good" data-act="money-settle" data-id="${d.id}" title="${L.moneySettle}">✓</button><button class="icon danger" data-act="money-del" data-id="${d.id}">×</button></div>`;}).join("");
+    return `<div class="block" style="border-left:5px solid ${even?"var(--muted)":(pos?"var(--teal)":"var(--broken)")};padding:10px;margin-top:10px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>${esc(pp.who)}</b><span style="color:${even?"var(--muted)":(pos?"var(--teal)":"var(--broken)")};font-weight:600">${label}${even?"":": "+netTxt}</span></div>${items}</div>`;}).join(""):`<div class="empty">${L.moneyEmpty}</div>`;
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="moneyPanel" style="float:right;font-size:16px">×</button>`;
+  p.innerHTML=`<h3>${L.moneyTitle} ${close}</h3><div class="set-row"><span>${L.moneyBase}</span><span>${baseSel} <span class="when" style="margin-left:6px">${fxNote}</span></span></div>${addForm}${body}`;}
+
+/* ---------- citáty (nezávislé na render) ---------- */
+function setQuote(){const el=$("quote"),q=state.board.quotes||[];if(!q.length){el.textContent="";return;}const it=q[Math.floor(Math.random()*q.length)];
+  el.style.opacity=0;setTimeout(()=>{el.innerHTML="„"+esc(it.text)+"\u201C"+(it.author?` <span class="q-author">— ${esc(it.author)}</span>`:"");el.style.opacity=1;},180);}
+
+/* ---------- trash helper ---------- */
+function toTrash(kind,label,payload){state.board.trash=state.board.trash||[];state.board.trash.unshift({id:uid(),kind,label,payload,deletedAt:Date.now()});}
+
+/* ---------- render ---------- */
+function applyLang(){L=DICT[state.board.settings.lang==="en"?"en":"cs"];document.documentElement.lang=state.board.settings.lang==="en"?"en":"cs";
+  $("eyebrow").textContent=L.eyebrow;$("setBtn").textContent=L.settings;$("trashBtn").textContent=L.trash;$("qBtn").textContent=L.quotesBtn;
+  $("qTitle").textContent=L.myQuotes;$("bulkQuotes").placeholder=L.bulkPh;$("bulkAuthor").placeholder=L.bulkAuthor;$("addQuotesBtn").textContent=L.addQuotes;
+  $("search").placeholder=L.search;$("obLabel").textContent=L.onlyBroken;$("blocksTitle").textContent=L.blocksTitle;$("addBlockBtn").textContent=L.addBlock;
+  const ttl=(state.board.settings.title||"").trim()||"Rozcestník";$("pageTitle").textContent=ttl;document.title=ttl;
+  $("footer").innerHTML=esc(L.footer)+' · <a href="https://dash.cloudflare.com" target="_blank" rel="noreferrer">'+esc(L.cfLink)+'</a>';
+  const bb=$("bookHeaderBtn");if(bb){bb.textContent=L.bookBtn;const f=state.board.settings.features;bb.style.display=(f&&f.book===false)?"none":"";}
+  const cb=$("calHeaderBtn");if(cb)cb.textContent=L.calBtn;
+  const shb=$("shareHeaderBtn");if(shb)shb.textContent=L.shareBtn;
+  const fqb=$("faqHeaderBtn");if(fqb)fqb.textContent=L.faqBtn;
+  const cyb=$("cycleHeaderBtn");if(cyb)cyb.textContent=cycT().title;
+  const lhb=$("lendHeaderBtn");if(lhb)lhb.textContent=L.lendBtn;
+  const mhb=$("moneyHeaderBtn");if(mhb)mhb.textContent=L.moneyBtn;
+  const whb=$("watchHeaderBtn");if(whb)whb.textContent=L.watchBtn;
+  const qti=$("quickTaskInput");if(qti)qti.placeholder=L.quickTaskPh;}
+
+function counts(){const c={ok:0,broken:0,unknown:0};state.board.areas.forEach(a=>{if(a.type==="text")return;a.links.forEach(l=>{if(!l.url)return;c[l.status==="ok"?"ok":l.status==="broken"?"broken":"unknown"]++;});});return c;}
+function matches(l){if($("onlyBroken").checked&&l.status!=="broken")return false;const q=$("search").value.trim().toLowerCase();if(!q)return true;return((l.title||l.text||"")+" "+(l.url||"")+" "+(l.note||"")).toLowerCase().includes(q);}
+function inp(key,val){return `<input class="edit-inp" data-editkey="${key}" value="${esc(val)}" autofocus />`;}
+
+function render(){
+  const c=counts();
+  $("health").innerHTML=`<span><i class="dot" style="background:var(--ok)"></i>${c.ok} ${L.ok}</span><span><i class="dot" style="background:var(--broken)"></i>${c.broken} ${L.broken}</span><span><i class="dot" style="background:var(--unknown)"></i>${c.unknown} ${L.unknown}</span>`;
+  $("lastcheck").textContent=state.board.meta&&state.board.meta.lastCheckedAll?L.lastCheck+rel(state.board.meta.lastCheckedAll):L.noCheck;
+  $("checkAll").textContent=L.checkAll;
+  renderQuotesList();renderBlocks();renderInbox();renderAreas();renderTasks();
+  if($("settingsPanel").style.display==="block")renderSettings();
+  if($("trashPanel").style.display==="block")renderTrash();
+}
+
+function renderQuotesList(){const q=state.board.quotes||[];
+  $("quotesList").innerHTML=q.length?q.map(it=>{const k="q:"+it.id;return `<div class="row">${editing===k?inp(k,it.text):`<span class="t" style="font-size:13.5px">„${esc(it.text)}"${it.author?` — ${esc(it.author)}`:""}</span>`}<span><button class="icon" data-act="edit-quote" data-id="${it.id}">✎</button><button class="icon danger" data-act="del-quote" data-id="${it.id}">×</button></span></div>`;}).join(""):`<div class="empty">${L.noQuotes}</div>`;}
+
+function renderBlocks(){
+  $("blocksEl").innerHTML=(state.board.blocks||[]).map(b=>{
+    let meta="",past=false;
+    if(b.kind==="deadline"){
+      if(b.deadline&&!isNaN(b.deadline)){const cd=countdown(b.deadline);past=cd.past;const ds=new Intl.DateTimeFormat(calLoc(),{day:"numeric",month:"short"}).format(new Date(b.deadline-1));meta=`<span class="countdown ${past?'past':''}">${past?L.past:L.dl} ${ds} · ${cd.text}</span><button class="icon" data-act="edit-deadline" data-id="${b.id}" title="${L.editDl}">✎</button><button class="icon danger" data-act="clear-deadline" data-id="${b.id}" title="${L.clearDl}">✕</button>`;}
+      else{meta=`<button class="linkbtn" data-act="edit-deadline" data-id="${b.id}">${L.addDl}</button>`;}
+    }
+    else{const u=b.cycleUnit==="week"?L.unitWeek:b.cycleUnit==="month"?L.unitMonth:L.unitDay;meta=`<span class="block-meta">${L.cycleEvery}${b.cycleN} ${u}</span>`;}
+    const goals=(b.goals||[]).map(g=>{const k="goal:"+b.id+":"+g.id;let badge="";if(b.kind==="cycle"){const p=periodsHanging(g,b,tz());if(p>0)badge=`<span class="badge" title="${L.hangs}${p}">+${p}</span>`;}
+      return `<div class="item">${editing===k?inp(k,g.text):`<span class="t">${esc(g.text)}</span>`}${badge}<button class="icon" data-act="goal-doing" data-blk="${b.id}" data-id="${g.id}" title="${L.toDoing}">▶</button><button class="icon good" data-act="goal-done" data-blk="${b.id}" data-id="${g.id}" title="✓">✓</button><button class="icon" data-act="edit-goal" data-blk="${b.id}" data-id="${g.id}">✎</button><button class="icon danger" data-act="del-goal" data-blk="${b.id}" data-id="${g.id}">×</button></div>`;}).join("")||`<div class="empty">—</div>`;
+    const doings=(b.doing||[]).map(g=>{const k="doing:"+b.id+":"+g.id;return `<div class="item"><div style="flex:1;min-width:0">${editing===k?inp(k,g.text):`<span class="t">${esc(g.text)}</span>`}${g.note?`<div class="note">${esc(g.note)}</div>`:""}</div><button class="icon" data-act="doing-back" data-blk="${b.id}" data-id="${g.id}" title="${L.toWant}">◀</button><button class="icon good" data-act="doing-done" data-blk="${b.id}" data-id="${g.id}" title="✓">✓</button><button class="icon" data-act="note-doing" data-blk="${b.id}" data-id="${g.id}" title="${L.fNote}">📝</button><button class="icon" data-act="edit-doing" data-blk="${b.id}" data-id="${g.id}">✎</button><button class="icon danger" data-act="del-doing" data-blk="${b.id}" data-id="${g.id}">×</button></div>`;}).join("")||`<div class="empty">—</div>`;
+    const dones=(b.done||[]).map(d=>{const k="done:"+b.id+":"+d.id;return `<div class="item done-i">${editing===k?inp(k,d.text):`<span class="t">${esc(d.text)}</span>`}<button class="icon" data-act="edit-done" data-blk="${b.id}" data-id="${d.id}">✎</button><button class="icon danger" data-act="del-done" data-blk="${b.id}" data-id="${d.id}">×</button></div>`;}).join("")||`<div class="empty">—</div>`;
+    const col=b.color||"#246A63";
+    const retSel=`<select class="bret" data-act="block-ret" data-id="${b.id}" title="${L.fRet}"><option value="week" ${b.doneRetention==="week"?"selected":""}>${L.weekly}</option><option value="month" ${b.doneRetention==="month"?"selected":""}>${L.monthly}</option><option value="never" ${(b.doneRetention||"never")==="never"?"selected":""}>${L.never}</option></select>`;
+    return `<div class="block ${past?'past':''} ${b.collapsed?'collapsed':''}" data-block-id="${b.id}" style="border-left:5px solid ${col}">
+      <div class="block-head"><span class="block-title" style="color:${col}"><span class="bgrip" draggable="true" data-grip="${b.id}" title="↕">⠿</span><button class="caret" data-act="toggle-block" data-id="${b.id}">${b.collapsed?'▸':'▾'}</button>${esc(b.name)} <span class="block-meta" style="color:var(--muted)">${meta}</span></span>
+        <span style="display:flex;align-items:center;gap:2px"><input type="color" class="bcolor" data-act="block-color" data-id="${b.id}" value="${col}" title="${L.fColor}"/><button class="icon" data-act="rename-block" data-id="${b.id}">✎</button><button class="icon danger" data-act="del-block" data-id="${b.id}">🗑</button></span></div>
+      <div class="cols">
+        <div class="col"><div class="col-h">${L.want}</div>${goals}<button class="add" data-act="add-goal" data-id="${b.id}">${L.addGoal}</button></div>
+        <div class="col"><div class="col-h">${L.doing}</div>${doings}</div>
+        <div class="col col-done"><div class="col-h"><span>${L.done}</span><span style="display:flex;align-items:center;gap:4px"><span style="font-size:10px">${L.blockRet}</span>${retSel}<button class="icon" data-act="clear-done" data-id="${b.id}">${L.clearDone}</button></span></div><div class="donelist">${dones}</div><button class="add" data-act="add-done" data-id="${b.id}">${L.addDone}</button></div>
+      </div></div>`;
+  }).join("");
+  requestAnimationFrame(syncDoneHeights);
+}
+function syncDoneHeights(){
+  const mobile=window.innerWidth<=640;
+  document.querySelectorAll("#blocksEl .block").forEach(bl=>{
+    const cols=bl.querySelector(".cols");if(!cols)return;
+    const left=cols.children[0],right=cols.querySelector(".col-done");if(!left||!right)return;
+    if(mobile){right.style.height="";}else{right.style.height=Math.max(120,left.offsetHeight)+"px";}
+  });
+}
+
+function renderInbox(){const ib=$("inbox");if(!state.inbox.length){ib.style.display="none";return;}ib.style.display="block";
+  const opts=state.board.areas.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("");
+  ib.innerHTML=`<h2>${L.inbox} · ${state.inbox.length}</h2>`+state.inbox.map(it=>{const isLink=it.type==="link"||it.url;
+    const body=isLink?`<a href="${esc(it.url)}" target="_blank" rel="noreferrer">${esc(it.text||host(it.url))}</a>`:esc(it.text);
+    const action=isLink?`<select data-sel="${it.id}">${opts}</select><button class="btn" data-act="file-link" data-id="${it.id}">${L.file}</button>`:`<button class="btn" data-act="file-task" data-id="${it.id}">${L.toTasks}</button>`;
+    return `<div class="inbox-item"><span class="ix-type">${isLink?"link":"note"}</span><span class="ix-text">${body}</span>${action}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>`;}).join("");}
+
+function renderAreas(){
+  const visible=state.board.areas.filter(a=>!a.hidden), hiddenAreas=state.board.areas.filter(a=>a.hidden);
+  $("boardEl").className="board"+(state.board.settings.gridUnified?" unified":"");
+  $("boardEl").innerHTML=visible.map((a,ai)=>{
+    const isText=a.type==="text";
+    const items=a.links.map(l=>{
+      if(isText){const k="txt:"+a.id+":"+l.id;if(!matches(l))return"";const textHtml=editing===k?inp(k,l.text):`<span class="t" style="font-size:14px">${esc(l.text)}</span>`;return `<div class="item"><div style="flex:1;min-width:0">${textHtml}${l.note?`<div class="note">${esc(l.note)}</div>`:""}</div><button class="icon" data-act="edit-txt" data-area="${a.id}" data-id="${l.id}" title="${L.editTxt}">✎</button><button class="icon" data-act="note-txt" data-area="${a.id}" data-id="${l.id}" title="${L.fNote}">📝</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button></div>`;}
+      if(!matches(l))return"";const h=host(l.url),letter=(h[0]||"?").toUpperCase();
+      return `<div class="link" draggable="true" data-id="${l.id}" data-area="${a.id}"><div class="fav" style="box-shadow:0 0 0 2px ${ring(l.status)}"><img src="https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(h)}" onerror="this.replaceWith(document.createTextNode('${letter}'))"/></div>
+        <div style="flex:1;min-width:0"><a class="lk-title" href="${esc(l.url)}" target="_blank" rel="noreferrer">${esc(l.title||h)}</a><div class="lk-meta"><span class="host">${esc(h)}</span>${l.status==="broken"?`<span class="bd">${l.code||""}</span>`:""}${l.lastChecked?`<span class="when">· ${rel(l.lastChecked)}</span>`:""}</div>${l.note?`<div class="note">${esc(l.note)}</div>`:""}</div>
+        <div class="lk-tools">${(()=>{const w=watchForLink(a.id,l);return `<button class="icon${w?" good":""}" data-act="watch-from-link" data-area="${a.id}" data-id="${l.id}" title="${w?esc(L.watchAlready):esc(L.watchFromLink)}">👁</button>`;})()}<button class="icon" data-act="link-up" data-area="${a.id}" data-id="${l.id}" ${0?'':''}>▲</button><button class="icon" data-act="link-down" data-area="${a.id}" data-id="${l.id}">▼</button><button class="icon" data-act="edit-link" data-area="${a.id}" data-id="${l.id}">✎</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button></div></div>`;
+    }).join("");
+    const acol=a.color||"#5B3A57";const collapsed=state.board.settings.areasMin||a.collapsed;
+    const sized=!state.board.settings.gridUnified;const szStyle=sized?`${a.w?`width:${a.w}px;`:""}${(a.h&&!collapsed)?`height:${a.h}px;`:""}`:"";
+    return `<section class="area${collapsed?" collapsed":""}" data-area-id="${a.id}" style="border-left:5px solid ${acol};${szStyle}"><div class="area-head"><div style="display:flex;align-items:center;gap:4px;min-width:0"><span class="areagrip" draggable="true" data-areagrip="${a.id}" title="↕">⠿</span><button class="caret" data-act="toggle-area" data-id="${a.id}">${collapsed?'▸':'▾'}</button><h2 class="area-name" style="color:${acol}">${esc(a.name)}<span class="count">${a.links.length}</span><span class="ty">${isText?L.optText.split(" ")[0]:L.optLinks}</span></h2></div>
+      <div class="tools"><span class="area-move-arrows"><button class="icon" data-act="area-left" data-id="${a.id}" ${ai===0?"disabled":""}>◀</button><button class="icon" data-act="area-right" data-id="${a.id}" ${ai===visible.length-1?"disabled":""}>▶</button></span><button class="icon" data-act="toggle-type" data-id="${a.id}" title="${L.optLinks}/${L.optText.split(" ")[0]}">⇄</button><input type="color" class="acolor" data-act="area-color" data-id="${a.id}" value="${acol}" title="${L.fColor}"/>${(a.w||a.h)?`<button class="icon" data-act="reset-size" data-id="${a.id}" title="${L.resetSize}">⤢</button>`:""}<button class="icon" data-act="hide-area" data-id="${a.id}" title="${L.hideArea}">⊟</button><button class="icon" data-act="rename-area" data-id="${a.id}">✎</button><button class="icon danger" data-act="del-area" data-id="${a.id}">🗑</button></div></div>
+      <div class="links">${items||`<div class="empty">${L.emptyArea}</div>`}</div>
+      <button class="add" data-act="add-link" data-id="${a.id}">${isText?L.addItem:L.addLink}</button><div class="area-rz" data-rz="${a.id}" title="${L.resize||""}"></div></section>`;
+  }).join("")+`<section class="area" style="border-style:dashed;background:transparent"><div class="area-head"><h2 class="area-name" style="color:var(--muted)">${L.newArea}</h2></div><button class="add" data-act="add-area">${L.createArea}</button></section>`;
+  renderHiddenBar(hiddenAreas);
+  applyAreaScroll();
+  const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`<button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
+}
+function renderHiddenBar(hiddenAreas){const bar=$("hiddenBar");if(!bar)return;
+  if(!hiddenAreas.length){bar.style.display="none";bar.innerHTML="";return;}
+  const pos=state.board.settings.hiddenPos==="side"?"side":"top";
+  bar.className=pos;bar.style.display="flex";
+  bar.innerHTML=hiddenAreas.map(a=>`<div class="harea" data-act="unhide-area" data-id="${a.id}" title="${L.showArea}"><span class="hdot" style="background:${a.color||"#5B3A57"}"></span>${esc(a.name)}<span class="count">${a.links.length}</span></div>`).join("");}
+function applyAreaScroll(){const on=state.board.settings.areaScroll!==false;
+  document.querySelectorAll("#boardEl .area").forEach(area=>{const c=area.querySelector(":scope > .links");if(!c)return;c.style.maxHeight="";c.style.overflowY="";
+    const a=A(area.dataset.areaId);if(a&&a.h)return;
+    if(!on)return;
+    const kids=[...c.children].filter(el=>el.classList.contains("link")||el.classList.contains("item"));
+    if(kids.length>3){const h=Math.round(kids[3].getBoundingClientRect().top-kids[0].getBoundingClientRect().top);if(h>0){c.style.maxHeight=h+"px";c.style.overflowY="auto";}}});}
+
+function renderTasks(){const t=state.board.tasks||[];const dc=state.board.settings.dailyCleanup;const sortDue=state.board.settings.taskSort==="due";
+  let list=[...t];if(sortDue)list.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||((a.due||Infinity)-(b.due||Infinity)));
+  $("tasksEl").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">${L.tasks} · ${t.filter(x=>!x.done).length}</h2><button class="btn" data-act="toggle-task-sort">${sortDue?L.sortManual:L.sortDue}</button></div>
+    <div class="set-row"><span>${L.dailyNote}</span><span><select data-act="set-daily"><option value="move" ${dc==="move"?"selected":""}>${L.move}</option><option value="delete" ${dc==="delete"?"selected":""}>${L.del}</option></select> <button class="icon" data-act="daily-now" title="${L.applyNow}">${L.applyNow}</button></span></div>`+
+    list.map(x=>{const k="task:"+x.id;let dmeta="";if(x.due&&!isNaN(x.due)){const cd=countdown(x.due);const ds=new Intl.DateTimeFormat(calLoc(),{day:"numeric",month:"short"}).format(new Date(x.due-1));dmeta=`<span class="when"> · </span><span class="countdown ${cd.past&&!x.done?'past':''}">${L.dl} ${ds} · ${cd.text}</span>`;}
+      return `<div class="item"><input type="checkbox" data-act="toggle-task" data-id="${x.id}" ${x.done?"checked":""}/><div style="flex:1;min-width:0">${editing===k?inp(k,x.text):`<span class="t" style="${x.done?'text-decoration:line-through;color:var(--muted)':''}">${esc(x.text)}</span>`}${dmeta}${x.note?`<div class="note">${esc(x.note)}</div>`:""}</div><button class="icon" data-act="task-deadline" data-id="${x.id}" title="${L.editDl}">📅</button><button class="icon" data-act="task-note" data-id="${x.id}" title="${L.fNote}">📝</button><button class="icon" data-act="edit-task" data-id="${x.id}">✎</button><button class="icon danger" data-act="del-task" data-id="${x.id}">×</button></div>`;}).join("")+
+    `<button class="add" data-act="add-task">${L.addTask}</button>`;}
+
+function renderSettings(){const s=state.board.settings;
+  $("settingsPanel").innerHTML=`<h3>${L.settings} <button class="linkbtn" data-act="close-panel" data-panel="settingsPanel" style="float:right;font-size:16px">×</button></h3>
+   <div class="set-row" style="align-items:flex-start"><span>${L.setTz}</span><div style="flex:1;max-width:320px"><div style="font-size:13px;margin-bottom:6px">${L.tzCurrent}: <b style="color:var(--teal)">${esc(cityOf(s.tz))} (${tzOffsetLabel(s.tz)})</b></div><input type="text" id="tzSearch" placeholder="${L.tzSearchPh}" value="${esc(tzQuery)}" style="width:100%"/><div class="tz-list" id="tzList"></div></div></div>
+   <div class="set-row"><span>${L.setLang}</span><select data-act="set-lang"><option value="cs" ${s.lang==="cs"?"selected":""}>Čeština</option><option value="en" ${s.lang==="en"?"selected":""}>English</option></select></div>
+   <div class="set-row"><span>${L.setDaily}</span><select data-act="set-daily"><option value="move" ${s.dailyCleanup==="move"?"selected":""}>${L.move}</option><option value="delete" ${s.dailyCleanup==="delete"?"selected":""}>${L.del}</option></select></div>
+   <div class="set-row"><span>${L.watchSrcArea}</span><select data-act="set-watch-area"><option value="">${esc(L.watchSrcNone)}</option>${b.areas.map(a=>`<option value="${a.id}" ${a.id===s.watchSourceArea?"selected":""}>${esc(a.name)}</option>`).join("")}</select></div>
+   <div class="set-row"><span>${L.watchEmail}</span><input type="email" data-act="set-watch-email" value="${esc(s.watchEmail||"")}" placeholder="me@example.com" style="flex:1;max-width:260px"/></div>
+   <div class="set-row"><span>${L.setSep}</span><input type="text" data-act="set-sep" value="${esc(s.quoteSep||"|")}" maxlength="3" style="width:60px"/></div>
+   <div class="set-row"><span>${L.featBook}</span><input type="checkbox" data-act="feat-book" ${(s.features&&s.features.book!==false)?"checked":""} style="width:18px;height:18px"/></div>
+   <div class="set-row"><span>${L.setAreaScroll}</span><input type="checkbox" data-act="set-areascroll" ${s.areaScroll===false?"checked":""} style="width:18px;height:18px"/></div>
+   <div class="set-row"><span>${L.setUnify}</span><input type="checkbox" data-act="set-unify" ${s.gridUnified?"checked":""} style="width:18px;height:18px"/></div>
+   <div class="set-row"><span>${L.setTitle}</span><input type="text" data-act="set-title" value="${esc(s.title||"Rozcestník")}" maxlength="60" style="flex:1;max-width:240px"/></div>
+   <div class="set-row"><span>${L.setHiddenPos}</span><select data-act="set-hiddenpos"><option value="top" ${s.hiddenPos!=="side"?"selected":""}>${L.optTop}</option><option value="side" ${s.hiddenPos==="side"?"selected":""}>${L.optSide}</option></select></div>
+   <div class="block" style="border-left:5px solid var(--broken);padding:12px;margin-top:14px"><b style="color:var(--broken)">${L.dangerZone}</b><div class="empty" style="text-align:left;margin:4px 0 8px">${L.wipeAllDesc}</div><button class="btn danger" data-act="wipe-all">${L.wipeAll}</button></div>`;
+  renderTzList();}
+function renderTzList(){const s=state.board.settings;const q=tzQuery.trim().toLowerCase();
+  const rows=TZ_CITIES.filter(([z,c])=>!q||c.toLowerCase().includes(q)||z.toLowerCase().includes(q)).slice(0,120);
+  const el=$("tzList");if(!el)return;
+  el.innerHTML=rows.map(([z,c])=>`<div class="tz-opt ${z===s.tz?'sel':''}" data-act="pick-tz" data-tz="${z}">${esc(c)} <span style="color:var(--muted)">(${tzOffsetLabel(z)})</span></div>`).join("")||`<div class="tz-opt">—</div>`;}
+
+function renderTrash(){const tr=state.board.trash||[];
+  $("trashPanel").innerHTML=`<h3>${L.trashTitle} · ${tr.length} <button class="linkbtn" data-act="close-panel" data-panel="trashPanel" style="float:right;font-size:16px">×</button></h3>`+(tr.length?tr.map(t=>`<div class="row"><span class="t" style="font-size:13px"><span class="ix-type">${esc(t.kind)}</span> ${esc(t.label)} <span class="when">· ${rel(t.deletedAt)}</span></span><span><button class="btn" data-act="restore" data-id="${t.id}">${L.restore}</button></span></div>`).join("")+`<button class="add" data-act="empty-trash" style="margin-top:10px">${L.emptyTrash}</button>`:`<div class="empty">${L.trashEmpty}</div>`);}
+
+function renderNewBlock(){
+  $("newBlockPanel").innerHTML=`<h3>${L.nbTitle} <button class="linkbtn" data-act="close-panel" data-panel="newBlockPanel" style="float:right;font-size:16px">×</button></h3>
+   <div class="set-row"><span>${L.fName}</span><input type="text" id="nbName" style="flex:1;min-width:160px"/></div>
+   <div class="set-row"><span>${L.fType}</span><select id="nbKind"><option value="cycle">${L.optCycle}</option><option value="deadline">${L.optDeadline}</option></select></div>
+   <div class="set-row" id="nbCycleRow"><span>${L.fCycleLen}</span><span><input type="text" id="nbCycleN" value="1" style="width:50px"/> <select id="nbCycleUnit"><option value="day">${L.unitDays}</option><option value="week" selected>${L.unitWeeks}</option><option value="month">${L.unitMonths}</option></select></span></div>
+   <div class="set-row" id="nbDateRow" style="display:none"><span>${L.fDate}</span><input type="date" id="nbDate"/></div>
+   <div class="set-row"><span>${L.fRet}</span><select id="nbRet"><option value="never">${L.never}</option><option value="week">${L.weekly}</option><option value="month">${L.monthly}</option></select></div>
+   <div class="set-row"><span>${L.fColor}</span><input type="color" id="nbColor" value="#246A63"/></div>
+   <div style="margin-top:10px"><button class="btn primary" data-act="create-block">${L.fCreate}</button> <button class="btn" data-act="close-panel" data-panel="newBlockPanel">${L.fCancel}</button></div>`;
+  const k=$("nbKind");k.onchange=()=>{$("nbCycleRow").style.display=k.value==="cycle"?"flex":"none";$("nbDateRow").style.display=k.value==="deadline"?"flex":"none";};
+}
+function renderNewArea(){
+  $("newAreaPanel").innerHTML=`<h3>${L.naTitle} <button class="linkbtn" data-act="close-panel" data-panel="newAreaPanel" style="float:right;font-size:16px">×</button></h3>
+   <div class="set-row"><span>${L.fName}</span><input type="text" id="naName" style="flex:1;min-width:160px"/></div>
+   <div class="set-row"><span>${L.fType}</span><select id="naType"><option value="links">${L.optLinks}</option><option value="text">${L.optText}</option></select></div>
+   <div class="set-row"><span>${L.fColor}</span><input type="color" id="naColor" value="#5B3A57"/></div>
+   <div style="margin-top:10px"><button class="btn primary" data-act="create-area">${L.fCreate}</button> <button class="btn" data-act="close-panel" data-panel="newAreaPanel">${L.fCancel}</button></div>`;
+}
+let bookResults=[];
+function renderBook(){
+  const langs=[["",L.anyLang],["en","English"],["cs","Čeština"],["sk","Slovenčina"],["de","Deutsch"],["fr","Français"],["es","Español"],["it","Italiano"],["ru","Русский"]];
+  const fmts=["epub","pdf","txt","html","mobi"];
+  const areaOpts=state.board.areas.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("");
+  $("bookPanel").innerHTML=`<h3>${L.bookTitle} <button class="linkbtn" data-act="close-panel" data-panel="bookPanel" style="float:right;font-size:16px">×</button></h3>
+   <div class="set-row"><span>${L.fName}</span><input type="text" id="bkTitle" style="flex:1;min-width:160px"/></div>
+   <div class="set-row"><span>${L.fAuthor}</span><input type="text" id="bkAuthor" style="flex:1;min-width:160px"/></div>
+   <div class="set-row"><span>${L.fLang}</span><select id="bkLang">${langs.map(([v,t])=>`<option value="${v}">${t}</option>`).join("")}</select></div>
+   <div class="set-row"><span>${L.fFormat}</span><select id="bkFmt">${fmts.map(f=>`<option value="${f}">${f.toUpperCase()}</option>`).join("")}</select></div>
+   <div style="margin:10px 0"><button class="btn primary" data-act="book-search">${L.bookGo}</button></div>
+   <div class="set-row" style="border:none"><span>${L.bookInto}</span><select id="bkArea">${areaOpts}</select></div>
+   <div id="bookResults"></div>
+   <div style="margin-top:12px;border-top:1px solid var(--lineSoft);padding-top:12px">
+     <div style="font-family:var(--serif);color:var(--plum);font-size:15px;margin-bottom:6px">${L.bookBatch}</div>
+     <textarea id="bkBatch" placeholder="${L.bookBatchPh}" style="min-height:90px"></textarea>
+     <div style="margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn primary" data-act="book-batch">${L.bookBatchGo}</button><span id="bookBatchStatus" class="when"></span></div>
+   </div>`;
+}
+function renderBookResults(loading){
+  const el=$("bookResults");if(!el)return;
+  if(loading){el.innerHTML=`<div class="empty">${L.bookSearching}</div>`;return;}
+  if(!bookResults.length){el.innerHTML=`<div class="empty">${L.bookNone}</div>`;return;}
+  el.innerHTML=bookResults.map((r,i)=>{
+    if(r.searchLink)return `<div class="row" style="flex-wrap:wrap"><span class="t" style="font-size:13.5px">🔎 ${esc(r.title)} <span class="when">${esc(r.source)}</span></span><a class="btn" href="${esc(r.infoUrl)}" target="_blank" rel="noreferrer">${L.openSrc}</a></div>`;
+    const tag=r.publicDomain?`<span class="badge" style="background:#E6F0EA;color:var(--ok)">${L.pd}</span>`:"";
+    let actions="";
+    if(r.fileUrl)actions+=`<button class="btn" data-act="book-insert" data-idx="${i}">${L.insLink}</button>`+(state.r2?` <button class="btn" data-act="book-save" data-idx="${i}">${L.saveR2}</button>`:"");
+    else{if(r.infoUrl)actions+=`<button class="btn" data-act="book-insert" data-idx="${i}">${L.insLink}</button> <a class="btn" href="${esc(r.infoUrl)}" target="_blank" rel="noreferrer">${L.openSrc}</a>`;if(r.borrowUrl)actions+=` <a class="btn" href="${esc(r.borrowUrl)}" target="_blank" rel="noreferrer">${L.borrow}</a>`;}
+    return `<div class="row" style="flex-wrap:wrap"><span class="t" style="font-size:13.5px"><b>${esc(r.title||"?")}</b>${r.author?" — "+esc(r.author):""} ${tag} <span class="when">${esc(r.source)}${r.lang?" · "+esc(r.lang):""}</span></span><span style="display:flex;gap:6px;flex-wrap:wrap">${actions}</span></div>`;
+  }).join("");
+}
+
+/* ---------- lookups ---------- */
+const A=id=>state.board.areas.find(a=>a.id===id);
+const B=id=>state.board.blocks.find(b=>b.id===id);
+async function runBatch(){
+  const raw=$("bkBatch").value;const lines=raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return;
+  const a=A($("bkArea").value);if(!a)return;const lang=$("bkLang").value,fmt=$("bkFmt").value;const st=$("bookBatchStatus");let done=0,added=0;
+  for(const line of lines){
+    let title=line,author="";const si=line.indexOf("|");if(si>=0){title=line.slice(0,si).trim();author=line.slice(si+1).trim();}
+    if(st)st.textContent=`${L.bookSearching} ${done+1}/${lines.length}`;
+    try{
+      const qs=new URLSearchParams({title,author,lang,fmt});
+      const r=await api("/api/book/search?"+qs.toString());const res=((r&&r.results)||[]).filter(x=>!x.searchLink);
+      const pick=res.find(x=>x.publicDomain&&x.fileUrl)||res.find(x=>x.publicDomain&&x.infoUrl)||res[0];
+      if(pick){let url=pick.fileUrl||pick.infoUrl,note=pick.source||"";
+        if(state.r2&&pick.fileUrl){try{const sv=await api("/api/book/save",{method:"POST",body:JSON.stringify({url:pick.fileUrl})});if(sv&&sv.url){url=sv.url;note=(pick.source||"")+" · soubor";}}catch(e){}}
+        const t=(pick.title||title)+(pick.author?" — "+pick.author:"");
+        if(a.type==="text")a.links.push({id:uid(),text:t});else a.links.push({id:uid(),title:t,url,note,status:"unknown",lastChecked:null,code:0});
+        added++;}
+    }catch(e){}
+    done++;save();await new Promise(res=>setTimeout(res,300));
+  }
+  if(st)st.textContent=`${L.bookBatchDone}${added}/${lines.length}`;render();
+}
+
+/* ---------- inline edit commit ---------- */
+function commitEdit(key,val){val=(val||"").trim();const p=key.split(":");
+  if(p[0]==="task"){const x=state.board.tasks.find(t=>t.id===p[1]);if(x&&val)x.text=val;}
+  else if(p[0]==="goal"){const b=B(p[1]);const g=b&&b.goals.find(x=>x.id===p[2]);if(g&&val)g.text=val;}
+  else if(p[0]==="done"){const b=B(p[1]);const d=b&&b.done.find(x=>x.id===p[2]);if(d&&val)d.text=val;}
+  else if(p[0]==="doing"){const b=B(p[1]);const d=b&&(b.doing||[]).find(x=>x.id===p[2]);if(d&&val)d.text=val;}
+  else if(p[0]==="txt"){const a=A(p[1]);const it=a&&a.links.find(x=>x.id===p[2]);if(it&&val)it.text=val;}
+  else if(p[0]==="q"){const it=state.board.quotes.find(x=>x.id===p[1]);if(it&&val)it.text=val;}
+  save();render();}
+document.addEventListener("keydown",e=>{const el=e.target.closest(".edit-inp");if(!el)return;if(e.key==="Enter"){e.preventDefault();el.blur();}else if(e.key==="Escape"){skipCommit=true;editing=null;render();}});
+document.addEventListener("focusout",e=>{const el=e.target.closest(".edit-inp");if(!el)return;if(skipCommit){skipCommit=false;return;}const k=el.dataset.editkey,v=el.value;editing=null;commitEdit(k,v);});
+function startEdit(key){editing=key;render();}
+
+/* ---------- clicks ---------- */
+document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const act=el.dataset.act,id=el.dataset.id,areaId=el.dataset.area,blk=el.dataset.blk;
+  const tg=(p)=>$(p).style.display=$(p).style.display==="block"?"none":"block";
+  if(act==="toggle-quotes")tg("quotesPanel");
+  else if(act==="toggle-settings"){tg("settingsPanel");renderSettings();}
+  else if(act==="toggle-trash"){tg("trashPanel");renderTrash();}
+  else if(act==="toggle-cal"){const p=$("calPanel");if(p.style.display==="block"){p.style.display="none";}else{openCal();}}
+  else if(act==="cal-unlock"){const v=($("calPin").value||"").trim();if(!v)return;calState.pin=v;calPinSave(v);openCal();}
+  else if(act==="cal-connect"){if(!calState.pin)return;location.href="/api/cal/auth?pin="+encodeURIComponent(calState.pin);}
+  else if(act==="cal-disconnect"){disconnectCal();}
+  else if(act==="cal-forget"){calForgetPin();}
+  else if(act==="cal-refresh"){loadCalEvents();}
+  else if(act==="cal-view"){calState.view=el.dataset.view;calState.editId=null;calState.creating=false;calState.colors=false;loadCalEvents();}
+  else if(act==="cal-colors"){calState.colors=true;calState.creating=false;calState.editId=null;renderCal();}
+  else if(act==="cal-colors-save"){readColorForm();calCfg().rules=calCfg().rules.filter(r=>(r.kw||"").trim());save();calState.colors=false;loadCalEvents();}
+  else if(act==="cal-colors-back"){calState.colors=false;renderCal();}
+  else if(act==="cal-rule-add"){readColorForm();calCfg().rules.push({kw:"",color:"#246a63"});renderCal();}
+  else if(act==="cal-rule-del"){readColorForm();calCfg().rules.splice(+el.dataset.i,1);renderCal();}
+  else if(act==="cal-prev"){calShift(-1);}
+  else if(act==="cal-next"){calShift(1);}
+  else if(act==="cal-today"){calState.cursor=new Date();loadCalEvents();}
+  else if(act==="cal-weekstart"){state.board.settings.weekStart=(weekStart()===0)?"mon":"sun";save();loadCalEvents();}
+  else if(act==="cal-zoom"){calState.view="week";calState.cursor=new Date(el.dataset.date+"T12:00:00");loadCalEvents();}
+  else if(act==="cal-day"){calState.createDate=el.dataset.date;calState.creating=true;calState.editId=null;calState.colors=false;renderCal();const s=$("calSum");if(s)s.focus();}
+  else if(act==="cal-new"){calState.creating=true;calState.editId=null;calState.createDate=null;calState.colors=false;renderCal();const s=$("calSum");if(s)s.focus();}
+  else if(act==="cal-cancel"){calState.creating=false;calState.editId=null;calState.createDate=null;renderCal();}
+  else if(act==="cal-edit"){calState.editId=id;calState.creating=false;calState.colors=false;renderCal();}
+  else if(act==="cal-save"){saveCalEvent(el);}
+  else if(act==="cal-delete"){deleteCalEvent(id);}
+  else if(act==="toggle-share"){const p=$("sharePanel");if(p.style.display==="block"){p.style.display="none";}else{openShare();}}
+  else if(act==="toggle-faq"){const p=$("faqPanel");if(p.style.display==="block"){p.style.display="none";}else{p.style.display="block";renderFaq();}}
+  else if(act==="toggle-cycle"){const p=$("cyclePanel");if(p.style.display==="block"){p.style.display="none";}else{openCycle();}}
+  else if(act==="toggle-lend"){const p=$("lendPanel");if(p.style.display==="block"){p.style.display="none";}else{renderLend();p.style.display="block";}}
+  else if(act==="toggle-watch"){const p=$("watchPanel");if(p.style.display==="block"){p.style.display="none";}else{p.style.display="block";renderWatch();}}
+  else if(act==="toggle-money"){const p=$("moneyPanel");if(p.style.display==="block"){p.style.display="none";}else{p.style.display="block";renderMoney();ensureFx().then(renderMoney);}}
+  else if(act==="quick-add-task"){const el2=$("quickTaskInput");const v=(el2.value||"").trim();if(v){state.board.tasks.unshift({id:uid(),text:v,done:false});el2.value="";save();render();el2.focus();}}
+  else if(act==="lend-add"){const dir=el.dataset.dir;const who=(document.querySelector('[data-lf="who-'+dir+'"]').value||"").trim();const item=(document.querySelector('[data-lf="item-'+dir+'"]').value||"").trim();const date=(document.querySelector('[data-lf="date-'+dir+'"]').value||"").trim();if(!who||!item)return;state.board.loans=state.board.loans||{out:[],in:[]};state.board.loans[dir].unshift({id:uid(),who,item,date,returned:false});save();renderLend();}
+  else if(act==="lend-ret"){const dir=el.dataset.dir;const it=(state.board.loans[dir]||[]).find(x=>x.id===id);if(it){it.returned=!it.returned;save();renderLend();}}
+  else if(act==="lend-del"){const dir=el.dataset.dir;if(!confirm(L.lendDelAsk))return;state.board.loans[dir]=(state.board.loans[dir]||[]).filter(x=>x.id!==id);save();renderLend();}
+  else if(act==="money-add"){const q=s=>document.querySelector('[data-mf="'+s+'"]');const who=(q("who").value||"").trim();const amount=parseFloat(q("amount").value);if(!who||!(amount>0))return;state.board.debts=state.board.debts||[];state.board.debts.unshift({id:uid(),who,amount:Math.round(amount*100)/100,cur:q("cur").value,dir:q("dir").value,date:(q("date").value||"").trim(),note:(q("note").value||"").trim(),settled:false});save();renderMoney();}
+  else if(act==="money-settle"){const d=(state.board.debts||[]).find(x=>x.id===id);if(d){d.settled=!d.settled;save();renderMoney();}}
+  else if(act==="watch-from-link"){const a=A(areaId);if(!a)return;
+    const l=(a.links||[]).find(x=>x.id===id);if(!l)return;
+    const existing=watchForLink(a.id,l);
+    if(!existing){
+      const phrase=watchPhraseFromTitle(l.title||host(l.url));
+      if(!phrase){alert(L.watchNeedPhrase);return;}
+      state.board.watches=state.board.watches||[];
+      state.board.watches.unshift({id:uid(),name:l.title||phrase,phrase,urls:l.url?[l.url]:[],deep:false,intervalDays:7,afterFound:"sleep",areaId:a.id,lastRunDay:0,lastPages:0,rejected:[],paused:false});
+      state.board.settings.watchLinkArea=a.id;
+      save();render();
+    }
+    const p=$("watchPanel");p.style.display="block";renderWatch();
+    p.scrollIntoView({behavior:"smooth",block:"start"});
+    if(!existing)alert(L.watchMadeFromLink.replace("{p}",phraseOfLast()));}
+  else if(act==="watch-add"){const q=k=>document.querySelector('[data-wf="'+k+'"]');
+    const phrase=(q("phrase").value||"").trim();
+    const urls=(q("urls").value||"").split(/\n+/).map(x=>x.trim()).filter(Boolean);
+    if(!phrase||!urls.length){alert(L.watchNeedPhrase);return;}
+    state.board.watches=state.board.watches||[];
+    const areaId=q("area").value||"";
+    state.board.settings.watchLinkArea=areaId;
+    state.board.watches.unshift({id:uid(),name:(q("name").value||"").trim()||phrase,phrase,urls,deep:q("deep").checked,intervalDays:parseInt(q("every").value,10)||7,afterFound:q("after").value,areaId,lastRunDay:0,lastPages:0,rejected:[],paused:false});
+    save();renderWatch();}
+  else if(act==="watch-edit"){watchEditId=id;renderWatch();}
+  else if(act==="watch-edit-cancel"){watchEditId=null;renderWatch();}
+  else if(act==="watch-edit-save"){const w=(state.board.watches||[]).find(x=>x.id===id);if(!w)return;
+    const q=k=>document.querySelector('[data-we="'+k+'"]');
+    const phrase=(q("phrase").value||"").trim();
+    const urls=(q("urls").value||"").split(/\n+/).map(x=>x.trim()).filter(Boolean);
+    if(!phrase||!urls.length){alert(L.watchNeedPhrase);return;}
+    w.name=(q("name").value||"").trim()||phrase;
+    w.phrase=phrase;w.urls=urls;
+    w.intervalDays=parseInt(q("every").value,10)||7;
+    w.afterFound=q("after").value;
+    w.areaId=q("area").value||"";
+    w.deep=q("deep").checked;
+    watchEditId=null;save();render();renderWatch();}
+  else if(act==="watch-del"){if(!confirm(L.watchDelAsk))return;state.board.watches=(state.board.watches||[]).filter(x=>x.id!==id);state.board.watchHits=(state.board.watchHits||[]).filter(h=>h.watchId!==id);save();renderWatch();}
+  else if(act==="watch-pause"){const w=(state.board.watches||[]).find(x=>x.id===id);if(w){w.paused=!w.paused;save();renderWatch();}}
+  else if(act==="watch-run"){el.disabled=true;el.textContent=L.watchChecking;
+    saveNow()
+      .then(()=>api("/api/watch/run",{method:"POST",body:JSON.stringify({id})}))
+      .then(r=>{
+        // desku ze serveru přebíráme jen když o tom hlídání opravdu ví,
+        // ať nepřepíšeme to, co je zatím jen v prohlížeči
+        if(r&&r.board&&(r.board.watches||[]).some(w=>w.id===id)){state.board=normBoard(r.board);lastBoardStr=JSON.stringify(state.board);}
+        render();renderWatch();alert(r&&r.found?L.watchFoundOne:L.watchNoneFound);
+      }).catch(()=>{renderWatch();});}
+  else if(act==="watch-cal-google"){const h=(state.board.watchHits||[]).find(x=>x.id===id);if(!h)return;
+    const d=(h.dates||[])[+el.dataset.di];if(!d)return;
+    const w=(state.board.watches||[]).find(x=>x.id===h.watchId);
+    if(w&&watchStampArea(w,d)){save();render();renderWatch();}
+    window.open(watchGoogleUrl(h,d),"_blank","noreferrer");}
+  else if(act==="watch-cal-here"){const h=(state.board.watchHits||[]).find(x=>x.id===id);if(!h)return;
+    const d=(h.dates||[])[+el.dataset.di];if(!d)return;
+    el.disabled=true;
+    const w=(state.board.watches||[]).find(x=>x.id===h.watchId);
+    const stamped=w?watchStampArea(w,d):false;
+    if(stamped){save();render();renderWatch();}
+    calApi("/api/cal/create",{method:"POST",body:JSON.stringify(watchCalPayload(h,d))}).then(r=>{
+      el.disabled=false;
+      if(r.status===200)alert(stamped?L.watchCalOk+" "+L.watchStamped:L.watchCalOk);
+      else if(r.status===401)alert(L.watchCalPin);
+      else alert(L.watchCalErr);
+    });}
+  else if(act==="watch-hit-yes"){const h=(state.board.watchHits||[]).find(x=>x.id===id);if(!h)return;
+    const w=(state.board.watches||[]).find(x=>x.id===h.watchId);
+    state.board.watchHits=(state.board.watchHits||[]).filter(x=>x.id!==id);
+    if(w){if(w.afterFound==="delete")state.board.watches=state.board.watches.filter(x=>x.id!==w.id);else if(w.afterFound!=="keep")w.paused=true;}
+    save();render();renderWatch();}
+  else if(act==="watch-hit-no"){const h=(state.board.watchHits||[]).find(x=>x.id===id);if(!h)return;
+    const w=(state.board.watches||[]).find(x=>x.id===h.watchId);
+    if(w){w.rejected=w.rejected||[];if(!w.rejected.includes(h.url))w.rejected.push(h.url);}
+    state.board.watchHits=(state.board.watchHits||[]).filter(x=>x.id!==id);
+    save();renderWatch();}
+  else if(act==="money-del"){if(!confirm(L.moneyDelAsk))return;state.board.debts=(state.board.debts||[]).filter(x=>x.id!==id);save();renderMoney();}
+  else if(act==="wipe-all"){if(!confirm(L.wipeAsk))return;const t=prompt(L.wipeType+" "+L.wipeWord+":");if(!t||t.trim().toUpperCase()!==L.wipeWord)return;const h=calState.pin?{"x-cal-pin":calState.pin}:{};fetch("/api/wipe",{method:"POST",headers:h}).finally(()=>{alert(L.wipeDone);location.reload();});}
+  else if(act==="cyc-unlock"){const v=($("cycPin").value||"").trim();if(!v)return;calState.pin=v;calPinSave(v);openCycle();}
+  else if(act==="cyc-prev"){cycShift(-1);}
+  else if(act==="cyc-next"){cycShift(1);}
+  else if(act==="cyc-today"){cycleState.cursor=new Date();renderCycle();}
+  else if(act==="cyc-add"){cycleState.creating=true;cycleState.editId=null;cycleState.createDate=null;renderCycle();}
+  else if(act==="cyc-day"){cycleState.createDate=el.dataset.date;cycleState.creating=true;cycleState.editId=null;renderCycle();}
+  else if(act==="cyc-edit"){cycleState.editId=id;cycleState.creating=false;renderCycle();}
+  else if(act==="cyc-cancel"){cycleState.creating=false;cycleState.editId=null;cycleState.createDate=null;renderCycle();}
+  else if(act==="cyc-logtoday"){const t=new Date().toISOString().slice(0,10);if(!cycleState.periods.some(p=>p.start===t)){cycleState.periods.push({id:uid(),start:t,end:null});persistCycle();}}
+  else if(act==="cyc-endtoday"){const o=cycOngoing();if(o){o.end=new Date().toISOString().slice(0,10);if(o.end<o.start)o.end=o.start;persistCycle();}}
+  else if(act==="cyc-save"){const s=$("cycStart").value;if(!s)return;let e=$("cycEnd").value||null;if(e&&e<s)e=s;const skip=!!($("cycSkip")&&$("cycSkip").checked);if(cycleState.editId){const p=cycleState.periods.find(x=>x.id===cycleState.editId);if(p){p.start=s;p.end=e;p.skip=skip;}}else{cycleState.periods.push({id:uid(),start:s,end:e,skip});}cycleState.creating=false;cycleState.editId=null;cycleState.createDate=null;persistCycle();}
+  else if(act==="cyc-del"){if(!confirm(cycT().delConfirm))return;cycleState.periods=cycleState.periods.filter(x=>x.id!==id);persistCycle();}
+  else if(act==="cyc-colors-toggle"){cycleState.colorsOpen=!cycleState.colorsOpen;renderCycle();}
+  else if(act==="cyc-colors-close"){cycleState.colorsOpen=false;renderCycle();}
+  else if(act==="cyc-push"){cyclePushGoogle();}
+  else if(act==="cyc-wipe"){if(!confirm(L.wipeCycleAsk))return;cycleState.periods=[];persistCycle();}
+  else if(act==="share-new"){shareState.creating=true;shareState.created=null;renderShare();}
+  else if(act==="share-cancel"){shareState.creating=false;renderShare();}
+  else if(act==="share-create"){createShare(el);}
+  else if(act==="share-copy"){copyLink(el.dataset.link);}
+  else if(act==="share-send"){sendLink(el.dataset.link);}
+  else if(act==="share-mail"){mailLink(el.dataset.link);}
+  else if(act==="share-done"){shareState.created=null;renderShare();}
+  else if(act==="share-revoke"){revokeShare(el.dataset.token);}
+  else if(act==="share-extend"){shareState.extendToken=el.dataset.token;renderShare();}
+  else if(act==="share-extend-cancel"){shareState.extendToken=null;renderShare();}
+  else if(act==="share-extend-do"){extendShare(el.dataset.token);}
+  /* areas */
+  else if(act==="add-area"){renderNewArea();$("newAreaPanel").style.display="block";$("newAreaPanel").scrollIntoView({behavior:"smooth",block:"nearest"});}
+  else if(act==="create-area"){const name=($("naName").value||"").trim();if(!name){$("naName").focus();return;}const type=$("naType").value;const color=$("naColor").value||"#5B3A57";state.board.areas.push({id:uid(),name,type,color,links:[]});$("newAreaPanel").style.display="none";save();render();}
+  else if(act==="rename-area"){const a=A(id);const n=prompt(L.pName,a.name);if(n&&n.trim()){a.name=n.trim();save();render();}}
+  else if(act==="toggle-type"){const a=A(id);a.type=a.type==="text"?"links":"text";save();render();}
+  else if(act==="hide-area"){const a=A(id);if(a){a.hidden=true;save();render();}}
+  else if(act==="reset-size"){const a=A(id);if(a){delete a.w;delete a.h;save();renderAreas();}}
+  else if(act==="toggle-area"){const a=A(id);if(a){a.collapsed=!a.collapsed;save();renderAreas();}}
+  else if(act==="toggle-areas-min"){state.board.settings.areasMin=!state.board.settings.areasMin;save();renderAreas();}
+  else if(act==="unhide-area"){const a=A(id);if(a){a.hidden=false;save();render();}}
+  else if(act==="del-area"){const a=A(id);if(a.links.length===0||confirm("Smazat oblast „"+a.name+"“?")){toTrash("area",a.name,{item:a});state.board.areas=state.board.areas.filter(x=>x.id!==id);save();render();}}
+  else if(act==="area-left"||act==="area-right"){const i=state.board.areas.findIndex(a=>a.id===id),j=i+(act==="area-left"?-1:1),ar=state.board.areas;if(j>=0&&j<ar.length){[ar[i],ar[j]]=[ar[j],ar[i]];save();render();}}
+  else if(act==="add-link"){const a=A(id);if(a.type==="text"){const t=prompt(L.pItem);if(t&&t.trim()){const no=prompt(L.pNote,"")||"";a.links.push({id:uid(),text:t.trim(),note:no.trim()});save();render();}}else{const u=normUrl(prompt(L.pUrl));if(!u)return;const ti=prompt(L.pTitle,"")||"",no=prompt(L.pNote,"")||"";a.links.push({id:uid(),title:ti.trim()||host(u),url:u,note:no.trim(),status:"unknown",lastChecked:null,code:0});save();render();}}
+  else if(act==="edit-link"){const a=A(areaId),l=a.links.find(x=>x.id===id);const u=normUrl(prompt(L.pEditU,l.url));if(!u)return;const ti=prompt(L.pTitle,l.title)||"",no=prompt(L.pNote,l.note||"")||"";const ch=u!==l.url;l.url=u;l.title=ti.trim()||host(u);l.note=no.trim();if(ch){l.status="unknown";l.code=0;}save();render();}
+  else if(act==="edit-txt")startEdit("txt:"+areaId+":"+id);
+  else if(act==="note-txt"){const a=A(areaId),l=a.links.find(x=>x.id===id);if(!l)return;const no=prompt(L.pNote,l.note||"");if(no===null)return;l.note=no.trim();save();render();}
+  else if(act==="del-link"){const a=A(areaId);const it=a.links.find(x=>x.id===id);toTrash(a.type==="text"?"txt":"link",it.text||it.title||it.url,{area:a.id,item:it});a.links=a.links.filter(x=>x.id!==id);save();render();}
+  else if(act==="link-up"||act==="link-down"){const a=A(areaId),i=a.links.findIndex(x=>x.id===id),j=i+(act==="link-up"?-1:1);if(j>=0&&j<a.links.length){[a.links[i],a.links[j]]=[a.links[j],a.links[i]];save();render();}}
+  /* tasks */
+  else if(act==="add-task"){const t=prompt(L.pTaskAdd);if(t&&t.trim()){state.board.tasks.unshift({id:uid(),text:t.trim(),done:false});save();render();}}
+  else if(act==="edit-task")startEdit("task:"+id);
+  else if(act==="del-task"){const x=state.board.tasks.find(t=>t.id===id);toTrash("task",x.text,{list:"tasks",item:{...x,done:false}});state.board.tasks=state.board.tasks.filter(t=>t.id!==id);save();render();}
+  else if(act==="task-deadline"){const x=state.board.tasks.find(t=>t.id===id);if(!x)return;const v=prompt(L.editDl,dlToInput(x.due));if(v===null)return;const tt=v.trim();if(!tt){x.due=null;save();render();return;}const dl=dlFromInput(tt);if(isNaN(dl)){alert(L.editDl);return;}x.due=dl;save();render();}
+  else if(act==="toggle-task-sort"){const s=state.board.settings;s.taskSort=(s.taskSort==="due")?"manual":"due";save();renderTasks();}
+  else if(act==="task-note"){const x=state.board.tasks.find(t=>t.id===id);if(!x)return;const no=prompt(L.pNote,x.note||"");if(no===null)return;x.note=no.trim();save();render();}
+  else if(act==="daily-now"){const doneT=state.board.tasks.filter(t=>t.done);state.board.tasks=state.board.tasks.filter(t=>!t.done);if(state.board.settings.dailyCleanup==="move"&&state.board.blocks[0]){doneT.forEach(t=>state.board.blocks[0].done.unshift({id:uid(),text:t.text,doneAt:Date.now()}));}else{doneT.forEach(t=>toTrash("task",t.text,{list:"tasks",item:{...t,done:false}}));}save();render();}
+  /* blocks */
+  else if(act==="add-block"){renderNewBlock();$("newBlockPanel").style.display="block";$("newBlockPanel").scrollIntoView({behavior:"smooth",block:"nearest"});}
+  else if(act==="create-block"){const name=($("nbName").value||"").trim();if(!name){$("nbName").focus();return;}const kind=$("nbKind").value;const ret=$("nbRet").value;const color=$("nbColor").value||"#246A63";
+    if(kind==="deadline"){const ds=$("nbDate").value;const dl=dlFromInput(ds);if(isNaN(dl)){$("nbDate").focus();return;}state.board.blocks.push({id:uid(),name,kind:"deadline",deadline:dl,doneRetention:ret,color,goals:[],done:[]});}
+    else{const N=Math.max(1,parseInt($("nbCycleN").value,10)||1);const unit=$("nbCycleUnit").value;state.board.blocks.push({id:uid(),name,kind:"cycle",cycleN:N,cycleUnit:unit,anchor:Date.now(),doneRetention:ret,color,goals:[],done:[]});}
+    $("newBlockPanel").style.display="none";save();render();}
+  else if(act==="close-panel"){$(el.dataset.panel).style.display="none";}
+  else if(act==="block-color"){/* řeší change listener */}
+  else if(act==="toggle-block"){const b=B(id);if(b){b.collapsed=!b.collapsed;save();render();}}
+  else if(act==="area-color"){/* řeší change listener */}
+  else if(act==="pick-tz"){state.board.settings.tz=el.dataset.tz;save();renderSettings();}
+  else if(act==="toggle-book"){const p=$("bookPanel");if(p.style.display==="block"){p.style.display="none";}else{renderBook();renderBookResults(false);p.style.display="block";}}
+  else if(act==="book-search"){const t=$("bkTitle").value.trim(),au=$("bkAuthor").value.trim();if(!t&&!au)return;renderBookResults(true);
+    const qs=new URLSearchParams({title:t,author:au,lang:$("bkLang").value,fmt:$("bkFmt").value});
+    api("/api/book/search?"+qs.toString()).then(r=>{bookResults=(r&&r.results)||[];renderBookResults(false);}).catch(()=>{bookResults=[];renderBookResults(false);});}
+  else if(act==="book-insert"){const r=bookResults[+el.dataset.idx];if(!r)return;const a=A($("bkArea").value);if(!a)return;const u=r.fileUrl||r.infoUrl;const title=(r.title||"")+(r.author?" — "+r.author:"");
+    if(a.type==="text"){a.links.push({id:uid(),text:title});}else{a.links.push({id:uid(),title,url:u,note:r.source||"",status:"unknown",lastChecked:null,code:0});}save();render();}
+  else if(act==="book-batch"){runBatch();}
+  else if(act==="book-save"){const r=bookResults[+el.dataset.idx];if(!r||!r.fileUrl)return;const btn=el;btn.disabled=true;btn.textContent=L.saving;
+    api("/api/book/save",{method:"POST",body:JSON.stringify({url:r.fileUrl})}).then(res=>{if(res&&res.url){const a=A($("bkArea").value);if(a){const title=(r.title||"")+(r.author?" — "+r.author:"");if(a.type==="text"){a.links.push({id:uid(),text:title});}else{a.links.push({id:uid(),title,url:res.url,note:(r.source||"")+" · soubor",status:"unknown",lastChecked:null,code:0});}save();render();}}else{btn.disabled=false;btn.textContent=L.saveR2;alert("R2: "+((res&&res.error)||"chyba"));}}).catch(()=>{btn.disabled=false;btn.textContent=L.saveR2;});}
+  else if(act==="rename-block"){const b=B(id);const n=prompt(L.pName,b.name);if(n&&n.trim()){b.name=n.trim();save();render();}}
+  else if(act==="edit-deadline"){const b=B(id);if(!b)return;const cur=dlToInput(b.deadline);const v=prompt(L.editDl,cur);if(v===null)return;const t=v.trim();if(!t){b.deadline=null;save();render();return;}const dl=dlFromInput(t);if(isNaN(dl)){alert(L.editDl);return;}b.deadline=dl;save();render();}
+  else if(act==="clear-deadline"){const b=B(id);if(!b)return;if(!confirm(L.clearDlAsk))return;b.deadline=null;save();render();}
+  else if(act==="del-block"){const b=B(id);if((b.goals.length+(b.doing||[]).length+b.done.length)===0||confirm("Smazat blok „"+b.name+"“?")){toTrash("block",b.name,{item:b});state.board.blocks=state.board.blocks.filter(x=>x.id!==id);save();render();}}
+  else if(act==="add-goal"){const b=B(id);const t=prompt(L.pGoal);if(t&&t.trim()){b.goals.unshift({id:uid(),text:t.trim(),addedAt:Date.now()});save();render();}}
+  else if(act==="edit-goal")startEdit("goal:"+blk+":"+id);
+  else if(act==="goal-done"){const b=B(blk),i=b.goals.findIndex(x=>x.id===id);if(i>=0){const[g]=b.goals.splice(i,1);b.done.unshift({id:uid(),text:g.text,doneAt:Date.now()});save();render();}}
+  else if(act==="goal-doing"){const b=B(blk),i=b.goals.findIndex(x=>x.id===id);if(i>=0){const[g]=b.goals.splice(i,1);b.doing=b.doing||[];b.doing.unshift({id:uid(),text:g.text,note:"",addedAt:Date.now()});save();render();}}
+  else if(act==="doing-done"){const b=B(blk),i=(b.doing||[]).findIndex(x=>x.id===id);if(i>=0){const[g]=b.doing.splice(i,1);b.done.unshift({id:uid(),text:g.text,doneAt:Date.now()});save();render();}}
+  else if(act==="doing-back"){const b=B(blk),i=(b.doing||[]).findIndex(x=>x.id===id);if(i>=0){const[g]=b.doing.splice(i,1);b.goals.unshift({id:uid(),text:g.text,addedAt:Date.now()});save();render();}}
+  else if(act==="edit-doing")startEdit("doing:"+blk+":"+id);
+  else if(act==="note-doing"){const b=B(blk),g=(b.doing||[]).find(x=>x.id===id);if(!g)return;const no=prompt(L.pNote,g.note||"");if(no===null)return;g.note=no.trim();save();render();}
+  else if(act==="del-doing"){const b=B(blk),g=(b.doing||[]).find(x=>x.id===id);if(!g)return;toTrash("doing",g.text,{block:b.id,item:g});b.doing=b.doing.filter(x=>x.id!==id);save();render();}
+  else if(act==="del-goal"){const b=B(blk),g=b.goals.find(x=>x.id===id);toTrash("goal",g.text,{block:b.id,item:g});b.goals=b.goals.filter(x=>x.id!==id);save();render();}
+  else if(act==="add-done"){const b=B(id);const t=prompt(L.pDoneAdd);if(t&&t.trim()){b.done.unshift({id:uid(),text:t.trim(),doneAt:Date.now()});save();render();}}
+  else if(act==="edit-done")startEdit("done:"+blk+":"+id);
+  else if(act==="del-done"){const b=B(blk),d=b.done.find(x=>x.id===id);toTrash("done",d.text,{block:b.id,item:d});b.done=b.done.filter(x=>x.id!==id);save();render();}
+  else if(act==="clear-done"){const b=B(id);if(b.done.length&&confirm("Vyčistit „"+L.done+"“?")){b.done.forEach(d=>toTrash("done",d.text,{block:b.id,item:d}));b.done=[];save();render();}}
+  /* quotes */
+  else if(act==="add-quotes-bulk"){const raw=$("bulkQuotes").value,au=$("bulkAuthor").value.trim(),sep=state.board.settings.quoteSep||"|";
+    const lines=raw.split(/\r?\n/).map(s=>s.replace(/^\s*\d+[.)]\s*/,"").replace(/^\s*[-•·]\s*/,"").trim()).filter(Boolean);
+    let n=0;lines.forEach(line=>{let text=line,author=au;if(sep&&sep!==","&&line.includes(sep)){const idx=line.lastIndexOf(sep);text=line.slice(0,idx).trim();author=line.slice(idx+sep.length).trim()||au;}state.board.quotes.push({id:uid(),text,author});n++;});
+    if(n){$("bulkQuotes").value="";$("bulkAuthor").value="";save();renderQuotesList();setQuote();}}
+  else if(act==="edit-quote"){const it=state.board.quotes.find(x=>x.id===id);const t=prompt("Citát:",it.text);if(t===null)return;const a=prompt("Autor:",it.author||"");it.text=t.trim()||it.text;it.author=(a||"").trim();save();renderQuotesList();}
+  else if(act==="del-quote"){const it=state.board.quotes.find(x=>x.id===id);toTrash("quote",it.text,{item:it});state.board.quotes=state.board.quotes.filter(x=>x.id!==id);save();renderQuotesList();}
+  /* inbox */
+  else if(act==="file-link"){const it=state.inbox.find(i=>i.id===id);const a=A(document.querySelector('[data-sel="'+id+'"]').value);if(a){if(a.type==="text"){a.links.push({id:uid(),text:it.text||it.url});}else{const u=normUrl(it.url);a.links.push({id:uid(),title:it.text&&!/^https?:/i.test(it.text)?it.text:host(u),url:u,note:"",status:"unknown",lastChecked:null,code:0});}state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}}
+  else if(act==="file-task"){const it=state.inbox.find(i=>i.id===id);state.board.tasks.unshift({id:uid(),text:it.text,done:false});state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
+  else if(act==="discard"){state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
+  /* trash */
+  else if(act==="restore"){const t=(state.board.trash||[]).find(x=>x.id===id);if(t){const pl=t.payload||{};
+    if(t.kind==="task")state.board.tasks.push(pl.item);
+    else if(t.kind==="quote")state.board.quotes.push(pl.item);
+    else if(t.kind==="area")state.board.areas.push(pl.item);
+    else if(t.kind==="block")state.board.blocks.push(pl.item);
+    else if(t.kind==="goal"){const b=B(pl.block);if(b)b.goals.unshift(pl.item);}
+    else if(t.kind==="done"){const b=B(pl.block);if(b)b.done.unshift(pl.item);}
+    else if(t.kind==="doing"){const b=B(pl.block);if(b){b.doing=b.doing||[];b.doing.unshift(pl.item);}}
+    else if(t.kind==="link"||t.kind==="txt"){const a=A(pl.area);if(a)a.links.push(pl.item);}
+    else if(t.kind==="loan-out"||t.kind==="loan-in"){const dir=t.kind==="loan-out"?"out":"in";state.board.loans=state.board.loans||{out:[],in:[]};state.board.loans[dir]=state.board.loans[dir]||[];state.board.loans[dir].unshift({...pl.item,returned:false});}
+    else if(t.kind==="debt"){state.board.debts=state.board.debts||[];state.board.debts.unshift({...pl.item,settled:false});}
+    state.board.trash=state.board.trash.filter(x=>x.id!==id);save();render();}}
+  else if(act==="empty-trash"){if(confirm("Vysypat koš?")){state.board.trash=[];save();renderTrash();}}
+});
+
+/* selects */
+document.body.addEventListener("change",e=>{const el=e.target.closest("[data-act]");if(!el)return;const act=el.dataset.act,s=state.board.settings;
+  if(act==="set-lang"){s.lang=el.value;applyLang();save();render();}
+  else if(act==="set-daily"){s.dailyCleanup=el.value;save();render();}
+  else if(act==="set-watch-area"){s.watchSourceArea=el.value;save();}
+  else if(act==="set-watch-email"){s.watchEmail=(el.value||"").trim();save();}
+  else if(act==="set-sep"){let v=el.value.trim();if(v===","){alert("Čárka nelze.");el.value=s.quoteSep||"|";return;}s.quoteSep=v||"|";save();}
+  else if(act==="set-title"){s.title=el.value;applyLang();save();}
+  else if(act==="block-ret"){const b=B(el.dataset.id);if(b){b.doneRetention=el.value;save();}}
+  else if(act==="block-color"){const b=B(el.dataset.id);if(b){b.color=el.value;save();render();}}
+  else if(act==="area-color"){const a=A(el.dataset.id);if(a){a.color=el.value;save();render();}}
+  else if(act==="feat-book"){s.features=s.features||{};s.features.book=el.checked;applyLang();save();}
+  else if(act==="set-areascroll"){s.areaScroll=!el.checked;save();renderAreas();}
+  else if(act==="set-unify"){s.gridUnified=el.checked;save();renderAreas();}
+  else if(act==="set-hiddenpos"){s.hiddenPos=el.value;save();renderAreas();}
+  else if(act==="cyc-color"){cycCfg().colors[el.dataset.k]=el.value;save();renderCycle();}
+  else if(act==="cyc-overlay"){cycCfg().overlay=el.checked;save();}
+  else if(act==="toggle-task"){const t=state.board.tasks.find(x=>x.id===el.dataset.id);if(t){t.done=el.checked;save();render();}}
+  else if(act==="money-base"){s.baseCur=el.value;save();renderMoney();}
+});
+
+$("search").addEventListener("input",render);
+$("onlyBroken").addEventListener("change",render);
+$("quickTaskInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const v=(e.target.value||"").trim();if(v){state.board.tasks.unshift({id:uid(),text:v,done:false});e.target.value="";save();render();$("quickTaskInput").focus();}}});
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="tzSearch"){tzQuery=e.target.value;renderTzList();}});
+window.addEventListener("resize",()=>{if(!editing)syncDoneHeights();});
+$("checkAll").onclick=async()=>{$("checkAll").disabled=true;$("checkAll").textContent=L.checking;try{const r=await api("/api/check",{method:"POST"});if(r.board){const keep={quotes:state.board.quotes,blocks:state.board.blocks,tasks:state.board.tasks,trash:state.board.trash,settings:state.board.settings,loans:state.board.loans,debts:state.board.debts};state.board=r.board;Object.assign(state.board,keep);render();}}finally{$("checkAll").disabled=false;render();}};
+
+/* drag odkazů + oblastí */
+const board=$("boardEl");let areaDrag=null;
+let rz=null;
+function rzSnap(val,cands,th){let best=val,bd=th;for(const c of cands){const d=Math.abs(c-val);if(d<bd){bd=d;best=c;}}return best;}
+board.addEventListener("pointerdown",e=>{const h=e.target.closest(".area-rz");if(!h)return;if(state.board.settings.gridUnified)return;const ae=h.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();
+  const W=[],H=[];document.querySelectorAll('#boardEl .area[data-area-id]').forEach(o=>{if(o!==ae){W.push(o.offsetWidth);H.push(o.offsetHeight);}});
+  const maxW=Math.max(220,(($("boardEl").clientWidth)||1200)-2);
+  rz={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,sw:ae.offsetWidth,sh:ae.offsetHeight,W,H,maxW};
+  try{h.setPointerCapture(e.pointerId);}catch(_){}});
+window.addEventListener("pointermove",e=>{if(!rz)return;
+  let w=Math.min(rz.maxW,Math.max(200,rz.sw+(e.clientX-rz.sx))),h=Math.max(80,rz.sh+(e.clientY-rz.sy));
+  const ws=rzSnap(w,rz.W,9),hs=rzSnap(h,rz.H,9);const snapped=(ws!==w)||(hs!==h);w=ws;h=hs;
+  rz.el.style.width=w+"px";rz.el.style.height=h+"px";rz.el.classList.toggle("snapping",snapped);});
+window.addEventListener("pointerup",()=>{if(!rz)return;const ae=rz.el,a=A(rz.id);rz=null;ae.classList.remove("snapping");if(!a)return;const w=Math.round(ae.offsetWidth),h=Math.round(ae.offsetHeight);if(a.w!==w||a.h!==h){a.w=w;a.h=h;save();renderAreas();}});
+board.addEventListener("dragstart",e=>{
+  const g=e.target.closest("[data-areagrip]");
+  if(g){areaDrag=g.dataset.areagrip;const ae=e.target.closest(".area");if(ae)ae.classList.add("dragging");e.dataTransfer.effectAllowed="move";return;}
+  const l=e.target.closest(".link");if(!l)return;drag={area:l.dataset.area,id:l.dataset.id};l.classList.add("dragging");e.dataTransfer.effectAllowed="move";});
+board.addEventListener("dragend",()=>{document.querySelectorAll("#boardEl .dragging,#boardEl .over,#boardEl .bover").forEach(x=>x.classList.remove("dragging","over","bover"));drag=null;areaDrag=null;});
+board.addEventListener("dragover",e=>{
+  if(areaDrag){const ae=e.target.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();document.querySelectorAll("#boardEl .bover").forEach(x=>x.classList.remove("bover"));ae.classList.add("bover");return;}
+  if(!drag)return;const a=e.target.closest(".area[data-area-id]");if(!a)return;e.preventDefault();document.querySelectorAll(".area.over").forEach(x=>x.classList.remove("over"));a.classList.add("over");});
+board.addEventListener("drop",e=>{
+  if(areaDrag){const ae=e.target.closest(".area[data-area-id]");if(!ae){areaDrag=null;return;}e.preventDefault();const toId=ae.dataset.areaId;if(toId===areaDrag){areaDrag=null;return;}const arr=state.board.areas;const from=arr.findIndex(x=>x.id===areaDrag);if(from<0){areaDrag=null;return;}const[m]=arr.splice(from,1);let ti=arr.findIndex(x=>x.id===toId);const r=ae.getBoundingClientRect();if(e.clientX>r.left+r.width/2)ti+=1;if(ti<0)ti=0;if(ti>arr.length)ti=arr.length;arr.splice(ti,0,m);areaDrag=null;save();render();return;}
+  if(!drag)return;const ae=e.target.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();const to=A(ae.dataset.areaId),src=A(drag.area);const si=src.links.findIndex(x=>x.id===drag.id);if(si<0){drag=null;return;}const[m]=src.links.splice(si,1);const ol=e.target.closest(".link");let idx=to.links.length;if(ol&&ol.dataset.id!==drag.id){const ti=to.links.findIndex(x=>x.id===ol.dataset.id);const r=ol.getBoundingClientRect();idx=(e.clientY>r.top+r.height/2)?ti+1:ti;}if(idx<0)idx=0;if(idx>to.links.length)idx=to.links.length;to.links.splice(idx,0,m);drag=null;save();render();});
+
+/* drag bloků (úchyt ⠿) */
+const blocksEl=$("blocksEl");let blockDrag=null;
+blocksEl.addEventListener("dragstart",e=>{const g=e.target.closest("[data-grip]");if(!g)return;blockDrag=g.dataset.grip;const bl=e.target.closest(".block");if(bl)bl.classList.add("dragging");e.dataTransfer.effectAllowed="move";});
+blocksEl.addEventListener("dragend",()=>{document.querySelectorAll("#blocksEl .dragging,#blocksEl .bover").forEach(x=>x.classList.remove("dragging","bover"));blockDrag=null;});
+blocksEl.addEventListener("dragover",e=>{if(!blockDrag)return;const bl=e.target.closest(".block[data-block-id]");if(!bl)return;e.preventDefault();document.querySelectorAll("#blocksEl .bover").forEach(x=>x.classList.remove("bover"));bl.classList.add("bover");});
+blocksEl.addEventListener("drop",e=>{if(!blockDrag)return;const bl=e.target.closest(".block[data-block-id]");if(!bl){blockDrag=null;return;}e.preventDefault();const toId=bl.dataset.blockId;if(toId===blockDrag){blockDrag=null;return;}const arr=state.board.blocks;const from=arr.findIndex(x=>x.id===blockDrag);if(from<0){blockDrag=null;return;}const[m]=arr.splice(from,1);let ti=arr.findIndex(x=>x.id===toId);const r=bl.getBoundingClientRect();if(e.clientY>r.top+r.height/2)ti+=1;if(ti<0)ti=0;if(ti>arr.length)ti=arr.length;arr.splice(ti,0,m);blockDrag=null;save();render();});
+
+/* ---------- Google Kalendář ---------- */
+function calHeaders(){return calState.pin?{"x-cal-pin":calState.pin}:{};}
+async function calApi(path,opts={}){try{const r=await fetch(path,{...opts,headers:{"content-type":"application/json",...calHeaders(),...(opts.headers||{})}});let body={};try{body=await r.json();}catch(e){}return{status:r.status,body};}catch(e){return{status:0,body:{error:String(e)}};}}
+const CAL_CSS=`<style>
+.cal-bar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}
+.cal-views,.cal-nav{display:flex;gap:4px;flex-wrap:wrap}
+.cal-period{font-weight:600;margin:2px 0 8px;text-transform:capitalize}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-hd{font-size:11px;color:var(--muted);text-align:center;padding:2px 0;text-transform:uppercase}
+.cal-cell{min-height:76px;border:1px solid var(--line);border-radius:8px;padding:3px;overflow:hidden;cursor:pointer;background:var(--card,#fff)}
+.cal-cell.out{opacity:.38}
+.cal-cell.today{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.cal-dn{font-size:12px;color:var(--muted);text-align:right;margin-bottom:2px}
+.cal-ev{font-size:11px;line-height:1.3;background:var(--teal);color:#fff;border-radius:5px;padding:1px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.cal-ev.allday{background:#5B3A57}
+.cal-more{font-size:11px;color:var(--muted);cursor:pointer;padding-left:3px}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-wcol{border:1px solid var(--line);border-radius:8px;padding:5px;min-height:120px;background:var(--card,#fff)}
+.cal-wcol.today{border-color:var(--teal)}
+.cal-whd{font-size:12px;font-weight:600;margin-bottom:5px;cursor:pointer;text-align:center}
+.cal-emptyday{color:var(--muted);font-size:11px;text-align:center}
+@media(max-width:560px){.cal-cell{min-height:54px;padding:2px}.cal-ev{font-size:10px;padding:1px 3px}.cal-dn{font-size:11px}.cal-week{grid-template-columns:1fr}.cal-wcol{min-height:auto}}
+.cyc-mini{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
+</style>`;
+function calPinLoad(){try{return localStorage.getItem("rozc_cal_pin")||"";}catch{return"";}}
+function calPinSave(v){try{localStorage.setItem("rozc_cal_pin",v);}catch{}}
+function calPinClear(){try{localStorage.removeItem("rozc_cal_pin");}catch{}}
+function weekStart(){return state.board.settings&&state.board.settings.weekStart==="sun"?0:1;}
+function fmtKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function calTime(iso,tzN){try{return new Intl.DateTimeFormat(calLoc(),{timeZone:tzN,hour:"2-digit",minute:"2-digit"}).format(new Date(iso));}catch{return"";}}
+function dayKeyOf(iso,allDay,tzN){if(allDay)return iso.slice(0,10);try{return new Intl.DateTimeFormat("en-CA",{timeZone:tzN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(iso));}catch{return(iso||"").slice(0,10);}}
+function weekdayNames(){const cs=["po","út","st","čt","pá","so","ne"],en=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];const base=(L===DICT.en)?en:cs;return weekStart()===0?[base[6],...base.slice(0,6)]:base;}
+function isoStart(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,0,0).toISOString();}
+function isoEndPlus(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+1,0,0,0).toISOString();}
+function monthGrid(cursor){const y=cursor.getFullYear(),m=cursor.getMonth(),ws=weekStart();
+  const first=new Date(y,m,1),startOff=(first.getDay()-ws+7)%7;const gridStart=new Date(y,m,1-startOff);
+  const last=new Date(y,m+1,0),endOff=6-((last.getDay()-ws+7)%7);const gridEnd=new Date(last);gridEnd.setDate(last.getDate()+endOff);
+  const days=[],cur=new Date(gridStart);while(cur<=gridEnd){days.push(new Date(cur));cur.setDate(cur.getDate()+1);}
+  return{days,from:isoStart(gridStart),to:isoEndPlus(gridEnd)};}
+function weekGrid(cursor){const ws=weekStart(),off=(cursor.getDay()-ws+7)%7;const start=new Date(cursor);start.setDate(cursor.getDate()-off);
+  const days=[];for(let i=0;i<7;i++){const dd=new Date(start);dd.setDate(start.getDate()+i);days.push(dd);}
+  return{days,from:isoStart(days[0]),to:isoEndPlus(days[6])};}
+function calRange(){if(calState.view==="month")return monthGrid(calState.cursor);if(calState.view==="week")return weekGrid(calState.cursor);return{from:new Date().toISOString(),to:new Date(Date.now()+14*86400000).toISOString()};}
+function addDayKey(key,n){const d=new Date(key+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function eventDayKeys(ev,tzN){const sk=dayKeyOf(ev.start,ev.allDay,tzN);if(!ev.end)return[sk];
+  let ek=dayKeyOf(ev.end,ev.allDay,tzN);
+  if(ev.allDay)ek=addDayKey(ek,-1);
+  else{try{if(new Intl.DateTimeFormat("en-GB",{timeZone:tzN,hourCycle:"h23",hour:"2-digit",minute:"2-digit"}).format(new Date(ev.end))==="00:00")ek=addDayKey(ek,-1);}catch(e){}}
+  if(ek<sk)ek=sk;
+  const keys=[];let k=sk,guard=0;while(k<=ek&&guard<400){keys.push(k);k=addDayKey(k,1);guard++;}return keys;}
+function eventsByDay(){const map={},tzN=tz();
+  for(const ev of calState.events){if(!ev.start)continue;const keys=eventDayKeys(ev,tzN);keys.forEach((k,i)=>{(map[k]=map[k]||[]).push({ev,start:i===0,span:keys.length>1});});}
+  for(const k in map)map[k].sort((a,b)=>(a.ev.allDay?0:1)-(b.ev.allDay?0:1)||String(a.ev.start).localeCompare(String(b.ev.start)));return map;}
+function calPeriodLabel(){const d=calState.cursor;if(calState.view==="list")return L.calRange;if(calState.view==="week"){const g=weekGrid(d),f=new Intl.DateTimeFormat(calLoc(),{day:"numeric",month:"short"});return f.format(g.days[0])+" – "+f.format(g.days[6]);}return new Intl.DateTimeFormat(calLoc(),{month:"long",year:"numeric"}).format(d);}
+function calChip(en,tzN){const ev=en.ev;const col=calColorOf(ev);const t=(!ev.allDay&&en.start)?`<b>${esc(calTime(ev.start,tzN))}</b> `:(en.span&&!en.start?"› ":"");return `<div class="cal-ev" style="background:${esc(col)}" data-act="cal-edit" data-id="${esc(ev.id)}" title="${esc(ev.summary)}">${t}${esc(ev.summary)}</div>`;}
+function renderMonth(){const g=monthGrid(calState.cursor),byDay=eventsByDay(),tzN=tz(),cm=calState.cursor.getMonth();
+  const todayKey=fmtKey(new Date());
+  const head=weekdayNames().map(n=>`<div class="cal-hd">${n}</div>`).join("");
+  const cells=g.days.map(d=>{const key=fmtKey(d),out=d.getMonth()!==cm,evs=byDay[key]||[];
+    const chips=evs.slice(0,3).map(en=>calChip(en,tzN)).join("");
+    const more=evs.length>3?`<div class="cal-more" data-act="cal-zoom" data-date="${key}">+${evs.length-3}</div>`:"";
+    return `<div class="cal-cell${out?" out":""}${key===todayKey?" today":""}" data-act="cal-day" data-date="${key}"><div class="cal-dn">${(calCycleMap&&calCycleMap[key])?`<span class="cyc-mini" style="background:${cycColor(calCycleMap[key])}"></span>`:""}${d.getDate()}</div>${chips}${more}</div>`;}).join("");
+  return `<div class="cal-grid">${head}${cells}</div>`;}
+function renderWeek(){const g=weekGrid(calState.cursor),byDay=eventsByDay(),tzN=tz(),wd=weekdayNames(),todayKey=fmtKey(new Date());
+  const cells=g.days.map((d,i)=>{const key=fmtKey(d),evs=byDay[key]||[];
+    const chips=evs.length?evs.map(en=>calChip(en,tzN)).join(""):`<div class="cal-emptyday">—</div>`;
+    return `<div class="cal-wcol${key===todayKey?" today":""}"><div class="cal-whd" data-act="cal-day" data-date="${key}">${(calCycleMap&&calCycleMap[key])?`<span class="cyc-mini" style="background:${cycColor(calCycleMap[key])}"></span>`:""}${wd[i]} ${d.getDate()}.</div>${chips}</div>`;}).join("");
+  return `<div class="cal-week">${cells}</div>`;}
+function renderCalList(){const tzN=tz();if(!calState.events.length)return `<div class="empty">${L.calNoEvents}</div>`;
+  return [...calState.events].sort((a,b)=>String(a.start).localeCompare(String(b.start))).map(ev=>`<div class="row" style="flex-wrap:wrap"><span class="t" style="font-size:13.5px"><b>${esc(ev.summary)}</b><br><span class="when">${esc(calFmt(ev.start,ev.allDay))}</span></span><span style="display:flex;gap:4px;align-items:center">${ev.htmlLink?`<a class="btn" href="${esc(ev.htmlLink)}" target="_blank" rel="noreferrer">${L.calOpenG}</a>`:""}<button class="icon" data-act="cal-edit" data-id="${esc(ev.id)}">✎</button><button class="icon danger" data-act="cal-delete" data-id="${esc(ev.id)}">×</button></span></div>`).join("");}
+function calShift(n){const d=new Date(calState.cursor);if(calState.view==="week")d.setDate(d.getDate()+7*n);else d.setMonth(d.getMonth()+n);calState.cursor=d;loadCalEvents();}
+function calForgetPin(){calPinClear();calState.pin="";calState.unlocked=false;calState.connected=false;calState.events=[];calState.editId=null;calState.creating=false;renderCal();}
+function calCfg(){const s=state.board.settings;s.cal=s.cal||{};const c=s.cal;c.colors=Object.assign({timed:"#246a63",allDay:"#5b3a57",multiDay:"#b26a2e"},c.colors||{});c.rules=c.rules||[];c.perEvent=c.perEvent||{};if(typeof c.pushToGoogle!=="boolean")c.pushToGoogle=false;return c;}
+function calSpan(ev){try{return eventDayKeys(ev,tz()).length;}catch{return 1;}}
+function calCat(ev){return calSpan(ev)>1?"multiDay":(ev.allDay?"allDay":"timed");}
+function calColorOf(ev){const c=calCfg();if(ev.id&&c.perEvent[ev.id])return c.perEvent[ev.id];const txt=((ev.summary||"")+" "+(ev.description||"")).toLowerCase();for(const r of c.rules){if(r.kw&&txt.includes(r.kw.toLowerCase()))return r.color;}return c.colors[calCat(ev)]||c.colors.timed;}
+function newEventColor(p){const c=calCfg();const txt=((p.summary||"")+" "+(p.description||"")).toLowerCase();for(const r of c.rules){if(r.kw&&txt.includes(r.kw.toLowerCase()))return r.color;}let cat="timed";if(p.allDay)cat=(p.endDate&&p.endDate!==p.date)?"multiDay":"allDay";else{const sd=(p.start||"").slice(0,10),ed=(p.end||"").slice(0,10);cat=(sd&&ed&&sd!==ed)?"multiDay":"timed";}return c.colors[cat]||c.colors.timed;}
+const GCAL_COLORS={1:"#7986cb",2:"#33b679",3:"#8e24aa",4:"#e67c73",5:"#f6bf26",6:"#f4511e",7:"#039be5",8:"#616161",9:"#3f51b5",10:"#0b8043",11:"#d50000"};
+function hexRgb(h){h=String(h).replace("#","");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function nearestGColor(hex){const[r,g,b]=hexRgb(hex);let best="1",bd=1e9;for(const id in GCAL_COLORS){const[R,G,B]=hexRgb(GCAL_COLORS[id]);const d=(r-R)*(r-R)+(g-G)*(g-G)+(b-B)*(b-B);if(d<bd){bd=d;best=id;}}return best;}
+function readColorForm(){const c=calCfg();if($("colTimed"))c.colors.timed=$("colTimed").value;if($("colAllDay"))c.colors.allDay=$("colAllDay").value;if($("colMulti"))c.colors.multiDay=$("colMulti").value;if($("colPush"))c.pushToGoogle=$("colPush").checked;
+  const rules=[];document.querySelectorAll("[data-rule]").forEach(row=>{const i=row.getAttribute("data-rule");rules.push({kw:($("rk-"+i)?$("rk-"+i).value:""),color:$("rc-"+i)?$("rc-"+i).value:"#246a63"});});c.rules=rules;}
+function renderCalColors(){const c=calCfg();
+  const rules=c.rules.map((r,i)=>`<div class="set-row" data-rule="${i}"><input type="text" id="rk-${i}" value="${esc(r.kw)}" placeholder="${L.calColKw}" style="flex:1;min-width:120px"><input type="color" id="rc-${i}" value="${esc(r.color)}"><button class="icon danger" data-act="cal-rule-del" data-i="${i}">×</button></div>`).join("");
+  return `<div class="block" style="padding:12px">
+    <div class="set-row"><span>${L.calColTimed}</span><input type="color" id="colTimed" value="${esc(c.colors.timed)}"></div>
+    <div class="set-row"><span>${L.calColAllDay}</span><input type="color" id="colAllDay" value="${esc(c.colors.allDay)}"></div>
+    <div class="set-row"><span>${L.calColMulti}</span><input type="color" id="colMulti" value="${esc(c.colors.multiDay)}"></div>
+    <label class="set-row" style="cursor:pointer"><span>${L.calColPush}</span><input type="checkbox" id="colPush" ${c.pushToGoogle?"checked":""} style="width:18px;height:18px"></label>
+    <div class="empty" style="text-align:left;color:var(--muted)">${L.calColNote}</div>
+    <div style="margin:10px 0 2px"><b>${L.calColRules}</b></div>${rules||`<div class="empty">—</div>`}
+    <button class="add" data-act="cal-rule-add">${L.calColAddRule}</button>
+    <div style="margin-top:10px"><button class="btn primary" data-act="cal-colors-save">${L.calSaveColors}</button> <button class="btn" data-act="cal-colors-back">${L.calCancel}</button></div></div>`;}
+function calLoc(){return L===DICT.en?"en-GB":"cs-CZ";}
+function calFmt(iso,allDay){if(!iso)return"";try{if(allDay){const d=new Date(iso.length<=10?iso+"T00:00:00":iso);return d.toLocaleDateString(calLoc(),{weekday:"short",day:"numeric",month:"short"});}return new Date(iso).toLocaleString(calLoc(),{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}catch{return iso;}}
+function toInputLocal(iso,tzName){try{const f=new Intl.DateTimeFormat("en-GB",{timeZone:tzName,hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});const p={};for(const x of f.formatToParts(new Date(iso)))p[x.type]=x.value;return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;}catch{return(iso||"").slice(0,16);}}
+function subDay(d){try{const dt=new Date(d.slice(0,10)+"T00:00:00Z");dt.setUTCDate(dt.getUTCDate()-1);return dt.toISOString().slice(0,10);}catch{return d;}}
+function defDT(addH){const d=new Date();d.setMinutes(0,0,0);d.setHours(d.getHours()+addH);return toInputLocal(d.toISOString(),tz());}
+function defDTon(dateStr,h){return dateStr+"T"+String(h).padStart(2,"0")+":00";}
+function calForm(ev){const allDay=ev?ev.allDay:false;const hint=(!ev&&calState.createDate)?calState.createDate:new Date().toISOString().slice(0,10);
+  const dStart=ev&&!allDay?toInputLocal(ev.start,tz()):defDTon(hint,9);
+  const dEnd=ev&&!allDay?toInputLocal(ev.end,tz()):defDTon(hint,10);
+  const dateS=ev&&allDay?ev.start.slice(0,10):hint;
+  const dateE=ev&&allDay?subDay(ev.end):hint;
+  return `<div class="block" style="border-left:5px solid var(--teal);padding:12px;margin-bottom:8px">
+    <div class="set-row" style="border:none"><span>${L.calSummary}</span><input type="text" id="calSum" value="${esc(ev?ev.summary:"")}" style="flex:1;min-width:160px"/></div>
+    <div class="set-row"><span>${L.calAllDay}</span><input type="checkbox" id="calAllDay" ${allDay?"checked":""} style="width:18px;height:18px"/></div>
+    <div id="calTimed" style="display:${allDay?"none":"block"}">
+      <div class="set-row"><span>${L.calStart}</span><input type="datetime-local" id="calStart" value="${esc(dStart)}"/></div>
+      <div class="set-row"><span>${L.calEnd}</span><input type="datetime-local" id="calEnd" value="${esc(dEnd)}"/></div></div>
+    <div id="calAllDayRows" style="display:${allDay?"block":"none"}">
+      <div class="set-row"><span>${L.calDate}</span><input type="date" id="calDateStart" value="${esc(dateS)}"/></div>
+      <div class="set-row"><span>${L.calDateEnd}</span><input type="date" id="calDateEnd" value="${esc(dateE)}"/></div></div>
+    <div class="set-row" style="align-items:flex-start"><span>${L.calDesc}</span><textarea id="calDesc" rows="2" style="flex:1;min-width:160px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px">${esc(ev&&ev.description?ev.description:"")}</textarea></div>
+    <div class="set-row"><span>${L.calColor}</span><span style="display:flex;gap:10px;align-items:center"><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="calColorOn" ${ev&&calCfg().perEvent[ev.id]?"checked":""} style="width:18px;height:18px"> ${L.calColorCustom}</label><input type="color" id="calColorVal" value="${esc(ev?calColorOf(ev):calCfg().colors.timed)}"></span></div>
+    <div style="margin-top:10px"><button class="btn primary" data-act="cal-save">${L.calSave}</button> <button class="btn" data-act="cal-cancel">${L.calCancel}</button></div></div>`;}
+function renderCal(){const p=$("calPanel");if(!p)return;
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="calPanel" style="float:right;font-size:16px">×</button>`;
+  const errHtml=calState.err?`<div class="empty" style="color:var(--broken)">${esc(calState.err)}</div>`:"";
+  let body="";
+  if(!calState.unlocked){
+    body=`<div class="set-row" style="border:none"><span>${L.calLockMsg}</span></div>
+     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="password" id="calPin" placeholder="${L.calPinPh}" value="${esc(calState.pin||"")}" style="flex:1;min-width:160px"/><button class="btn primary" data-act="cal-unlock">${L.calUnlock}</button></div>${errHtml}`;
+  }else if(!calState.connected){
+    body=`<div class="set-row" style="border:none"><span>${L.calNotConn}</span><button class="btn primary" data-act="cal-connect">${L.calConnect}</button></div>${errHtml}`;
+  }else if(calState.creating||calState.editId){
+    const ev=calState.editId?calState.events.find(e=>e.id===calState.editId):null;
+    body=errHtml+calForm(ev);
+  }else if(calState.colors){
+    const status0=`<div class="set-row" style="border:none"><span style="color:var(--ok)">${L.calColors}</span></div>`;
+    body=status0+renderCalColors();
+  }else{
+    const view=calState.view==="week"?renderWeek():calState.view==="list"?renderCalList():renderMonth();
+    const wsLbl=L.calWeekStart+": "+(weekStart()===0?L.calSunShort:L.calMonShort);
+    const nav=calState.view==="list"?"":`<div class="cal-nav"><button class="btn" data-act="cal-prev">‹</button><button class="btn" data-act="cal-today">${L.calToday}</button><button class="btn" data-act="cal-next">›</button><button class="btn" data-act="cal-weekstart" title="${L.calWeekStart}">${wsLbl}</button></div>`;
+    const bar=`<div class="cal-bar"><div class="cal-views"><button class="btn${calState.view==="month"?" primary":""}" data-act="cal-view" data-view="month">${L.calMonth}</button><button class="btn${calState.view==="week"?" primary":""}" data-act="cal-view" data-view="week">${L.calWeek}</button><button class="btn${calState.view==="list"?" primary":""}" data-act="cal-view" data-view="list">${L.calList}</button><button class="btn" data-act="cal-colors">${L.calColors}</button></div>${nav}</div><div class="cal-period">${esc(calPeriodLabel())}</div>`;
+    const status=`<div class="set-row" style="border:none"><span style="color:var(--ok)">${L.calConnected}</span><span style="display:flex;gap:6px"><button class="btn" data-act="cal-refresh">${L.calRefresh}</button><button class="btn" data-act="cal-forget" title="${L.calForgetPin}">${L.calForgetPin}</button><button class="btn" data-act="cal-disconnect">${L.calDisconnect}</button></span></div>`;
+    body=status+errHtml+bar+`<button class="add" data-act="cal-new">${L.calNew}</button>`+`<div style="margin-top:6px">${calState.loading?`<div class="empty">${L.calLoading}</div>`:view}</div>`;
+  }
+  p.innerHTML=`${CAL_CSS}<h3>${L.calTitle} ${close}</h3>${body}`;
+  const ad=$("calAllDay");if(ad)ad.onchange=()=>{$("calTimed").style.display=ad.checked?"none":"block";$("calAllDayRows").style.display=ad.checked?"block":"none";};}
+async function openCal(){const p=$("calPanel");if(!p)return;p.style.display="block";calState.err="";if(!calState.pin)calState.pin=calPinLoad();renderCal();
+  if(!calState.pin)return;
+  const s=await calApi("/api/cal/status");
+  if(s.status===200){calState.unlocked=true;calState.connected=!!s.body.connected;calState.err="";
+    calCycleMap=null;
+    if(cycleOverlayOn()){const cr=await cycApi("/api/cycle/get");if(cr.status===200){try{calCycleMap=computeCycle((cr.body&&cr.body.periods)||[]).map;}catch(e){calCycleMap=null;}}}
+    renderCal();if(calState.connected)loadCalEvents();}
+  else{calState.unlocked=false;calState.err=L.calBadPin;calPinClear();renderCal();}}
+async function loadCalEvents(){const {from,to}=calRange();calState.loading=true;renderCal();const r=await calApi("/api/cal/events?"+new URLSearchParams({from,to}));calState.loading=false;
+  if(r.status===200){calState.events=r.body.items||[];calState.err="";}
+  else if(r.status===401&&r.body&&r.body.error==="reauth"){calState.connected=false;calState.err=L.calReauth;}
+  else if(r.status===401){calState.unlocked=false;calState.err=L.calBadPin;calPinClear();}
+  renderCal();}
+async function disconnectCal(){if(!confirm(L.calDisconnect+"?"))return;await calApi("/api/cal/disconnect",{method:"POST"});calState.connected=false;calState.events=[];calState.creating=false;calState.editId=null;renderCal();}
+async function saveCalEvent(btn){const summary=($("calSum").value||"").trim();if(!summary){$("calSum").focus();return;}
+  const allDay=$("calAllDay").checked;const payload={summary,tz:tz(),description:($("calDesc").value||"")};
+  if(allDay){const ds=$("calDateStart").value;if(!ds){$("calDateStart").focus();return;}payload.allDay=true;payload.date=ds;payload.endDate=$("calDateEnd").value||ds;}
+  else{const s=$("calStart").value,e=$("calEnd").value;if(!s||!e)return;payload.start=s;payload.end=e;}
+  if(calState.editId)payload.id=calState.editId;
+  const c=calCfg();const custom=($("calColorOn")&&$("calColorOn").checked)?$("calColorVal").value:null;
+  const resolved=custom||newEventColor(payload);
+  if(c.pushToGoogle)payload.colorId=nearestGColor(resolved);
+  btn.disabled=true;btn.textContent=L.calSaving;
+  const r=await calApi(calState.editId?"/api/cal/update":"/api/cal/create",{method:"POST",body:JSON.stringify(payload)});
+  if(r.status===200){const id=calState.editId||(r.body&&r.body.id);if(id){if(custom)c.perEvent[id]=custom;else delete c.perEvent[id];save();}calState.creating=false;calState.editId=null;calState.createDate=null;loadCalEvents();}
+  else{btn.disabled=false;btn.textContent=L.calSave;alert("Kalendář: "+((r.body&&r.body.error)||r.status));}}
+async function deleteCalEvent(id){if(!confirm(L.calDelConfirm))return;const r=await calApi("/api/cal/delete",{method:"POST",body:JSON.stringify({id})});if(r.status===200)loadCalEvents();else alert("Kalendář: "+((r.body&&r.body.error)||r.status));}
+
+/* ---------- Sdílení výřezů ---------- */
+function toast(msg){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink,#20262B);color:#fff;padding:10px 16px;border-radius:10px;z-index:9999;opacity:0;transition:opacity .2s;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2)";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";clearTimeout(t._h);t._h=setTimeout(()=>{t.style.opacity="0";},1600);}
+async function shareApi(path,opts={}){try{const r=await fetch(path,{...opts,headers:{"content-type":"application/json",...(opts.headers||{})}});let body={};try{body=await r.json();}catch(e){}return{status:r.status,body};}catch(e){return{status:0,body:{error:String(e)}};}}
+function shareLinkOf(token){return location.origin+"/s/"+token;}
+function shareFmtExp(ts){if(!ts)return L.shareNever;try{return new Date(ts).toLocaleString(calLoc(),{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}catch{return"";}}
+function expirySelect(id,sel){const o=[[24,L.shareExp24],[168,L.shareExp7],[720,L.shareExp30],[0,L.shareNever]];return `<select id="${id}">`+o.map(([h,t])=>`<option value="${h}" ${sel===h?"selected":""}>${t}</option>`).join("")+`</select>`;}
+async function copyLink(link){try{await navigator.clipboard.writeText(link);toast(L.shareCopied);}catch{window.prompt(L.shareCopy,link);}}
+async function sendLink(link){if(navigator.share){try{await navigator.share({title:"Rozcestník",url:link});}catch(e){}}else copyLink(link);}
+function mailLink(link){location.href="mailto:?subject="+encodeURIComponent(L.shareMailSubject)+"&body="+encodeURIComponent(link);}
+function shareCreateForm(){
+  const areas=(state.board.areas||[]).map(a=>`<label class="set-row" style="cursor:pointer"><span>${esc(a.name)} <span class="when">(${a.type==="text"?L.shareTypeText:L.shareTypeLinks})</span></span><input type="checkbox" class="shareArea" value="${esc(a.id)}"></label>`).join("");
+  const blocks=(state.board.blocks||[]).map(b=>`<label class="set-row" style="cursor:pointer"><span>${esc(b.name)}</span><input type="checkbox" class="shareBlock" value="${esc(b.id)}"></label>`).join("");
+  return `<div class="block" style="border-left:5px solid var(--teal);padding:12px;margin-bottom:10px">
+    <div class="set-row" style="border:none"><span>${L.shareLabel}</span><input type="text" id="shareLabel" style="flex:1;min-width:140px"></div>
+    <div style="margin:8px 0 2px"><b>${L.shareAreas}</b></div>${areas||`<div class="empty">—</div>`}
+    <div style="margin:8px 0 2px"><b>${L.shareBlocks}</b></div>${blocks||`<div class="empty">—</div>`}
+    <label class="set-row" style="cursor:pointer"><span><b>${L.shareTasks}</b></span><input type="checkbox" id="shareTasks"></label>
+    <div class="set-row"><span>${L.shareAccess}</span><span><label style="margin-right:12px;cursor:pointer"><input type="radio" name="shareAccess" value="read" checked> ${L.shareAccessRead}</label><label style="cursor:pointer"><input type="radio" name="shareAccess" value="edit"> ${L.shareAccessEdit}</label></span></div>
+    <div class="set-row"><span>${L.shareMode}</span><span><label style="margin-right:12px;cursor:pointer"><input type="radio" name="shareMode" value="obscure" checked> ${L.shareModeObscure}</label><label style="cursor:pointer"><input type="radio" name="shareMode" value="private"> ${L.shareModePrivate}</label></span></div>
+    <div class="set-row" id="sharePassRow" style="display:none"><span>${L.sharePass}</span><input type="text" id="sharePass" style="flex:1;min-width:140px"></div>
+    <div class="set-row"><span>${L.shareExpiry}</span>${expirySelect("shareExpiry",168)}</div>
+    <label class="set-row" style="cursor:pointer"><span>${L.shareNotify}</span><input type="checkbox" id="shareNotify"></label>
+    <div class="empty" id="shareWarn" style="text-align:left;color:var(--muted)">${L.shareWarnObscure}</div>
+    <div style="margin-top:10px"><button class="btn primary" data-act="share-create">${L.shareCreate}</button> <button class="btn" data-act="share-cancel">${L.shareCancel}</button></div></div>`;}
+function shareCreatedBox(){const u=shareState.created.url,priv=shareState.created.mode==="private";
+  return `<div class="block" style="border-left:5px solid var(--ok);padding:12px;margin-bottom:10px"><b>${L.shareCreate} ✓</b>
+    <div class="set-row"><span>${L.shareLink}</span><input type="text" readonly value="${esc(u)}" style="flex:1;min-width:140px" onclick="this.select()"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" data-act="share-copy" data-link="${esc(u)}">${L.shareCopy}</button><button class="btn" data-act="share-send" data-link="${esc(u)}">${L.shareSend}</button><button class="btn" data-act="share-mail" data-link="${esc(u)}">${L.shareMail}</button><button class="btn" data-act="share-done">OK</button></div>
+    <div class="empty" style="text-align:left;color:var(--muted);margin-top:8px">${priv?L.shareWarnPrivate:L.shareWarnObscure}</div></div>`;}
+function shareRow(s){const link=shareLinkOf(s.token),expd=s.expiresAt&&Date.now()>s.expiresAt;
+  if(shareState.extendToken===s.token)return `<div class="block" style="padding:10px;margin-bottom:6px"><b>${esc(s.label||L.shareLink)}</b><div class="set-row"><span>${L.shareExpiry}</span>${expirySelect("extendSel",168)}</div><div style="margin-top:8px"><button class="btn primary" data-act="share-extend-do" data-token="${esc(s.token)}">${L.shareExtend}</button> <button class="btn" data-act="share-extend-cancel">${L.shareCancel}</button></div></div>`;
+  return `<div class="row" style="flex-wrap:wrap;gap:6px"><span class="t" style="font-size:13px"><b>${esc(s.label||L.shareLink)}</b> ${s.mode==="private"?`<span class="when">${L.shareHasPass}</span>`:""}${s.access==="edit"?` <span class="when" style="color:var(--broken)">${L.shareEditBadge}</span>`:""}<br><span class="when">${L.shareExpires}: ${expd?L.shareExpiredTxt:shareFmtExp(s.expiresAt)}</span></span><span style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"><button class="btn" data-act="share-copy" data-link="${esc(link)}">${L.shareCopy}</button><button class="btn" data-act="share-send" data-link="${esc(link)}">${L.shareSend}</button><button class="btn" data-act="share-extend" data-token="${esc(s.token)}">${L.shareExtend}</button><button class="icon danger" data-act="share-revoke" data-token="${esc(s.token)}">×</button></span></div>`;}
+function renderShare(){const p=$("sharePanel");if(!p)return;
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="sharePanel" style="float:right;font-size:16px">×</button>`;
+  let body="";
+  if(shareState.creating)body+=shareCreateForm();
+  if(shareState.created)body+=shareCreatedBox();
+  const top=(shareState.creating||shareState.created)?"":`<button class="add" data-act="share-new">${L.shareNew}</button>`;
+  const list=!shareState.list.length?`<div class="empty">${L.shareNone}</div>`:shareState.list.map(shareRow).join("");
+  body+=`<div style="margin-top:6px">${list}</div>`;
+  p.innerHTML=`<h3>${L.shareTitle} ${close}</h3>${top}${body}`;
+  if(shareState.creating){const upd=()=>{const priv=document.querySelector("input[name=shareMode]:checked").value==="private";const edit=document.querySelector("input[name=shareAccess]:checked").value==="edit";$("sharePassRow").style.display=priv?"":"none";$("shareWarn").textContent=(edit?L.shareWarnEdit+" ":"")+(priv?L.shareWarnPrivate:L.shareWarnObscure);};document.querySelectorAll("input[name=shareMode],input[name=shareAccess]").forEach(r=>r.onchange=upd);}}
+async function openShare(){const p=$("sharePanel");if(!p)return;p.style.display="block";shareState.creating=false;shareState.created=null;shareState.extendToken=null;renderShare();await loadShares();}
+async function loadShares(){const r=await shareApi("/api/share/list");if(r.status===200){shareState.list=r.body.shares||[];renderShare();}}
+async function createShare(btn){
+  const areas=[...document.querySelectorAll(".shareArea:checked")].map(c=>c.value);
+  const blocks=[...document.querySelectorAll(".shareBlock:checked")].map(c=>c.value);
+  const includeTasks=!!($("shareTasks")&&$("shareTasks").checked);
+  if(!areas.length&&!blocks.length&&!includeTasks){alert(L.shareMustPick);return;}
+  const mode=document.querySelector("input[name=shareMode]:checked").value;
+  const access=document.querySelector("input[name=shareAccess]:checked").value;
+  const password=mode==="private"?($("sharePass").value||"").trim():"";
+  if(mode==="private"&&!password){alert(L.shareMustPass);return;}
+  const expiresInH=Number($("shareExpiry").value)||0,notify=$("shareNotify").checked,label=($("shareLabel").value||"").trim();
+  btn.disabled=true;
+  const r=await shareApi("/api/share/create",{method:"POST",body:JSON.stringify({label,areas,blocks,includeTasks,mode,access,password,expiresInH,notify})});
+  btn.disabled=false;
+  if(r.status===200){shareState.created={...r.body,mode};shareState.creating=false;await loadShares();}
+  else alert("Sdílení: "+((r.body&&r.body.error)||r.status));}
+async function revokeShare(token){if(!confirm(L.shareRevokeConfirm))return;await shareApi("/api/share/revoke",{method:"POST",body:JSON.stringify({token})});loadShares();}
+async function extendShare(token){const h=Number($("extendSel").value)||0;const r=await shareApi("/api/share/extend",{method:"POST",body:JSON.stringify({token,expiresInH:h})});shareState.extendToken=null;if(r.status===200)loadShares();}
+
+/* ---------- FAQ ---------- */
+const FAQ={cs:[
+  ["Musím kvůli tomu něco spouštět? Není to vir?",
+   "V balíčku není žádný .exe ani nic jiného binárního. Všechno jsou textové soubory, které si můžeš před spuštěním otevřít v poznámkovém bloku a přečíst — a bez instalátoru se dá obejít úplně, jsou to tři příkazy v terminálu.",
+   "Soubor „Click this to install the app.bat“ má tři řádky a nedělá nic než to, že spustí setup\\wizard.ps1 vedle sebe. Ten průvodce si nikdy nestahuje kód z internetu, aby ho spustil — žádné iex, žádné curl | bash. Jediné, co umí nainstalovat, je Node.js, a to přes winget, což je správce balíčků přímo od Microsoftu, oficiálním balíčkem OpenJS.NodeJS.LTS a až potom, co odpovíš a/n. Když odmítneš, jen ti otevře nodejs.org a zbytek necháš na sobě. Nástroj wrangler, kterým se appka nasazuje, se neinstaluje vůbec: pouští se přes npx --yes wrangler@latest, takže po sobě v systému nic trvalého nenechá. Na Cloudflare tě přihlásí jeho vlastním přihlašovacím oknem v prohlížeči, takže tvoje heslo nevidí ani průvodce, ani nikdo jiný. Jestli ti to i tak nesedí, přeskoč instalátor a v README je ruční postup: npm install -g wrangler, wrangler login, wrangler deploy."],
+  ["Co to stojí?",
+   "Nic. Běží to na free plánu Cloudflare, upozornění chodí přes ntfy, které je zdarma a nechce ani účet. Placený plán si to nevynutí.",
+   "Cloudflare dává na free plánu 100 000 požadavků denně a cron jednou za hodinu, což je na osobní rozcestník řádově víc, než spotřebuješ. Jedna věc je na to postavená schválně: hlídač stránek má strop 25 stažení na jeden běh cronu, protože free plán dovolí 50 podrequestů na jedno spuštění — kdyby ten strop nebyl, narazíš na limit a Cloudflare tě tlačí k upgradu. Co se do rozpočtu nevejde, počká na další hodinu. Upozornění přes ntfy.sh jsou zdarma a bez registrace. E-mail přes Resend je nepovinný a má free tarif, který na pár zpráv měsíčně stačí, ale bez něj se nic nerozbije."],
+  ["Kam jdou má data?",
+   "Všechno leží v tvém vlastním Cloudflare účtu (úložiště KV), nikde jinde. Appka mluví jen s tvým Workerem a k autorovi appky neteče nic.",
+   "Výjimky, kdy se sahá ven, jsou tyhle a žádné další: ikonky webů (favicony) se načítají z Googlu, kontrola odkazů navštěvuje tvoje uložené odkazy, Google Kalendář komunikuje s Googlem, když si ho propojíš, kurzy měn se jednou denně stahují z veřejného kurzovního API a hlídač stránek chodí na adresy, které jsi mu sama zadala. Ve všech případech odchází jen požadavek na stránku nebo na kurzy, ne tvoje jméno, e-mail ani obsah desky. Žádná analytika, žádné sledovací skripty, žádný server autora — ten o tvé existenci neví."],
+  ["Můžu data smazat? Co se stane?",
+   "Ano. Smazané věci jdou na 30 dní do Koše, pak zmizí; Koš můžeš vysypat hned. Smazat se dá i úplně všechno naráz.",
+   "Koš drží položku i s tím, odkud pocházela, takže vrácení ji dá zpátky do správné oblasti nebo bloku. Po 30 dnech ji denní úklid zahodí nadobro. Když chceš skončit úplně, v Nastavení je vymazání celé desky a pak stačí ve svém Cloudflare účtu smazat Worker a KV úložiště — tím zmizí i poslední kopie. Nikdo jiný žádnou nemá, protože nikdy nikam neodešla."],
+  ["Potřebuju heslo?",
+   "Hlavní deska je záměrně bez hesla — je otevřená po adrese, tak si adresu nech pro sebe. Kalendář a cyklus jsou schované za PINem.",
+   "Je to vědomé rozhodnutí, ne opomenutí: appka nemá účty ani přihlašování, protože je jednouživatelská a celé kouzlo je v tom, že ji otevřeš na jakémkoli zařízení bez cirkusu s hesly. Adresa je náhodná a nikde se nezveřejňuje, takže dokud ji někomu nepošleš, nikdo ji nenajde. Citlivé věci ale za tím pravidlem schované jsou: kalendář a záznamy o menstruačním cyklu vyžadují PIN, který se nastavuje jako secret na Workeru, a bez něj jsou ty funkce úplně vypnuté. Sdílené výřezy můžou mít navíc vlastní heslo."],
+  ["Co když někdo získá odkaz?",
+   "Hlavní adresa = vidí i mění celou tvou desku, ber ji jako klíč. Sdílený odkaz ke čtení = vidí jen tu výseč, kterou jsi mu poslala.",
+   "Sdílený odkaz umí dvě nastavení, která je dobré nepomíchat. Ke čtení znamená, že příjemce vidí vybrané oblasti, cíle nebo úkoly a nic jiného; ke zbytku desky se přes ten odkaz nedostane. S úpravami může vybrané věci i měnit a mazat, což jsou tvoje opravdová data — proto se u téhle volby důrazně doporučuje heslo. Každé sdílení má vlastní platnost (24 hodin až neomezeně) a dá se kdykoli zrušit. Hlavní adresa nic takového nerozlišuje, ta je na všechno, takže ji posílej jen sobě."],
+  ["Jak propojím kalendář?",
+   "Jednorázově si v Google Cloud zapneš Calendar API, vytvoříš OAuth údaje a nastavíš tři secrety na Workeru. Krok za krokem je to v README.",
+   "Token od Googlu leží jen na tvém Workeru v KV a do prohlížeče se nikdy neposílá. Kalendář je navíc celý schovaný za PINem (CAL_PIN) a dokud ten PIN nenastavíš, je funkce vypnutá a ani se nezobrazí. Propojení je obousměrné: události vidíš, zakládáš, měníš i mažeš. Když necháš projekt v Googlu v režimu Testing, vyžádá si Google nové přihlášení zhruba po týdnu — to není chyba appky, tak to má nastavené Google."],
+  ["Jak funguje knihovna?",
+   "Hledá knihy jen v legálních zdrojích (Project Gutenberg, Wikisource, Open Library / Internet Archive) a nabízí odkazy do knihoven.",
+   "Žádné stínové knihovny, žádné obcházení zámků. U volných děl dostaneš rovnou soubor, u ostatních odkaz do Open Library nebo do knihovního katalogu, kde si knihu půjčíš normálně. Pozor na jednu věc, která se plete: volné dílo neznamená volný překlad — originál může být po autorských právech volný, ale konkrétní český překlad ještě chráněný. Odkazy na mlp.cz nebo Zlatý fond SME se proto nikdy nevybírají samy, jsou to jen prokliky do katalogu."],
+  ["Jak funguje sdílení?",
+   "Vytvoříš odkaz, který ukáže jen vybrané věci — oblasti, cíle, úkoly — ne celou stránku. Zvolíš, jestli je ke čtení, nebo i k úpravám.",
+   "Odkaz je náhodný a neuhodnutelný, takže dokud ho nepošleš, nikdo ho nenajde. U soukromé varianty se navíc nastaví heslo, které se ukládá jen jako otisk, ne čitelně — pošli ho jiným kanálem než samotný odkaz. Každé sdílení má platnost 24 hodin, 7 dní, 30 dní, nebo bez konce, jde kdykoli prodloužit i zrušit a dávno prošlá se sama uklidí. Půjčené věci, dluhy, kalendář ani cyklus se sdílet nedají vůbec, do odkazu se nedostanou."],
+  ["Jsou data o menstruačním cyklu soukromá?",
+   "Ano. Na rozdíl od zbytku desky se neukládají do otevřeného obsahu, leží v samostatném klíči a jsou schovaná za stejným PINem jako kalendář.",
+   "Do sdílených odkazů se nedostanou v žádné variantě a bez PINu je panel úplně nepřístupný. Když si necháš předpověď promítnout do Google Kalendáře, appka tě napřed výslovně upozorní, že tím ta data opouštějí tvůj Cloudflare a míří k Googlu jako ke třetí straně — a musíš to potvrdit. Překryv přímo v appce nic ven neposílá. Statistiky a předpovědi jsou orientační odhad z tvých vlastních záznamů, ne lékařská rada a rozhodně ne antikoncepce."],
+  ["Co dělá Hlídač na cizích webech?",
+   "Jednou za zvolený interval stáhne stránky, které jsi mu zadala, vyhodí z nich HTML a podívá se, jestli v textu není tvoje fráze.",
+   "Respektuje robots.txt, představuje se hlavičkou Rozcestnik-Watcher/1.0, každé stránce dá deset vteřin a na jeden běh stáhne nejvýš 25 stránek — zbytek počká na další hodinu. Nic tam o tobě nenechává: neposílá jméno, e-mail ani obsah tvé desky, jen obyčejný požadavek na stránku, jaký by poslal kdokoli jiný. Co najde, uloží se jen k tobě do KV. Obsazenost představení ti říct neumí, protože tu si divadla dokreslují JavaScriptem až v prohlížeči a Worker JavaScript nespouští — místo nespolehlivého údaje dostaneš odkaz do prodeje."],
+  ["Vidí někdo, co mám půjčené a komu dlužím?",
+   "Věci i Peníze jsou součástí hlavní desky, a ta je otevřená po adrese — kdo adresu zná, vidí jména i částky a může je měnit.",
+   "Na rozdíl od kalendáře a cyklu nejsou za PINem, takže tady je jedinou ochranou to, že adresu nikomu nedáš. Do sdíleného odkazu se ale nedostanou nikdy: sdílet jdou jen oblasti, cíle a úkoly. Kurzy měn se stahují z veřejného kurzovního API, kterému odchází jen dotaz na kurzy — žádná jména, žádné částky, nic z tvé desky."],
+],en:[
+  ["Do I have to run something? Is it a virus?",
+   "There is no .exe in the package, and nothing else binary either. Every file is plain text you can open in a text editor and read before running it — and you can skip the installer entirely, it is three commands in a terminal.",
+   "The file 'Click this to install the app.bat' is three lines long and does nothing but launch setup\\wizard.ps1 sitting next to it. The wizard never downloads code from the internet to execute — no iex, no curl | bash. The only thing it can install is Node.js, through winget, which is Microsoft's own package manager, using the official OpenJS.NodeJS.LTS package, and only after you answer y/n. Decline and it just opens nodejs.org and leaves the rest to you. Wrangler, the tool that deploys the app, is not installed at all: it runs through npx --yes wrangler@latest, so nothing permanent is added to your system. It signs you in to Cloudflare through Cloudflare's own browser login, so neither the wizard nor anyone else sees your password. If that still doesn't sit right, skip the installer — the README has the manual route: npm install -g wrangler, wrangler login, wrangler deploy."],
+  ["What does it cost?",
+   "Nothing. It runs on Cloudflare's free plan, and alerts go through ntfy, which is free and needs no account. It won't push you into a paid plan.",
+   "Cloudflare's free plan gives you 100,000 requests a day and an hourly cron, which is orders of magnitude more than a personal dashboard uses. One thing is built around that deliberately: the page watcher is capped at 25 fetches per cron run, because the free plan allows 50 subrequests per invocation — without that cap you would hit the limit and Cloudflare would push you to upgrade. Whatever doesn't fit waits for the next hour. Alerts via ntfy.sh are free and require no signup. E-mail through Resend is optional and has a free tier that covers a few messages a month, but nothing breaks without it."],
+  ["Where does my data go?",
+   "Everything lives in your own Cloudflare account (KV storage), nowhere else. The app talks only to your Worker, and nothing goes to the app's author.",
+   "The exceptions, and there are no others, are these: site icons (favicons) load from Google, link checking visits your own saved links, Google Calendar talks to Google if you connect it, exchange rates are fetched once a day from a public rates API, and the page watcher visits the addresses you gave it yourself. In every case what leaves is a request for a page or for rates — not your name, your e-mail or the contents of your board. No analytics, no tracking scripts, no author's server; the author doesn't know you exist."],
+  ["Can I delete my data? What happens?",
+   "Yes. Deleted items go to the Trash for 30 days, then disappear; you can empty the Trash right away. You can also wipe everything at once.",
+   "The Trash keeps each item along with where it came from, so restoring puts it back in the right area or block. After 30 days the daily cleanup discards it for good. If you want out entirely, Settings has a wipe for the whole board, and then deleting the Worker and the KV namespace in your own Cloudflare account removes the last copy. Nobody else has one, because it never went anywhere."],
+  ["Do I need a password?",
+   "The main board is intentionally password-free — it's open by address, so keep the address to yourself. The calendar and the cycle sit behind a PIN.",
+   "This is a deliberate choice, not an oversight: the app has no accounts and no login because it is single-user, and the whole point is that you open it on any device without a password circus. The address is random and published nowhere, so until you send it to someone, nobody will find it. The sensitive parts are behind that rule, though: the calendar and the menstrual cycle records require a PIN that is set as a Worker secret, and without it those features are switched off entirely. Shared slices can carry their own password on top."],
+  ["What if someone gets the link?",
+   "Main address = they see and edit your whole board, treat it like a key. A read-only share link = they see only the slice you sent them.",
+   "A share link has two settings worth keeping straight. Read-only means the recipient sees the areas, goals or tasks you picked and nothing else; the rest of the board is unreachable through that link. Allow editing lets them change and delete those things, which is your real data — which is why a password is strongly recommended there. Every share has its own expiry (24 hours to never) and can be revoked at any time. The main address makes none of these distinctions; it is the key to everything, so send it only to yourself."],
+  ["How do I connect the calendar?",
+   "One time, you enable the Calendar API in Google Cloud, create OAuth credentials and set three secrets on your Worker. The README has it step by step.",
+   "The Google token lives only on your Worker in KV and is never sent to the browser. The calendar is hidden behind a PIN (CAL_PIN), and until you set that PIN the feature is off and doesn't even appear. The connection is two-way: you can see, create, change and delete events. If you leave the Google project in Testing mode, Google will ask you to sign in again after about a week — that's Google's setting, not a bug in the app."],
+  ["How does the library work?",
+   "It searches books in legal sources only (Project Gutenberg, Wikisource, Open Library / Internet Archive) and offers links into libraries.",
+   "No shadow libraries, no working around locks. For public-domain works you get the file directly; for everything else a link to Open Library or a library catalogue where you borrow the book normally. One thing that trips people up: a public-domain work does not mean a public-domain translation — the original may be free while a particular translation is still in copyright. That's why catalogue links are never selected for you automatically; they are only ways through to a library."],
+  ["How does sharing work?",
+   "You create a link that shows only selected things — areas, goals, tasks — not the whole page. You choose read-only or editable.",
+   "The link is random and unguessable, so until you send it, nobody will find it. The private option adds a password, stored only as a hash and never in clear text — send it through a different channel than the link itself. Each share lasts 24 hours, 7 days, 30 days or forever, can be extended or revoked at any time, and long-expired ones clean themselves up. Lent items, debts, the calendar and the cycle cannot be shared at all; they never enter a share link."],
+  ["Is my menstrual cycle data private?",
+   "Yes. Unlike the rest of the board it isn't stored in the open content — it lives in a separate key behind the same PIN as the calendar.",
+   "It never enters a share link in any variant, and without the PIN the panel is completely inaccessible. If you choose to project the prediction into Google Calendar, the app warns you explicitly first that this data is leaving your Cloudflare and going to Google as a third party, and you have to confirm. The in-app overlay sends nothing anywhere. The statistics and predictions are a rough estimate from your own records — not medical advice, and certainly not contraception."],
+  ["What does the Watcher do on other people's sites?",
+   "Once per chosen interval it fetches the addresses you gave it, strips the HTML and checks whether your phrase appears in the text.",
+   "It honours robots.txt, identifies itself as Rozcestnik-Watcher/1.0, gives each page ten seconds and fetches at most 25 pages per run — the rest waits for the next hour. It leaves nothing of yours behind: no name, no e-mail, no board content, just an ordinary page request like anyone else's. Whatever it finds is stored only in your own KV. It cannot tell you whether seats are still available, because theatres render that with JavaScript in the browser and the Worker doesn't run JavaScript — instead of an unreliable answer you get the ticket link."],
+  ["Can anyone see what I lent and what I owe?",
+   "Items and Money are part of the main board, and that board is open by address — anyone who knows it sees the names and amounts and can change them.",
+   "Unlike the calendar and the cycle they are not behind the PIN, so here the only protection is not giving the address away. They never enter a share link, though: only areas, goals and tasks can be shared. Exchange rates come from a public rates API, which receives nothing but a request for rates — no names, no amounts, nothing from your board."],
+]};
+// Z názvu položky udělej hledanou frázi: co je za pomlčkou nebo v závorce,
+// bývá tvoje poznámka ("- doporučila aisha"), ne součást názvu inscenace.
+function watchPhraseFromTitle(t){const x=String(t||"").trim();const m=x.match(/^(.*?)(?:\s[-\u2013\u2014\u00b7|]\s|\s\()/);return (m?m[1]:x).trim();}
+function phraseOfLast(){const w=(state.board.watches||[])[0];return w?w.phrase:"";}
+function watchForLink(areaId,l){
+  const p=watchNorm(watchPhraseFromTitle(l.title||""));
+  if(!p)return null;
+  return (state.board.watches||[]).find(w=>w.areaId===areaId&&watchNorm(w.phrase)===p)||null;}
+function watchNorm(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();}
+function watchItemName(it){return it.title||it.text||it.url||"";}
+// Najdi v propojené oblasti položku, jejíž název odpovídá názvu hlídání.
+// Nejdřív celá fráze jako podřetězec, pak všechna slova kdekoli v názvu.
+function watchMatchEntry(w){
+  if(!w||!w.areaId)return null;
+  const a=(state.board.areas||[]).find(x=>x.id===w.areaId);
+  if(!a)return{area:null,item:null};
+  const needle=watchNorm(w.name||w.phrase||"");
+  if(!needle)return{area:a,item:null};
+  const items=a.links||[];
+  for(const it of items){if(watchNorm(watchItemName(it)).includes(needle))return{area:a,item:it};}
+  const words=needle.split(" ").filter(Boolean);
+  if(words.length>1)for(const it of items){const hay=watchNorm(watchItemName(it));if(words.every(x=>hay.includes(x)))return{area:a,item:it};}
+  return{area:a,item:null};}
+function watchStampArea(w,d){
+  const m=watchMatchEntry(w);
+  if(!m||!m.item)return false;
+  const line=L.watchNoteStamp.replace("{d}",watchDateLabel(d));
+  const note=(m.item.note||"").trim();
+  if(!note)m.item.note=line;
+  else if(note.indexOf(line)<0)m.item.note=note+" · "+line;
+  m.item.expiresDay=d.y*10000+d.m*100+d.d;
+  return true;}
+function watchDateLabel(d){const t=d.hh==null?esc(L.watchAllDay):d.hh+":"+String(d.mm).padStart(2,"0");return d.d+". "+d.m+". "+d.y+" · "+t;}
+function watchPad(n){return String(n).padStart(2,"0");}
+function watchEndOf(d){const t=Date.UTC(d.y,d.m-1,d.d,d.hh,d.mm)+150*60000;const e=new Date(t);return{y:e.getUTCFullYear(),m:e.getUTCMonth()+1,d:e.getUTCDate(),hh:e.getUTCHours(),mm:e.getUTCMinutes()};}
+function watchGoogleUrl(hit,d){
+  const p=watchPad;
+  let dates;
+  if(d.hh==null){const a=new Date(Date.UTC(d.y,d.m-1,d.d));const b=new Date(Date.UTC(d.y,d.m-1,d.d)+86400000);
+    dates=a.getUTCFullYear()+p(a.getUTCMonth()+1)+p(a.getUTCDate())+"/"+b.getUTCFullYear()+p(b.getUTCMonth()+1)+p(b.getUTCDate());}
+  else{const e=watchEndOf(d);
+    dates=d.y+p(d.m)+p(d.d)+"T"+p(d.hh)+p(d.mm)+"00/"+e.y+p(e.m)+p(e.d)+"T"+p(e.hh)+p(e.mm)+"00";}
+  const det=[hit.url,hit.ticketUrl||""].filter(Boolean).join("\n");
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    +"&text="+encodeURIComponent(hit.name||"")
+    +"&dates="+dates
+    +"&details="+encodeURIComponent(det)
+    +"&ctz="+encodeURIComponent(state.board.settings.tz||"Europe/Prague");}
+function watchCalPayload(hit,d){
+  const p=watchPad,tz=state.board.settings.tz||"Europe/Prague";
+  const det=[hit.url,hit.ticketUrl||""].filter(Boolean).join("\n");
+  if(d.hh==null)return{summary:hit.name||"",description:det,allDay:true,date:d.y+"-"+p(d.m)+"-"+p(d.d),endDate:d.y+"-"+p(d.m)+"-"+p(d.d),tz};
+  const e=watchEndOf(d);
+  return{summary:hit.name||"",description:det,tz,
+    start:d.y+"-"+p(d.m)+"-"+p(d.d)+"T"+p(d.hh)+":"+p(d.mm)+":00",
+    end:e.y+"-"+p(e.m)+"-"+p(e.d)+"T"+p(e.hh)+":"+p(e.mm)+":00"};}
+let watchEditId=null;
+function watchDayLabel(k){return k?String(k).replace(/(\d{4})(\d{2})(\d{2})/,"$3.$2.$1"):L.watchNever;}
+function watchRowHtml(w){
+  const b=state.board;
+  if(watchEditId!==w.id){
+    const meta=`„${esc(w.phrase||"")}" · ${(w.urls||[]).length} ${esc(L.watchUrlsShort)} · ${w.intervalDays===1?esc(L.watchDaily):w.intervalDays===30?esc(L.watchMonthly):esc(L.watchWeekly)}${w.deep?" · "+esc(L.watchDeepShort):""}`;
+    return `<div class="block" style="border-left:5px solid var(--teal);padding:12px;margin-top:10px${w.paused?";opacity:.6":""}">
+    <b>${esc(w.name||w.phrase||"")}</b>
+    <div style="font-size:13px;opacity:.85;margin:4px 0">${meta}</div>
+    <div style="font-size:12.5px;opacity:.7;margin-bottom:8px">${esc(L.watchLast)}: ${esc(watchDayLabel(w.lastRunDay))}${w.lastPages?" · "+w.lastPages+" "+esc(L.watchPages):""}</div>
+    <button class="btn" data-act="watch-run" data-id="${w.id}">${esc(L.watchRunNow)}</button>
+    <button class="btn" data-act="watch-edit" data-id="${w.id}">${esc(L.watchEditBtn)}</button>
+    <button class="btn" data-act="watch-pause" data-id="${w.id}">${w.paused?esc(L.watchResume):esc(L.watchPause)}</button>
+    <button class="icon danger" data-act="watch-del" data-id="${w.id}" title="${esc(L.watchDelAsk)}">✕</button></div>`;
+  }
+  const opt=(v,label,sel)=>`<option value="${v}" ${v===sel?"selected":""}>${esc(label)}</option>`;
+  const every=opt(1,L.watchDaily,w.intervalDays||7)+opt(7,L.watchWeekly,w.intervalDays||7)+opt(30,L.watchMonthly,w.intervalDays||7);
+  const after=opt("sleep",L.watchSleep,w.afterFound||"sleep")+opt("delete",L.watchDelete,w.afterFound||"sleep")+opt("keep",L.watchKeep,w.afterFound||"sleep");
+  const areas=`<option value="">${esc(L.watchLinkNone)}</option>`+(b.areas||[]).map(a=>opt(a.id,a.name,w.areaId||"")).join("");
+  return `<div class="block" style="border-left:5px solid #b4881f;padding:12px;margin-top:10px">
+    <b>${esc(L.watchEditTitle)}</b>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+      <input type="text" data-we="name" value="${esc(w.name||"")}" placeholder="${esc(L.watchName)}"/>
+      <input type="text" data-we="phrase" value="${esc(w.phrase||"")}" placeholder="${esc(L.watchPhrase)}"/>
+      <textarea data-we="urls" rows="4" placeholder="${esc(L.watchUrls)}" style="font-size:13px;padding:8px;border:1px solid var(--line);border-radius:8px">${esc((w.urls||[]).join("\n"))}</textarea>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px">
+        <select data-we="every">${every}</select>
+        <select data-we="after">${after}</select>
+        <label>${esc(L.watchLinkArea)} <select data-we="area">${areas}</select></label>
+        <label><input type="checkbox" data-we="deep" ${w.deep?"checked":""}/> ${esc(L.watchDeep)}</label>
+      </div>
+      <div><button class="btn primary" data-act="watch-edit-save" data-id="${w.id}">${esc(L.watchSave)}</button> 
+      <button class="btn" data-act="watch-edit-cancel">${esc(L.watchCancel)}</button></div>
+    </div></div>`;}
+function renderWatch(){const p=$("watchPanel");if(!p)return;
+  const b=state.board;b.watches=b.watches||[];b.watchHits=b.watchHits||[];
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="watchPanel" style="float:right;font-size:16px">×</button>`;
+  const srcArea=(b.areas||[]).find(a=>a.id===b.settings.watchSourceArea);
+  const prefill=srcArea?(srcArea.links||[]).map(l=>l.url).filter(Boolean).join("\n"):"";
+  const hits=b.watchHits.map(h=>`<div class="block" style="border-left:5px solid #b4881f;padding:12px;margin-top:10px">
+    <b>${esc(h.name||"")}</b>
+    <div style="font-size:13px;margin:6px 0;word-break:break-all"><a href="${esc(h.url)}" target="_blank" rel="noreferrer">${esc(h.url)}</a></div>
+    ${(h.dates&&h.dates.length)?`<div style="font-size:13px;margin:8px 0"><b>${esc(L.watchDates)}</b>`+h.dates.map((d,di)=>`<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">
+      <span>${esc(watchDateLabel(d))}</span>
+      <button class="linkbtn" data-act="watch-cal-here" data-id="${h.id}" data-di="${di}">📅 ${esc(L.watchCalHere)}</button>
+      <button class="linkbtn" data-act="watch-cal-google" data-id="${h.id}" data-di="${di}">${esc(L.watchCalGoogle)}</button></div>`).join("")+`</div>`:""}
+    ${(()=>{const w=(b.watches||[]).find(x=>x.id===h.watchId);if(!w||!w.areaId)return "";const m=watchMatchEntry(w);if(!m||!m.area)return "";
+      return m.item
+        ? `<div style="font-size:12.5px;opacity:.85;margin-bottom:8px">🔗 ${esc(L.watchLinked)}: <b>${esc(m.area.name)}</b> → „${esc(watchItemName(m.item))}"<br>${esc(L.watchLinkedNote)}</div>`
+        : `<div style="font-size:12.5px;opacity:.75;margin-bottom:8px">🔗 ${esc(L.watchLinkNoMatch.replace("{a}",m.area.name))}</div>`;})()}
+    ${h.ticketUrl?`<div style="font-size:13px;margin-bottom:8px"><a href="${esc(h.ticketUrl)}" target="_blank" rel="noreferrer">🎟️ ${esc(L.watchTickets)}</a></div>`:""}
+    <div style="font-size:13px;opacity:.85;margin-bottom:8px">…${esc(h.snippet||"")}…</div>
+    <div style="font-size:13.5px;margin-bottom:6px"><b>${esc(L.watchAsk)}</b></div>
+    <button class="btn primary" data-act="watch-hit-yes" data-id="${h.id}">${esc(L.watchYes)}</button>
+    <button class="btn" data-act="watch-hit-no" data-id="${h.id}">${esc(L.watchNo)}</button></div>`).join("");
+  const rows=b.watches.length?b.watches.map(watchRowHtml).join(""):`<div style="opacity:.7;font-size:13.5px;margin-top:10px">${esc(L.watchEmpty)}</div>`;
+  const form=`<div class="block" style="border-left:5px solid #888;padding:12px;margin-top:14px">
+    <b>${esc(L.watchNew)}</b>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+      <input type="text" data-wf="name" placeholder="${esc(L.watchName)}"/>
+      <input type="text" data-wf="phrase" placeholder="${esc(L.watchPhrase)}"/>
+      <textarea data-wf="urls" rows="4" placeholder="${esc(L.watchUrls)}" style="font-size:13px;padding:8px;border:1px solid var(--line);border-radius:8px">${esc(prefill)}</textarea>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px">
+        <select data-wf="every"><option value="1">${esc(L.watchDaily)}</option><option value="7" selected>${esc(L.watchWeekly)}</option><option value="30">${esc(L.watchMonthly)}</option></select>
+        <select data-wf="after"><option value="sleep">${esc(L.watchSleep)}</option><option value="delete">${esc(L.watchDelete)}</option><option value="keep">${esc(L.watchKeep)}</option></select>
+        <label><input type="checkbox" data-wf="deep"/> ${esc(L.watchDeep)}</label>
+        <label>${esc(L.watchLinkArea)} <select data-wf="area"><option value="">${esc(L.watchLinkNone)}</option>${b.areas.map(a=>`<option value="${a.id}" ${a.id===(b.settings.watchLinkArea||"")?"selected":""}>${esc(a.name)}</option>`).join("")}</select></label>
+      </div>
+      <button class="btn primary" data-act="watch-add">${esc(L.watchAdd)}</button>
+    </div></div>`;
+  const quiet=b.settings.watchEmail?"":`<div style="font-size:12.5px;opacity:.75;margin-top:8px">${esc(L.watchQuiet)}</div>`;
+  p.innerHTML=`<h3>${esc(L.watchTitle)} ${close}</h3>${hits?`<h4 style="margin:10px 0 0">${esc(L.watchHitsTitle)}</h4>`+hits:""}${rows}${form}${quiet}`;}
+
+function renderFaq(){const p=$("faqPanel");if(!p)return;
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="faqPanel" style="float:right;font-size:16px">×</button>`;
+  const items=(FAQ[(L===DICT.en)?"en":"cs"]||FAQ.cs).map(([q,a,more])=>`<details class="faq-it"><summary>${esc(q)}</summary><div class="faq-a">${esc(a)}${more?`<details class="faq-more"><summary>${esc(L.faqMore)}</summary><div class="faq-a2">${esc(more)}</div></details>`:""}</div></details>`).join("");
+  p.innerHTML=`<style>.faq-it{border-top:1px solid var(--line);padding:8px 0}.faq-it:first-of-type{border-top:0}.faq-it summary{cursor:pointer;font-weight:600;font-size:14px}.faq-more{margin-top:6px}.faq-more summary{cursor:pointer;font-weight:500;font-size:12.5px;opacity:.75}.faq-a2{font-size:13px;opacity:.9;margin-top:6px;line-height:1.55}.faq-a{margin-top:6px;font-size:13.5px;color:var(--ink);line-height:1.5}</style><h3>${L.faqTitle} ${close}</h3>${items}`;}
+
+/* ---------- Cyklus (menstruační, za PINem) ---------- */
+const CYCT={cs:{title:"Cyklus",lock:"Zadej PIN pro přístup k cyklu (stejný jako u kalendáře).",unlock:"Odemknout",pinPh:"PIN",bad:"Špatný PIN, nebo cyklus není zapnutý (chybí CAL_PIN, viz README).",logToday:"Začátek dnes",endToday:"Konec dnes",add:"+ Přidat ručně",start:"Začátek",end:"Konec (volitelně)",save:"Uložit",cancel:"Zrušit",none:"Zatím nic zaznamenaného.",records:"Záznamy",avgCycle:"Průměrný cyklus",avgPeriod:"Délka menstruace",logged:"Zaznamenáno",cyclesU:"cyklů",days:"dní",variability:"kolísání",nextPeriod:"Další menstruace (odhad)",more:"další",fertile:"Plodné okno (odhad)",ovul:"Ovulace (odhad)",needMore:"Zaznamenej aspoň 2 začátky menstruace, ať jde odhadovat. Zatím počítám s průměrem 28 dní.",lgLogged:"menstruace",lgPred:"předpověď",lgFert:"plodné okno",lgOv:"ovulace",disclaimer:"Jen orientační odhad z tvých dat — není to lékařská rada ani antikoncepce. Přesnost roste s počtem zaznamenaných cyklů a u nepravidelných cyklů je nižší.",delConfirm:"Smazat tento záznam?",ongoing:"probíhá",len:"délka",between:"spíš mezi",regReg:"pravidelný",regSemi:"mírně nepravidelný",regIrr:"nepravidelný",regFew:"málo dat",irrNote:"Tvé cykly dost kolísají — ber předpověď jako široké okno, ne přesné datum.",skip:"Atypický (nepočítat do statistik)",skipBadge:"atypický",lgWin:"možné okno",colorsBtn:"Barvy",projTitle:"Promítnout do kalendáře",projApp:"Zobrazit fáze v appkovém kalendáři (nesdílí data s Googlem)",projGoogle:"Poslat předpověď do Google Kalendáře",projWarn:"Pozor: poslání do Google Kalendáře znamená, že tvá data o cyklu opustí tvůj Cloudflare a budou uložená u Googlu (třetí strana) podle jeho podmínek. Appkový překryv výš zůstává jen u tebe.",projConfirm:"Tím se vytvoří události o předpovědi menstruace přímo v tvém Google Kalendáři — tato citlivá data se tím sdílejí s Googlem. Pokračovat?",projDone:"Vytvořeno {n} událostí v Google Kalendáři.",projNoConn:"Nejdřív připoj Google Kalendář (v panelu Kalendář).",evPeriod:"Menstruace (předpověď)",evOvul:"Ovulace (odhad)",evDesc:"Vytvořeno appkou Rozcestník – orientační odhad."},
+en:{title:"Cycle",lock:"Enter PIN to access the cycle tracker (same as the calendar).",unlock:"Unlock",pinPh:"PIN",bad:"Wrong PIN, or the tracker isn't enabled (CAL_PIN missing, see README).",logToday:"Started today",endToday:"Ended today",add:"+ Add manually",start:"Start",end:"End (optional)",save:"Save",cancel:"Cancel",none:"Nothing logged yet.",records:"Records",avgCycle:"Average cycle",avgPeriod:"Period length",logged:"Logged",cyclesU:"cycles",days:"days",variability:"variation",nextPeriod:"Next period (estimate)",more:"more",fertile:"Fertile window (estimate)",ovul:"Ovulation (estimate)",needMore:"Log at least 2 period starts for estimates. Using a 28-day average for now.",lgLogged:"period",lgPred:"predicted",lgFert:"fertile window",lgOv:"ovulation",disclaimer:"A rough estimate from your data — not medical advice and not contraception. Accuracy grows with more logged cycles and is lower for irregular cycles.",delConfirm:"Delete this record?",ongoing:"ongoing",len:"length",between:"likely between",regReg:"regular",regSemi:"slightly irregular",regIrr:"irregular",regFew:"little data",irrNote:"Your cycles vary a lot — treat the prediction as a wide window, not an exact date.",skip:"Atypical (exclude from stats)",skipBadge:"atypical",lgWin:"possible window",colorsBtn:"Colors",projTitle:"Project into a calendar",projApp:"Show phases in the app calendar (does not share data with Google)",projGoogle:"Send prediction to Google Calendar",projWarn:"Warning: sending to Google Calendar means your cycle data leaves your Cloudflare and is stored at Google (a third party) under its terms. The in-app overlay above stays with you only.",projConfirm:"This creates period-prediction events directly in your Google Calendar — this sensitive data is shared with Google. Continue?",projDone:"Created {n} events in Google Calendar.",projNoConn:"Connect Google Calendar first (in the Calendar panel).",evPeriod:"Period (prediction)",evOvul:"Ovulation (estimate)",evDesc:"Created by Rozcestník app – rough estimate."}};
+function cycT(){return CYCT[(L===DICT.en)?"en":"cs"];}
+const CYC_CSS=`<style>
+.cyc-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.cyc-period{font-weight:600;text-transform:capitalize}
+.cyc-main{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.cyc-left{flex:0 0 auto}.cyc-right{flex:1;min-width:210px}
+.cmg-grid{display:grid;grid-template-columns:repeat(7,30px);gap:3px}
+.cmg-hd{font-size:10px;color:var(--muted);text-align:center;text-transform:uppercase}
+.cmg-cell{width:30px;height:30px;border:1px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+.cmg-cell.out{opacity:.32}
+.cmg-cell.today{outline:2px solid var(--teal);outline-offset:-2px}
+.cyc-legend{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12px;color:var(--muted);margin:8px 0}
+.cyc-legend .lg{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:1px solid var(--line)}
+.cyc-stats{font-size:13.5px;line-height:1.7}.cyc-stats b{color:var(--teal)}
+@media(max-width:560px){.cmg-grid{grid-template-columns:repeat(7,1fr)}.cmg-cell{width:auto}.cyc-left{flex:1 1 100%}}
+</style>`;
+let cycleState={periods:[],unlocked:false,err:"",cursor:new Date(),creating:false,editId:null,createDate:null,colorsOpen:false};
+function cycHeaders(){return calState.pin?{"x-cal-pin":calState.pin}:{};}
+async function cycApi(path,opts={}){try{const r=await fetch(path,{...opts,headers:{"content-type":"application/json",...cycHeaders(),...(opts.headers||{})}});let body={};try{body=await r.json();}catch(e){}return{status:r.status,body};}catch(e){return{status:0,body:{}};}}
+function daysBetween(a,b){return Math.round((Date.parse(b+"T00:00:00Z")-Date.parse(a+"T00:00:00Z"))/86400000);}
+function eachDayKey(from,to,fn){let k=from,g=0;while(k<=to&&g<420){fn(k);k=addDayKey(k,1);g++;}}
+function cycFmt(key){try{return new Intl.DateTimeFormat(calLoc(),{weekday:"short",day:"numeric",month:"short"}).format(new Date(key+"T12:00:00"));}catch{return key;}}
+function cycOngoing(){return cycleState.periods.filter(p=>p.start&&!p.end).sort((a,b)=>a.start.localeCompare(b.start)).pop();}
+function cycMedian(a){if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function computeCycle(periods){
+  const ps=[...periods].filter(p=>p.start).sort((a,b)=>a.start.localeCompare(b.start));
+  const starts=ps.map(p=>p.start);
+  const lensAll=[];for(let i=1;i<starts.length;i++){if(ps[i-1].skip||ps[i].skip)continue;const d=daysBetween(starts[i-1],starts[i]);if(d>=10&&d<=90)lensAll.push(d);}
+  const recent=lensAll.slice(-6),base=lensAll.slice(-12);
+  const med=recent.length?Math.round(cycMedian(recent)):28;
+  const medB=base.length?cycMedian(base):med;
+  const mad=base.length?Math.round(cycMedian(base.map(x=>Math.abs(x-medB)))):0;
+  const spread=Math.max(1,Math.round(mad*1.5));
+  let reg=lensAll.length<3?"few":(mad>=5?"irr":(mad>=3?"semi":"reg"));
+  const plens=ps.filter(p=>!p.skip&&p.end).map(p=>daysBetween(p.start,p.end)+1).filter(x=>x>=1&&x<=14);
+  const avgPeriod=plens.length?Math.round(cycMedian(plens)):5;
+  const lastStart=starts.length?starts[starts.length-1]:null;
+  const pred=[];if(lastStart&&recent.length){for(let k=1;k<=3;k++)pred.push(addDayKey(lastStart,med*k));}
+  const map={};ps.forEach(p=>eachDayKey(p.start,p.end||p.start,k=>{map[k]="logged";}));
+  let fertile=null,ovul=null,win=null;
+  pred.forEach((ns,idx)=>{
+    if(idx===0)eachDayKey(addDayKey(ns,-spread),addDayKey(ns,avgPeriod-1+spread),k=>{if(!map[k])map[k]="win";});
+    eachDayKey(ns,addDayKey(ns,avgPeriod-1),k=>{if(!map[k]||map[k]==="win")map[k]="pred";});
+    const ov=addDayKey(ns,-14);eachDayKey(addDayKey(ov,-5),addDayKey(ov,1),k=>{if(!map[k]||map[k]==="win")map[k]="fertile";});
+    if(!map[ov]||map[ov]==="fertile"||map[ov]==="win")map[ov]="ovul";
+    if(idx===0){ovul=ov;fertile={from:addDayKey(ov,-5),to:addDayKey(ov,1)};win={from:addDayKey(ns,-spread),to:addDayKey(ns,spread),likely:ns};}});
+  return{med,avgPeriod,count:starts.length,cycles:lensAll.length,mad,spread,reg,lastStart,pred,map,fertile,ovul,win,enough:lensAll.length>=1};
+}
+function cycForm(){const T=cycT();const ev=cycleState.editId?cycleState.periods.find(p=>p.id===cycleState.editId):null;const today=new Date().toISOString().slice(0,10);
+  const s=ev?ev.start:(cycleState.createDate||today),e=ev&&ev.end?ev.end:"";
+  return `<div class="block" style="border-left:5px solid #C0392B;padding:12px">
+   <div class="set-row"><span>${T.start}</span><input type="date" id="cycStart" value="${esc(s)}"></div>
+   <div class="set-row"><span>${T.end}</span><input type="date" id="cycEnd" value="${esc(e)}"></div>
+   <label class="set-row" style="cursor:pointer"><span>${T.skip}</span><input type="checkbox" id="cycSkip" ${ev&&ev.skip?"checked":""} style="width:18px;height:18px"></label>
+   <div style="margin-top:10px"><button class="btn primary" data-act="cyc-save">${T.save}</button> <button class="btn" data-act="cyc-cancel">${T.cancel}</button></div></div>`;}
+function cycCfg(){const s=state.board.settings;s.cycleCfg=s.cycleCfg||{};const c=s.cycleCfg;c.colors=Object.assign({logged:"#C0392B",pred:"#E8A598",win:"#F3D9D4",fertile:"#DCEFE6",ovul:"#2E8B7B"},c.colors||{});if(typeof c.overlay!=="boolean")c.overlay=false;return c;}
+function cycColor(t){return t?(cycCfg().colors[t]||""):"";}
+function cycContrast(hex){try{const a=hexRgb(hex);return (0.299*a[0]+0.587*a[1]+0.114*a[2])>155?"#20262B":"#fff";}catch{return "#20262B";}}
+function cycLegend(){const T=cycT(),c=cycCfg().colors,sw=(k)=>`<span><span class="lg" style="background:${c[k]}"></span>`;return `<div class="cyc-legend">${sw("logged")}${T.lgLogged}</span>${sw("pred")}${T.lgPred}</span>${sw("win")}${T.lgWin}</span>${sw("fertile")}${T.lgFert}</span>${sw("ovul")}${T.lgOv}</span></div>`;}
+function cycMonthGrid(c){const g=monthGrid(cycleState.cursor),cm=cycleState.cursor.getMonth(),todayKey=fmtKey(new Date());
+  const head=weekdayNames().map(n=>`<div class="cmg-hd">${n}</div>`).join("");
+  const cells=g.days.map(d=>{const key=fmtKey(d),out=d.getMonth()!==cm,t=c.map[key]||"",col=cycColor(t);
+    const st=col?` style="background:${col};color:${cycContrast(col)};border-color:${col}"`:"";
+    return `<div class="cmg-cell${out?" out":""}${key===todayKey?" today":""}"${st} data-act="cyc-day" data-date="${key}" title="${esc(cycFmt(key))}">${d.getDate()}</div>`;}).join("");
+  return `<div class="cmg-grid">${head}${cells}</div>`;}
+function cycColorsForm(){const c=cycCfg(),T=cycT();const row=(k,lbl)=>`<div class="set-row"><span>${lbl}</span><input type="color" data-act="cyc-color" data-k="${k}" value="${esc(c.colors[k])}"></div>`;return `<div class="block" style="padding:12px;margin-bottom:10px">${row("logged",T.lgLogged)}${row("pred",T.lgPred)}${row("win",T.lgWin)}${row("fertile",T.lgFert)}${row("ovul",T.lgOv)}<div style="margin-top:8px"><button class="btn primary" data-act="cyc-colors-close">${T.save}</button></div></div>`;}
+function cycProject(){const c=cycCfg(),T=cycT();return `<div class="block" style="padding:12px;margin-top:10px"><b>${T.projTitle}</b><label class="set-row" style="cursor:pointer"><span>${T.projApp}</span><input type="checkbox" data-act="cyc-overlay" ${c.overlay?"checked":""} style="width:18px;height:18px"></label><div style="margin-top:8px"><button class="btn" data-act="cyc-push">${T.projGoogle}</button></div><div class="empty" style="text-align:left;color:var(--broken)">${T.projWarn}</div><div style="margin-top:10px;border-top:1px solid var(--lineSoft);padding-top:10px"><button class="btn danger" data-act="cyc-wipe">${L.wipeCycle}</button></div></div>`;}
+function cycStats(c){const T=cycT();let h=`<div class="cyc-stats">`;
+  if(c.cycles<1)h+=`<div class="empty" style="text-align:left">${T.needMore}</div>`;
+  const regLbl={reg:T.regReg,semi:T.regSemi,irr:T.regIrr,few:T.regFew}[c.reg]||"";
+  h+=`${T.avgCycle}: <b>${c.med} ${T.days}</b> <span class="when">(±${c.spread} · ${regLbl})</span><br>${T.avgPeriod}: <b>${c.avgPeriod} ${T.days}</b> · ${T.logged}: <b>${c.cycles} ${T.cyclesU}</b>`;
+  if(c.win)h+=`<br>${T.nextPeriod}: <b>${esc(cycFmt(c.win.likely))}</b> <span class="when">(${T.between} ${esc(cycFmt(c.win.from))} – ${esc(cycFmt(c.win.to))})</span>`;
+  if(c.pred.length>1)h+=`<br><span class="when">${T.more}: ${esc(cycFmt(c.pred[1]))}, ${esc(cycFmt(c.pred[2]))}</span>`;
+  if(c.fertile)h+=`<br>${T.fertile}: <b>${esc(cycFmt(c.fertile.from))} – ${esc(cycFmt(c.fertile.to))}</b>`;
+  if(c.ovul)h+=`<br>${T.ovul}: <b>${esc(cycFmt(c.ovul))}</b>`;
+  h+=`</div>`;
+  if(c.reg==="irr")h+=`<div class="empty" style="text-align:left;color:var(--broken)">${T.irrNote}</div>`;
+  h+=`<div class="empty" style="text-align:left;color:var(--muted);margin-top:8px">${T.disclaimer}</div>`;
+  return h;}
+function cycList(){const T=cycT();const ps=[...cycleState.periods].filter(p=>p.start).sort((a,b)=>b.start.localeCompare(a.start));
+  if(!ps.length)return `<div style="margin-top:10px"><b>${T.records}</b><div class="empty">${T.none}</div></div>`;
+  return `<div style="margin-top:10px"><b>${T.records}</b>`+ps.map(p=>{const len=p.end?(daysBetween(p.start,p.end)+1)+" "+T.days:T.ongoing;return `<div class="row"><span class="t" style="font-size:13px">${esc(cycFmt(p.start))}${p.end?" – "+esc(cycFmt(p.end)):""} <span class="when">· ${len}</span>${p.skip?` <span class="when" style="color:var(--broken)">${T.skipBadge}</span>`:""}</span><span style="display:flex;gap:4px"><button class="icon" data-act="cyc-edit" data-id="${esc(p.id)}">✎</button><button class="icon danger" data-act="cyc-del" data-id="${esc(p.id)}">×</button></span></div>`;}).join("")+`</div>`;}
+function renderCycle(){const p=$("cyclePanel");if(!p)return;const T=cycT();
+  const close=`<button class="linkbtn" data-act="close-panel" data-panel="cyclePanel" style="float:right;font-size:16px">×</button>`;
+  let body="";
+  if(!cycleState.unlocked){
+    body=`<div class="set-row" style="border:none"><span>${T.lock}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="password" id="cycPin" placeholder="${T.pinPh}" value="${esc(calState.pin||"")}" style="flex:1;min-width:160px"><button class="btn primary" data-act="cyc-unlock">${T.unlock}</button></div>${cycleState.err?`<div class="empty" style="color:var(--broken)">${esc(cycleState.err)}</div>`:""}`;
+  }else if(cycleState.creating||cycleState.editId){
+    body=cycForm();
+  }else{
+    const c=computeCycle(cycleState.periods),ongoing=cycOngoing();
+    const navLabel=new Intl.DateTimeFormat(calLoc(),{month:"long",year:"numeric"}).format(cycleState.cursor);
+    const actions=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><button class="btn primary" data-act="cyc-logtoday">${T.logToday}</button>${ongoing?`<button class="btn" data-act="cyc-endtoday">${T.endToday}</button>`:""}<button class="btn" data-act="cyc-add">${T.add}</button><button class="btn" data-act="cyc-colors-toggle">${T.colorsBtn}</button></div>`;
+    const bar=`<div class="cyc-bar"><div class="cyc-period">${esc(navLabel)}</div><div style="display:flex;gap:4px"><button class="btn" data-act="cyc-prev">‹</button><button class="btn" data-act="cyc-today">${L.calToday}</button><button class="btn" data-act="cyc-next">›</button></div></div>`;
+    const main=`<div class="cyc-main"><div class="cyc-left">${bar}${cycMonthGrid(c)}${cycLegend()}</div><div class="cyc-right">${cycStats(c)}</div></div>`;
+    body=actions+(cycleState.colorsOpen?cycColorsForm():"")+main+cycProject()+cycList();
+  }
+  p.innerHTML=`${CYC_CSS}<h3>🌸 ${T.title} ${close}</h3>${body}`;}
+async function openCycle(){const p=$("cyclePanel");if(!p)return;p.style.display="block";cycleState.err="";if(!calState.pin)calState.pin=calPinLoad();renderCycle();
+  if(!calState.pin)return;
+  const r=await cycApi("/api/cycle/get");
+  if(r.status===200){cycleState.periods=(r.body&&r.body.periods)||[];cycleState.unlocked=true;cycleState.err="";renderCycle();}
+  else{cycleState.unlocked=false;cycleState.err=cycT().bad;calPinClear();renderCycle();}}
+async function persistCycle(){const r=await cycApi("/api/cycle/save",{method:"POST",body:JSON.stringify({periods:cycleState.periods})});if(r.status!==200)alert("Cyklus: "+((r.body&&r.body.error)||r.status));renderCycle();}
+function cycShift(n){const d=new Date(cycleState.cursor);d.setMonth(d.getMonth()+n);cycleState.cursor=d;renderCycle();}
+async function cyclePushGoogle(){const T=cycT();const c=computeCycle(cycleState.periods);if(!c.pred.length){alert(T.needMore);return;}if(!confirm(T.projConfirm))return;
+  let ok=0,reauth=false;
+  for(const ns of c.pred){
+    const r=await calApi("/api/cal/create",{method:"POST",body:JSON.stringify({summary:"🌸 "+T.evPeriod,allDay:true,date:ns,endDate:addDayKey(ns,Math.max(0,c.avgPeriod-1)),tz:tz(),description:T.evDesc})});
+    if(r.status===200)ok++;else if(r.status===401&&r.body&&r.body.error==="reauth"){reauth=true;break;}
+    const ov=addDayKey(ns,-14);
+    const r2=await calApi("/api/cal/create",{method:"POST",body:JSON.stringify({summary:T.evOvul,allDay:true,date:ov,endDate:ov,tz:tz(),description:T.evDesc})});
+    if(r2.status===200)ok++;else if(r2.status===401&&r2.body&&r2.body.error==="reauth"){reauth=true;break;}
+  }
+  alert(reauth?T.projNoConn:T.projDone.replace("{n}",ok));}
+
+/* boot */
+function normBoard(b){
+  b.areas=b.areas||[];b.tasks=b.tasks||[];b.quotes=b.quotes||[];b.blocks=b.blocks||[];b.trash=b.trash||[];b.meta=b.meta||{};
+  b.loans=b.loans||{out:[],in:[]};b.loans.out=b.loans.out||[];b.loans.in=b.loans.in||[];b.debts=Array.isArray(b.debts)?b.debts:[];b.watches=Array.isArray(b.watches)?b.watches:[];b.watchHits=Array.isArray(b.watchHits)?b.watchHits:[];
+  b.settings=Object.assign({tz:tzGuess(),lang:"cs",dailyCleanup:"move",doneRetention:"week",quoteSep:"|",lastDailyKey:0,weekStart:"mon",areaScroll:true,gridUnified:false,hiddenPos:"top",title:"Rozcestník",areasMin:false,taskSort:"manual",baseCur:"CZK"},b.settings||{});
+  b.settings.features=Object.assign({book:true},b.settings.features||{});
+  b.areas.forEach(a=>{a.type=a.type||"links";a.links=a.links||[];a.color=a.color||"#5B3A57";});
+  b.blocks.forEach(bl=>{bl.goals=bl.goals||[];bl.doing=bl.doing||[];bl.done=bl.done||[];bl.doneRetention=bl.doneRetention||"never";bl.color=bl.color||"#246A63";});
+  return b;
+}
+async function refreshState(){
+  if(editing||saveTimer)return;
+  const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;
+  try{const r=await api("/api/state");if(!r||!r.board)return;const s=JSON.stringify(r.board);if(s===lastBoardStr)return;state.board=normBoard(r.board);state.inbox=r.inbox||state.inbox;lastBoardStr=s;render();}catch(e){}
+}
+async function start(){
+  try{const r=await api("/api/state");state={board:r.board||{},inbox:r.inbox||[],r2:!!(r&&r.r2)};}catch(e){state={board:{},inbox:[],r2:false};}
+  normBoard(state.board);
+  lastBoardStr=JSON.stringify(state.board);
+  applyLang();render();setQuote();
+  if(new URLSearchParams(location.search).get("cal")==="1"){openCal();}
+  if(new URLSearchParams(location.search).get("shares")==="1"){openShare();}
+}
+start();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshState();});
+window.addEventListener("focus",refreshState);
+setInterval(refreshState,30000);
+setInterval(setQuote,20*60*1000);
+setInterval(()=>{if(!editing)renderBlocks();},60000); // odpočty
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+</body>
+</html>

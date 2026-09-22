@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Sdíleno – Rozcestník</title>
+<style>
+:root{--bg:#F5F2EC;--card:#fff;--ink:#20262B;--muted:#7A8087;--teal:#246A63;--ok:#2E7D32;--broken:#B23A3A;--line:#E6E1D7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:18px}
+h1{font-size:19px;margin:0 0 2px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 8px}
+.item{padding:6px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.item:first-of-type{border-top:0}
+.item>a,.item{word-break:break-word}
+a{color:var(--teal)}
+.muted{color:var(--muted)}
+.done{text-decoration:line-through;color:var(--muted)}
+.broken{color:var(--broken);font-size:12px}
+.ctrl{margin-left:auto;display:flex;gap:4px;flex-shrink:0}
+.mini{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:13px;cursor:pointer}
+.mini.del{color:var(--broken)}
+.item.edit{flex-wrap:wrap}
+.item.edit input{flex:1;min-width:120px}
+.erow{display:flex;gap:6px;width:100%;margin-top:4px}
+.add{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+.add input{flex:1;min-width:120px}
+input{font:inherit;padding:9px;border:1px solid var(--line);border-radius:8px;width:100%}
+input[type=checkbox]{width:18px;height:18px;flex:0 0 auto}
+button{font:inherit;padding:9px 16px;border:0;border-radius:8px;background:var(--teal);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.note{font-size:12px;color:var(--muted);margin-top:16px;text-align:center}
+.center{text-align:center;padding:48px 12px}
+.lbl{font-size:12px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app"><div class="center muted">Načítám…</div></div></div>
+<script>
+var _m = location.pathname.match(/^\/s\/([^\/?#]+)/);
+var token = _m ? decodeURIComponent(_m[1]) : (new URLSearchParams(location.search).get("t") || "");
+var app = document.getElementById("app");
+var curPass = "", data = null, editing = null;
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function fmt(ts){try{return new Date(ts).toLocaleString("cs-CZ",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
+function val(id){var e=document.getElementById(id);return e?e.value:"";}
+function info(title,msg){app.innerHTML='<div class="center"><h1>'+esc(title)+'</h1><p class="muted">'+esc(msg)+'</p></div>';}
+function askPass(d){
+  app.innerHTML='<div class="center"><h1>'+esc(d.label||"Soukromé sdílení")+'</h1>'+
+    '<p class="muted">'+(d.bad?"Špatné heslo. ":"")+'Zadej heslo pro zobrazení:</p>'+
+    '<div style="max-width:280px;margin:0 auto;display:flex;gap:8px"><input id="p" type="password" autofocus><button id="go">OK</button></div></div>';
+  var go=function(){load(document.getElementById("p").value);};
+  document.getElementById("go").onclick=go;
+  document.getElementById("p").addEventListener("keydown",function(e){if(e.key==="Enter")go();});
+}
+async function load(pass){
+  if(pass!==undefined)curPass=pass;
+  app.innerHTML='<div class="center muted">Načítám…</div>';
+  var r,d={};
+  try{ r=await fetch("/api/share/view?token="+encodeURIComponent(token),{headers:curPass?{"x-share-pass":curPass}:{}}); d=await r.json(); }
+  catch(e){ info("Chyba spojení","Zkus to prosím znovu."); return; }
+  if(r.status===404){ info("Odkaz nenalezen","Sdílení možná bylo zrušeno."); return; }
+  if(r.status===410){ info("Platnost vypršela","Tento sdílený odkaz už není aktivní."); return; }
+  if(r.status===401 && d.needPassword){ askPass(d); return; }
+  if(r.status!==200){ info("Chyba","Obsah se nepodařilo načíst."); return; }
+  data=d; editing=null; render();
+}
+async function op(body){
+  var r;
+  try{ r=await fetch("/api/share/edit",{method:"POST",headers:Object.assign({"content-type":"application/json"},curPass?{"x-share-pass":curPass}:{}),body:JSON.stringify(Object.assign({token:token},body))}); }
+  catch(e){ alert("Chyba spojení."); return false; }
+  if(r.status===410){ info("Platnost vypršela","Odkaz už není aktivní."); return false; }
+  if(r.status===403){ alert("Tento odkaz je jen ke čtení."); return false; }
+  if(r.status===401){ alert("Heslo neplatí."); return false; }
+  var d={}; try{ d=await r.json(); }catch(e){}
+  if(!d.ok){ alert("Úpravu se nepodařilo uložit ("+(d.error||r.status)+")."); return false; }
+  return true;
+}
+function render(){
+  var ed = data.access==="edit";
+  var h='<h1>'+esc(data.label||"Sdíleno")+'</h1><div class="sub">Rozcestník · '+(ed?"můžeš upravovat":"jen ke čtení")+'</div>';
+  (data.areas||[]).forEach(function(a){
+    h+='<div class="card"><h2>'+esc(a.name)+'</h2>';
+    (a.links||[]).forEach(function(l){
+      if(ed && editing && editing.k==="ai" && editing.area===a.id && editing.item===l.id){
+        if(a.type==="text") h+='<div class="item edit"><input id="e1" value="'+esc(l.text)+'"><div class="erow"><button data-act="save-ai" data-area="'+a.id+'" data-item="'+l.id+'" data-type="text">Uložit</button><button class="ghost" data-act="cancel">Zrušit</button></div></div>';
+        else h+='<div class="item edit"><input id="e1" placeholder="název" value="'+esc(l.title||"")+'"><input id="e2" placeholder="https://" value="'+esc(l.url||"")+'"><div class="erow"><button data-act="save-ai" data-area="'+a.id+'" data-item="'+l.id+'" data-type="links">Uložit</button><button class="ghost" data-act="cancel">Zrušit</button></div></div>';
+      } else {
+        var main = a.type==="text" ? esc(l.text) : '<a href="'+esc(l.url)+'" target="_blank" rel="noreferrer">'+esc(l.title||l.url)+'</a>'+(l.status==="broken"?' <span class="broken">(nedostupné)</span>':'');
+        h+='<div class="item">'+main+(ed?'<span class="ctrl"><button class="mini" data-act="edit-ai" data-area="'+a.id+'" data-item="'+l.id+'">✎</button><button class="mini del" data-act="del-ai" data-area="'+a.id+'" data-item="'+l.id+'">×</button></span>':'')+'</div>';
+      }
+    });
+    if(!(a.links||[]).length && !ed) h+='<div class="muted">—</div>';
+    if(ed){
+      if(a.type==="text") h+='<div class="add"><input id="na-'+a.id+'" placeholder="nový řádek"><button data-act="add-area" data-area="'+a.id+'" data-type="text">Přidat</button></div>';
+      else h+='<div class="add"><input id="nat-'+a.id+'" placeholder="název"><input id="nau-'+a.id+'" placeholder="https://"><button data-act="add-area" data-area="'+a.id+'" data-type="links">Přidat</button></div>';
+    }
+    h+='</div>';
+  });
+  (data.blocks||[]).forEach(function(b){
+    h+='<div class="card"><h2>'+esc(b.name)+'</h2>';
+    (b.goals||[]).forEach(function(g){
+      if(ed && editing && editing.k==="bg" && editing.block===b.id && editing.goal===g.id){
+        h+='<div class="item edit"><input id="e1" value="'+esc(g.text)+'"><div class="erow"><button data-act="save-bg" data-block="'+b.id+'" data-goal="'+g.id+'">Uložit</button><button class="ghost" data-act="cancel">Zrušit</button></div></div>';
+      } else {
+        h+='<div class="item">'+esc(g.text)+(ed?'<span class="ctrl"><button class="mini" data-act="done-bg" data-block="'+b.id+'" data-goal="'+g.id+'" title="Hotovo">✓</button><button class="mini" data-act="edit-bg" data-block="'+b.id+'" data-goal="'+g.id+'">✎</button><button class="mini del" data-act="del-bg" data-block="'+b.id+'" data-goal="'+g.id+'">×</button></span>':'')+'</div>';
+      }
+    });
+    if(!(b.goals||[]).length && !ed) h+='<div class="muted">—</div>';
+    if(ed) h+='<div class="add"><input id="nb-'+b.id+'" placeholder="nový cíl"><button data-act="add-block" data-block="'+b.id+'">Přidat</button></div>';
+    if(b.done && b.done.length){ h+='<div class="lbl">Hotovo:</div>'; b.done.forEach(function(x){ h+='<div class="item done">'+esc(x.text)+'</div>'; }); }
+    h+='</div>';
+  });
+  if(data.tasks){
+    h+='<div class="card"><h2>Úkoly</h2>';
+    data.tasks.forEach(function(t){
+      if(ed && editing && editing.k==="t" && editing.task===t.id){
+        h+='<div class="item edit"><input id="e1" value="'+esc(t.text)+'"><div class="erow"><button data-act="save-t" data-task="'+t.id+'">Uložit</button><button class="ghost" data-act="cancel">Zrušit</button></div></div>';
+      } else {
+        h+='<div class="item'+(t.done?" done":"")+'">'+(ed?'<input type="checkbox" data-act="toggle-t" data-task="'+t.id+'" '+(t.done?"checked":"")+'>':(t.done?"✓":""))+'<span>'+esc(t.text)+'</span>'+(ed?'<span class="ctrl"><button class="mini" data-act="edit-t" data-task="'+t.id+'">✎</button><button class="mini del" data-act="del-t" data-task="'+t.id+'">×</button></span>':'')+'</div>';
+      }
+    });
+    if(!data.tasks.length && !ed) h+='<div class="muted">—</div>';
+    if(ed) h+='<div class="add"><input id="nt" placeholder="nový úkol"><button data-act="add-task">Přidat</button></div>';
+    h+='</div>';
+  }
+  if(data.expiresAt) h+='<div class="note">Platí do '+fmt(data.expiresAt)+'</div>';
+  app.innerHTML=h;
+}
+app.addEventListener("click", async function(e){
+  var el=e.target.closest("[data-act]"); if(!el) return;
+  var a=el.dataset.act, ds=el.dataset;
+  if(a==="cancel"){ editing=null; render(); return; }
+  if(a==="edit-ai"){ editing={k:"ai",area:ds.area,item:ds.item}; render(); return; }
+  if(a==="edit-bg"){ editing={k:"bg",block:ds.block,goal:ds.goal}; render(); return; }
+  if(a==="edit-t"){ editing={k:"t",task:ds.task}; render(); return; }
+  var ok=false;
+  if(a==="save-ai"){ var body={op:"area.edit",areaId:ds.area,itemId:ds.item}; if(ds.type==="text")body.text=val("e1"); else {body.title=val("e1");body.url=val("e2");} ok=await op(body); }
+  else if(a==="del-ai"){ if(!confirm("Smazat tuto položku?"))return; ok=await op({op:"area.del",areaId:ds.area,itemId:ds.item}); }
+  else if(a==="add-area"){ var b2={op:"area.add",areaId:ds.area}; if(ds.type==="text")b2.text=val("na-"+ds.area); else {b2.title=val("nat-"+ds.area);b2.url=val("nau-"+ds.area);} ok=await op(b2); }
+  else if(a==="add-block"){ ok=await op({op:"block.add",blockId:ds.block,text:val("nb-"+ds.block)}); }
+  else if(a==="save-bg"){ ok=await op({op:"block.edit",blockId:ds.block,goalId:ds.goal,text:val("e1")}); }
+  else if(a==="del-bg"){ if(!confirm("Smazat tento cíl?"))return; ok=await op({op:"block.del",blockId:ds.block,goalId:ds.goal}); }
+  else if(a==="done-bg"){ ok=await op({op:"block.done",blockId:ds.block,goalId:ds.goal}); }
+  else if(a==="add-task"){ ok=await op({op:"task.add",text:val("nt")}); }
+  else if(a==="save-t"){ ok=await op({op:"task.edit",taskId:ds.task,text:val("e1")}); }
+  else if(a==="del-t"){ if(!confirm("Smazat tento úkol?"))return; ok=await op({op:"task.del",taskId:ds.task}); }
+  else if(a==="toggle-t"){ ok=await op({op:"task.toggle",taskId:ds.task}); }
+  if(ok){ editing=null; await load(); }
+});
+load();
+</script>
+</body>
+</html>
