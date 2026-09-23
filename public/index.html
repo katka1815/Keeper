@@ -9,56 +9,97 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Rozcestník" />
 <title>Rozcestník</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
 <style>
-  :root{--paper:#F4F2EB;--panel:#FBFAF6;--ink:#20262B;--muted:#6B7178;--line:#E4DECF;--lineSoft:#EDE8DC;
-    --teal:#246A63;--plum:#5B3A57;--ok:#2E8B57;--broken:#C0392B;--unknown:#9A8F7A;--warn:#E08A2B;--warnBg:#FBEFDC;
-    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace;}
+  :root{--paper:#ffffff;--panel:#ffffff;--ink:#252525;--muted:#666666;--caption:#767676;--line:#ebebeb;--lineStrong:#b5b5b5;--lineSoft:#f3f3f3;--flood:rgba(220,38,38,.35);
+    /* --teal a --plum drzely akcent a nadpisy; v monochromu obe padaji na inkoust,
+       cimz se jednim tahem zmonochromatizuje ~30 mist, ktera je pouzivala */
+    --teal:#252525;--plum:#252525;--ok:#ebebeb;--broken:#7a2e2e;--unknown:transparent;--warn:#8e8e8e;--warnBg:#f7f7f7;
+    --serif:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace;}
   *{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}
   a{color:inherit} button{font-family:var(--sans);cursor:pointer}
   *:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
   header.mast{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;padding:22px 28px 16px;border-bottom:1px solid var(--line)}
-  .eyebrow{font-size:11px;letter-spacing:.28em;color:var(--teal);font-weight:600}
-  .mast h1{font-family:var(--serif);font-size:34px;line-height:1;margin:6px 0 0}
+  .eyebrow{font-size:11px;letter-spacing:.28em;color:var(--caption);font-weight:500}
+  .mast h1{font-family:var(--sans);font-size:15px;font-weight:500;line-height:1.4;margin:6px 0 0;color:var(--ink)}
   .quote-wrap{margin-top:10px;display:flex;align-items:baseline;gap:8px;max-width:600px;min-height:22px}
-  .quote{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--plum);transition:opacity .25s;line-height:1.4}
+  .quote{font-family:var(--sans);font-style:italic;font-size:15px;color:var(--ink);transition:opacity .25s;line-height:1.4}
   .q-author{font-style:normal;font-size:12px;color:var(--muted)}
-  .linkbtn{background:none;border:none;color:var(--muted);font-size:12px;opacity:.6}
-  .linkbtn:hover{opacity:1;color:var(--teal)}
+  .linkbtn{background:none;border:none;color:var(--muted);font-size:12px}
+  .linkbtn:hover{opacity:1;color:var(--ink)}
   .right{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
   .health{display:flex;gap:13px;flex-wrap:wrap;font-size:13px}
   .health span{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
   .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-  .acts{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{font-size:13px;padding:8px 13px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .acts .grp{display:flex;gap:8px;flex-wrap:wrap}
+  .acts .grp+.grp{border-left:1px solid var(--lineStrong);padding-left:8px}
+  .health-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .btn.on{border-color:var(--ink);font-weight:500;background:var(--lineSoft)}
+  .linkbtn.on{color:var(--ink);font-weight:500}
+  .btn{font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid var(--lineStrong);background:var(--panel);color:var(--ink)}
 .btn.danger{border-color:var(--broken);color:var(--broken)}
-  .btn:hover{border-color:var(--teal);color:var(--teal)}
+  .btn:hover{border-color:var(--ink);color:var(--ink)}
   .btn[disabled]{opacity:.5}
-  .btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .btn.primary{background:#fff;color:var(--ink);border-color:var(--ink)}
   .lastcheck{font-size:12px;color:var(--muted);font-style:italic}
-  .panel{display:none;margin:12px 28px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
-  .panel h3{font-family:var(--serif);margin:0 0 10px;color:var(--plum);font-size:16px}
+  .panel{display:none;margin:12px 28px 0;background:var(--panel);border:1px solid var(--line);border-radius:0;padding:16px}
+  .dock{display:none;margin:12px 28px 0}
+  .dock.on{display:block}
+  .dock-bar{display:flex;justify-content:flex-end;margin-bottom:8px}
+  .dock-x{color:var(--broken);border-color:var(--broken)}
+  .dock-x:hover{color:var(--broken);border-color:var(--broken);background:var(--flood)}
+  .dock-grid{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+  .dock .panel{margin:0;position:relative;min-width:0}
+  #dockGrid>.wide{grid-column:1/-1}
+  .dock-grid::after,#dockGrid>*::after{content:"";position:absolute;inset:0;background:var(--flood);pointer-events:none;opacity:0;transition:opacity .12s;z-index:50}
+  .dock.flood .dock-grid::after,#dockGrid>.flood::after{opacity:1}
+  .panel h3 .linkbtn[data-act=close-panel]{color:var(--ink);font-size:20px!important;line-height:1;padding:0 6px;border-radius:8px}
+  .panel h3 .linkbtn[data-act=close-panel]:hover{color:var(--broken);background:var(--lineSoft)}
+  @media (max-width:760px){.dock-grid{grid-template-columns:minmax(0,1fr)}}
+  .panel h3{font-family:var(--sans);margin:0 0 12px;color:var(--ink);font-size:15px;font-weight:500}
   .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--lineSoft)}
   .row:first-of-type{border-top:none}
   .set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--lineSoft);font-size:13px;flex-wrap:wrap}
   .set-row:first-of-type{border-top:none}
-  select,input[type=text],input[type=date],textarea{font-family:var(--sans);font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+  .set-g{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:18px 0 2px}
+  .set-g+.set-row{border-top:none}
+  select,input[type=text],input[type=date],input[type=email],textarea{font-family:var(--sans);font-size:13px;padding:8px;border:1px solid var(--lineStrong);border-radius:8px;background:#fff;color:var(--ink)}
   textarea{width:100%;min-height:120px;resize:vertical;line-height:1.4}
-  input[type=color]{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;padding:0;background:none;cursor:pointer}
+  input[type=color]{width:26px;height:26px;border:1px solid var(--line);border-radius:8px;padding:0;background:none;cursor:pointer}
   .bret{font-size:11px;padding:3px 5px}
   .filter{display:flex;gap:14px;align-items:center;padding:14px 28px 0;flex-wrap:wrap}
-  .filter input[type=search]{flex:1;max-width:360px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:15px}
+  .filter input[type=search]{flex:1;max-width:360px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px}
   .filter label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
-  section.block-card,.tasks,.inbox{margin:18px 28px 0;border-radius:12px;padding:16px}
+  section.block-card,.tasks,.inbox{margin:18px 28px 0;border-radius:0;padding:16px}
   .tasks,.block-wrap{background:var(--panel);border:1px solid var(--line)}
-  .block-wrap{margin:18px 28px 0;border-radius:12px;padding:16px}
-  .block-wrap h2,.tasks h2,.inbox h2{font-family:var(--serif);font-size:18px;margin:0 0 10px;color:var(--plum)}
+  .block-wrap{margin:18px 28px 0;border-radius:0;padding:16px}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+  .sec-head h2{margin:0!important}
+  .sec-ctl{display:inline-flex;gap:4px;align-items:center}
+  .sec-b{background:none;border:1px solid var(--lineStrong);border-radius:8px;color:var(--ink);font-size:12px;padding:4px 8px;font-family:var(--sans)}
+  .sec-b:hover{border-color:var(--ink)}
+  .areas-wrap>.sec-head{margin:18px 28px 0;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .sec-min>:not(.sec-head){display:none!important}
+  .sec-min{height:auto!important}
+  .sec-min>.sec-head{margin-bottom:0}
+  .areas-wrap.sec-min>.sec-head{border-bottom:0}
+  #dockGrid>section{margin:0;background:var(--panel);border:1px solid var(--line);padding:16px;position:relative;min-width:0;width:auto!important;height:auto!important}
+  #dockGrid>section .sec-rz,#dockGrid>section .sec-rz-x,#dockGrid>section .sec-rz-y{display:none}
+  #dockGrid .areas-wrap>.sec-head{margin:0 0 12px;padding:0;border:0}
+  #dockGrid .areas-wrap .filter,#dockGrid .areas-wrap .board,#dockGrid #boardBar,#dockGrid #hiddenBar{padding-left:0;padding-right:0}
+  #dockGrid .sec-head .linkbtn[data-act=close-panel]{color:var(--ink);font-size:20px;line-height:1;padding:0 6px;border-radius:8px}
+  #dockGrid .sec-head .linkbtn[data-act=close-panel]:hover{color:var(--broken);background:var(--lineSoft)}
+  .block-wrap h2,.tasks h2,.inbox h2,.areas-wrap h2{font-family:var(--sans);font-size:15px;font-weight:500;margin:0 0 12px;color:var(--ink)}
   .blocks{display:flex;flex-direction:column;gap:14px}
-  .block{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+  .block{border:1px solid var(--line);border-radius:0;padding:12px;background:#fff}
   .block.past{background:var(--warnBg);border-color:var(--warn)}
   .block-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
-  .block-title{font-family:var(--serif);font-size:16px;color:var(--plum);display:flex;align-items:center;gap:8px}
-  .block-meta{font-size:12px;color:var(--muted)}
+  .block-title{font-family:var(--sans);font-size:15px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .block-meta{font-size:12px;color:var(--caption)}
   .countdown{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px}
   .countdown.past{color:var(--warn)}
   .cols{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;align-items:flex-start}
@@ -84,27 +125,31 @@
   .tz-list{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff;min-width:220px}
   .tz-opt{padding:7px 10px;cursor:pointer;font-size:13px;border-top:1px solid var(--lineSoft)}
   .tz-opt:first-child{border-top:none}
-  .tz-opt:hover{background:var(--paper)}
-  .tz-opt.sel{color:var(--teal);font-weight:600}
+  .tz-opt:hover{background:var(--lineSoft)}
+  .tz-opt.sel{color:var(--ink);font-weight:500}
   @media (max-width:640px){.col-done{height:auto !important}.donelist{max-height:300px}.areagrip{display:none}.area-move-arrows{display:inline-flex}}
-  .badge{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--lineSoft);color:var(--muted);font-weight:600}
-  .icon{background:none;border:none;color:var(--muted);font-size:14px;padding:6px 7px;border-radius:5px;line-height:1}
-  .icon:hover{background:var(--paper);color:var(--ink)}
-  .icon.good:hover{color:var(--ok)} .icon.danger:hover{color:var(--broken)} .icon[disabled]{opacity:.3}
+  .badge{font-size:10px;padding:1px 6px;border-radius:8px;background:var(--lineSoft);color:var(--muted);font-weight:500}
+  .icon{background:none;border:none;color:var(--caption);font-size:14px;padding:6px 8px;border-radius:8px;line-height:1}
+  .icon:hover{background:var(--lineSoft);color:var(--ink)}
+  .icon.good:hover{color:var(--ink)} .icon.danger:hover{color:var(--broken)} .icon[disabled]{opacity:.3}
   .add{margin-top:8px;width:100%;background:none;border:1px dashed var(--line);border-radius:8px;padding:9px;font-size:13px;color:var(--muted)}
-  .add:hover{border-color:var(--teal);color:var(--teal)}
-  .edit-inp{flex:1;font-size:14px;padding:5px 8px;border:1px solid var(--teal);border-radius:6px;background:#fff;color:var(--ink)}
+  .add:hover{border-color:var(--ink);color:var(--ink)}
+  .edit-inp{flex:1;font-size:14px;padding:6px 8px;border:1px solid var(--ink);border-radius:8px;background:#fff;color:var(--ink)}
   .empty{font-size:12.5px;color:var(--muted);font-style:italic;padding:8px 4px}
-  .inbox{background:#FBF6E8;border:1px solid #ECE0C2}
-  .inbox h2{color:#7a5d1f}
-  .inbox-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px;border-top:1px solid #efe3c6}
+  .inbox{background:#fff;border:1px solid var(--line)}
+  .inbox h2{color:var(--ink)}
+  .inbox-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px;border-top:1px solid var(--lineSoft)}
   .inbox-item:first-of-type{border-top:none}
-  .quickadd{display:flex;gap:8px;align-items:center;margin:18px 28px 0;background:var(--card,#fff);border:1px solid var(--teal);border-radius:12px;padding:10px 12px}
-  .quickadd input{flex:1;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .quickadd{display:flex;gap:8px;align-items:center;margin:18px 28px 0;background:#fff;border:1px solid var(--ink);border-radius:0;padding:12px}
+  .quickadd input{flex:1;font-size:14px;padding:9px 10px;border:1px solid var(--ink);border-radius:8px;background:#fff;color:var(--ink)}
+  .quickadd input::placeholder{color:var(--muted);opacity:1}
   .quickadd .qa-btn{flex:0 0 auto;font-size:18px;line-height:1;padding:8px 14px}
+  /* jedine plne tlacitko v appce: rychly ukol ma byt videt na prvni pohled */
+  .quickadd .qa-btn.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .quickadd .qa-btn.btn.primary:hover{background:#000;color:#fff}
   .lend-row.ret .t,.row.ret .t{text-decoration:line-through;opacity:.55}
-  .ix-type{font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:#efe3c6;color:#7a5d1f;padding:2px 7px;border-radius:5px}
-  .ix-text{flex:1;min-width:140px;font-size:14px;word-break:break-word}.ix-text a{color:var(--teal)}
+  .ix-type{font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--lineSoft);color:var(--muted);padding:2px 7px;border-radius:8px}
+  .ix-text{flex:1;min-width:140px;font-size:14px;word-break:break-word}.ix-text a{color:var(--ink)}
   main.board{display:flex;flex-wrap:wrap;gap:18px;padding:18px 28px 8px;align-items:flex-start}
 .board.unified{display:block;column-width:290px;column-gap:18px}
 .board.unified .area{display:inline-block;width:100%!important;height:auto!important;margin:0 0 18px;vertical-align:top;break-inside:avoid;-webkit-column-break-inside:avoid;resize:none}
@@ -113,9 +158,52 @@
 .area:not([data-area-id]){height:auto!important}
 .area-rz{position:absolute;right:2px;bottom:2px;width:16px;height:16px;cursor:nwse-resize;opacity:.3;touch-action:none;background:linear-gradient(135deg,transparent 45%,var(--muted) 45%,var(--muted) 55%,transparent 55%,transparent 70%,var(--muted) 70%,var(--muted) 80%,transparent 80%)}
 .area:hover .area-rz{opacity:.65}
+section.block-wrap,section.tasks,section.inbox,section.areas-wrap{position:relative}
+section.sized{overflow:hidden}
+/* zmenšené sekce se skládají vedle sebe; roluje jen tělo */
+section.sized{display:flex;flex-direction:column;max-width:100%}
+section.sized>.sec-head{flex:0 0 auto}
+section.sized>.sec-body{flex:1 1 auto;min-height:0;overflow:auto}
+/* plocha: řady sekcí, které jdou přetahovat za nadpis */
+#layout{padding:0 28px}
+.lrow{display:flex;gap:18px;align-items:stretch;margin-top:18px}
+.lrow>section{margin:0!important;flex:1 1 0;min-width:220px}
+.lrow>section.sized[style*="width"]:not(.fit){flex:0 0 auto}
+.lrow>section.fit{flex:1 1 0;contain:size;min-height:240px;width:auto!important;height:auto!important;display:flex;flex-direction:column;overflow:hidden}
+.lrow>section.fit>.sec-head{flex:0 0 auto}
+.lrow>section.fit>.sec-body{flex:1 1 auto;min-height:0;overflow:auto}
+.lrow>section.fit.sec-min{contain:none;min-height:0}
+.lrow>.areas-wrap>.sec-head{margin:0 0 12px}
+.lrow>.areas-wrap .filter,.lrow>.areas-wrap .board,.lrow #boardBar,.lrow #hiddenBar{padding-left:0;padding-right:0}
+.lrow>section>.sec-head{cursor:grab;user-select:none}
+.lrow>section.lay-drag{opacity:.45}
+body.lay-dragging,body.lay-dragging *{cursor:grabbing!important;user-select:none}
+/* režim úprav plochy (hlavně pro mobil): sekce jen jako nadpisy, táhnou se prstem */
+#layEditBar{display:none;justify-content:flex-end;padding:12px 16px 0}
+@media(max-width:640px){#layEditBar{display:flex}}
+body.lay-edit #layout .lrow>section>:not(.sec-head){display:none!important}
+body.lay-edit #layout .lrow>section{height:auto!important;min-height:0!important;contain:none!important;outline:1px dashed var(--ink);outline-offset:-1px}
+body.lay-edit #layout .lrow>.areas-wrap{padding:16px}
+body.lay-edit #layout .lrow>section>.sec-head{margin:0;touch-action:none}
+body.lay-edit #layout .lrow>section>.sec-head button{display:none}
+body.lay-edit #layout .lrow>section>.sec-head h2::before{content:"⠿  ";color:var(--muted)}
+body.lay-edit #layEditBtn{position:fixed;right:16px;bottom:16px;z-index:210;background:#fff;border-color:var(--ink);font-weight:500}
+#layMark{position:fixed;background:var(--ink);z-index:200;pointer-events:none;display:none}
+@media(max-width:640px){#layout{padding:0 16px}.lrow{flex-direction:column}.lrow>section,.lrow>section.fit{flex:none;width:auto!important}.lrow>section.fit{contain:none;min-height:0;height:auto!important}}
+.sec-rz{position:absolute;right:2px;bottom:2px;width:16px;height:16px;cursor:nwse-resize;opacity:.5;touch-action:none;z-index:3;background:linear-gradient(135deg,transparent 45%,var(--muted) 45%,var(--muted) 55%,transparent 55%,transparent 70%,var(--muted) 70%,var(--muted) 80%,transparent 80%)}
+.sec-rz-x,.sec-rz-y{position:absolute;touch-action:none;opacity:0;z-index:3}
+.sec-rz-x{right:0;top:0;width:6px;height:100%;cursor:ew-resize}
+.sec-rz-y{left:0;bottom:0;height:6px;width:100%;cursor:ns-resize}
+section:hover .sec-rz{opacity:1}
+section:hover>.sec-rz-x,section:hover>.sec-rz-y{opacity:1;background:var(--lineStrong)}
+@media(max-width:640px){.sec-rz,.sec-rz-x,.sec-rz-y{display:none}section.sized{width:auto!important;height:auto!important;overflow:visible}section.sized{display:block;max-width:none;margin-right:16px}}
+.area-rz-x,.area-rz-y{position:absolute;touch-action:none;opacity:0}
+.area-rz-x{right:0;top:0;width:6px;height:100%;cursor:ew-resize}
+.area-rz-y{left:0;bottom:0;height:6px;width:100%;cursor:ns-resize}
+.area:hover .area-rz-x,.area:hover .area-rz-y{opacity:1;background:var(--line)}
 .area.snapping{outline:2px solid var(--teal);outline-offset:-2px}
-.board.unified .area-rz{display:none}
-@media(max-width:640px){.area-rz{display:none}}
+.board.unified .area-rz,.board.unified .area-rz-x,.board.unified .area-rz-y{display:none}
+@media(max-width:640px){.area-rz,.area-rz-x,.area-rz-y{display:none}}
 @media(max-width:640px){.area{resize:none;width:auto;flex:1 1 100%;height:auto!important;overflow:visible}}
 #hiddenBar{display:flex;flex-wrap:wrap;gap:8px;padding:14px 28px 0}
 #boardBar{display:none;justify-content:flex-end;padding:14px 28px 0}
@@ -123,32 +211,39 @@
 .area.collapsed .area-head{border-bottom:0;margin-bottom:0;padding-bottom:0}
 .area-head .caret{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px}
 #hiddenBar.side{position:fixed;right:8px;top:88px;flex-direction:column;max-height:74vh;overflow:auto;padding:8px;z-index:40;max-width:190px;background:transparent}
-.harea{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--panel);cursor:pointer;font-size:13px;white-space:nowrap}
+.harea{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:5px 12px;background:var(--panel);cursor:pointer;font-size:13px;white-space:nowrap}
 .harea .hdot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
 .harea .count{margin-left:2px}
 @media(max-width:700px){#hiddenBar.side{position:static;flex-direction:row;max-height:none;max-width:none;padding:14px 16px 0}}
-  .area{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
-  .area.over{border-color:var(--teal);box-shadow:0 0 0 3px rgba(36,106,99,.12)}
-  .area-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--lineSoft);margin-bottom:6px}
-  .area-name{font-family:var(--serif);font-size:18px;margin:0;color:var(--plum);display:flex;align-items:center;gap:8px}
-  .count{font-size:11px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:1px 8px}
-  .ty{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  .area{background:var(--panel);border:1px solid var(--line);border-radius:0;padding:16px}
+  .area.over{border-color:var(--ink)}
+  .area-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--lineSoft);margin-bottom:6px;position:relative}
+  .area-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:60;min-width:210px;background:#fff;border:1px solid var(--line);border-radius:0;padding:4px 0}
+  .area-menu button,.area-menu label{display:flex;width:100%;box-sizing:border-box;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:7px 12px;font-size:13px;color:var(--ink);text-align:left;cursor:pointer;font-family:var(--sans)}
+  .area-menu button:hover,.area-menu label:hover{background:var(--lineSoft)}
+  .area-menu .sep{height:1px;background:var(--line);margin:4px 0}
+  .area-menu .danger{color:var(--broken)}
+  .area-menu input[type=color]{width:22px;height:22px;flex:0 0 auto}
+  .area-name{font-family:var(--sans);font-size:15px;font-weight:500;margin:0;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .count{font-size:11px;color:var(--caption);background:#fff;border:1px solid var(--line);border-radius:8px;padding:1px 8px}
+  .ty{font-size:10px;color:var(--caption);border:1px solid var(--line);border-radius:8px;padding:0 4px}
   .tools{display:flex;gap:1px;opacity:.4}.area:hover .tools{opacity:1}
   .link{display:flex;gap:11px;align-items:flex-start;padding:9px 6px;border-radius:8px;cursor:grab}
-  .link:hover{background:var(--paper)} .link.dragging{opacity:.4}
-  .fav{width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0;margin-top:1px;font-family:var(--serif);color:var(--plum);font-size:14px}
-  .fav img{width:18px;height:18px;border-radius:3px;display:block}
-  .lk-title{font-family:var(--serif);font-size:15px;text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lk-title:hover{color:var(--teal);text-decoration:underline}
+  .link:hover{background:var(--lineSoft)} .link.dragging{opacity:.4}
+  .fav{width:26px;height:26px;border-radius:0;border:1px solid var(--line);background:#fff;display:grid;place-items:center;flex-shrink:0;margin-top:1px;font-family:var(--serif);color:var(--plum);font-size:14px}
+  .fav img{width:16px;height:16px;border-radius:0;display:block}
+  .lk-title{font-family:var(--sans);font-size:14px;text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lk-title:hover{color:var(--ink);text-decoration:underline}
   .lk-meta{display:flex;align-items:center;gap:7px;margin-top:1px;flex-wrap:wrap}
-  .host{font-family:var(--mono);font-size:11.5px;color:var(--muted)} .when{font-size:11px;color:var(--muted)}
-  .bd{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600;background:#FBEAE8;color:var(--broken)}
-  .note{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .host{font-family:var(--mono);font-size:11.5px;color:var(--caption)} .when{font-size:11px;color:var(--caption)}
+  .bd{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:500;background:#fff;border:1px solid var(--broken);color:var(--broken)}
+  .note{font-size:12px;color:var(--caption);margin-top:4px;line-height:1.4}
   .lk-tools{display:flex;gap:1px;opacity:0;flex-wrap:wrap;justify-content:flex-end;max-width:96px}.link:hover .lk-tools{opacity:1}
   footer{padding:18px 28px 36px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:16px}
   @media (hover:none){.lk-tools,.tools{opacity:1}}
-  @media (max-width:640px){.mast{flex-direction:column;align-items:flex-start;padding:18px 16px 14px}.right{align-items:flex-start;width:100%}.mast h1{font-size:28px}
-    .filter,.board{padding-left:16px;padding-right:16px}.panel,.tasks,.inbox,.block-wrap,.quickadd{margin-left:16px;margin-right:16px}.lk-tools{opacity:1}}
+  @media (max-width:640px){.areas-wrap>.sec-head{margin-left:16px;margin-right:16px}}
+  @media (max-width:640px){.mast{flex-direction:column;align-items:flex-start;padding:18px 16px 14px}.right{align-items:flex-start;width:100%}.mast h1{font-size:15px}.acts,.health-row{justify-content:flex-start}.acts .grp+.grp{border-left:0;padding-left:0}
+    .filter,.board{padding-left:16px;padding-right:16px}.panel,.dock,.tasks,.inbox,.block-wrap,.quickadd{margin-left:16px;margin-right:16px}.lk-tools{opacity:1}}
 </style>
 </head>
 <body>
@@ -159,20 +254,30 @@
     <div class="quote-wrap"><span id="quote" class="quote"></span><button class="linkbtn" data-act="toggle-quotes" id="qBtn">✎ citáty</button></div>
   </div>
   <div class="right">
-    <div class="health" id="health"></div>
     <div class="acts">
-      <button class="btn primary" id="checkAll">Zkontrolovat vše</button>
-      <button class="btn" data-act="toggle-settings" id="setBtn">Nastavení</button>
-      <button class="btn" data-act="toggle-trash" id="trashBtn">Koš</button>
-      <button class="btn" data-act="toggle-cal" id="calHeaderBtn">Kalendář</button>
-      <button class="btn" data-act="toggle-share" id="shareHeaderBtn">Sdílení</button>
-      <button class="btn" data-act="toggle-faq" id="faqHeaderBtn">FAQ</button>
-      <button class="btn" data-act="toggle-cycle" id="cycleHeaderBtn">Cyklus</button>
-      <button class="btn" data-act="toggle-lend" id="lendHeaderBtn">Věci</button>
-      <button class="btn" data-act="toggle-money" id="moneyHeaderBtn">Peníze</button>
-      <button class="btn" data-act="toggle-watch" id="watchHeaderBtn">Hlídač</button>
-      <button class="btn" data-act="toggle-book" id="bookHeaderBtn" style="display:none">Knihy</button>
+      <div class="grp">
+        <button class="btn" data-act="open-sec" data-sec="blocks" id="blocksTabBtn">Cíle</button>
+        <button class="btn" data-act="open-sec" data-sec="tasks" id="tasksTabBtn">Úkoly</button>
+        <button class="btn" data-act="open-sec" data-sec="areas" id="areasTabBtn">Odkazy</button>
+      </div>
+      <div class="grp">
+        <button class="btn" data-act="toggle-cal" id="calHeaderBtn">Kalendář</button>
+        <button class="btn" data-act="toggle-cycle" id="cycleHeaderBtn">Cyklus</button>
+        <button class="btn" data-act="toggle-watch" id="watchHeaderBtn">Hlídač</button>
+      </div>
+      <div class="grp">
+        <button class="btn" data-act="toggle-lend" id="lendHeaderBtn">Věci</button>
+        <button class="btn" data-act="toggle-money" id="moneyHeaderBtn">Peníze</button>
+        <button class="btn" data-act="toggle-book" id="bookHeaderBtn" style="display:none">Knihy</button>
+      </div>
+      <div class="grp">
+        <button class="btn" data-act="toggle-share" id="shareHeaderBtn">Sdílení</button>
+        <button class="btn" data-act="toggle-trash" id="trashBtn">Koš</button>
+        <button class="btn" data-act="toggle-settings" id="setBtn">Nastavení</button>
+        <button class="btn" data-act="toggle-faq" id="faqHeaderBtn">FAQ</button>
+      </div>
     </div>
+    <div class="health-row"><div class="health" id="health"></div><button class="btn primary" id="checkAll">Zkontrolovat vše</button></div>
     <div class="lastcheck" id="lastcheck"></div>
   </div>
 </header>
@@ -182,6 +287,9 @@
   <button class="btn primary qa-btn" data-act="quick-add-task" title="Přidat úkol">+</button>
 </div>
 
+<div class="dock" id="dock">
+<div class="dock-bar"><button class="btn dock-x" data-act="close-all-panels" id="dockX">× Zavřít vše</button></div>
+<div class="dock-grid" id="dockGrid">
 <section class="panel" id="settingsPanel"></section>
 <section class="panel" id="trashPanel"></section>
 <section class="panel" id="quotesPanel">
@@ -204,20 +312,30 @@
 <section class="panel" id="moneyPanel"></section>
 <section class="panel" id="watchPanel"></section>
 <section class="panel" id="bookPanel"></section>
+</div>
+</div>
 
+<div id="layEditBar"><button class="btn" data-act="lay-edit" id="layEditBtn">✥ Upravit plochu</button></div>
+<div id="layout">
+<section class="inbox" id="inbox" style="display:none"></section>
+<section class="block-wrap" id="blocksWrapEl"><div class="sec-head"><h2 id="blocksTitle">Cíle a období</h2><span class="sec-ctl" data-sec="blocks"></span></div><div class="sec-body"><div class="blocks" id="blocksEl"></div>
+  <button class="add" data-act="add-block" id="addBlockBtn">+ Nový blok</button></div></section>
+<section class="tasks" id="tasksEl"></section>
+
+<section class="areas-wrap" id="areasWrap">
+<div class="sec-head"><h2 id="areasTitle">Odkazy a připomínky</h2><span style="display:inline-flex;gap:4px;align-items:center"><button class="sec-b" data-act="add-area" id="addAreaTopBtn">+ Nová oblast</button><span class="sec-ctl" data-sec="areas"></span></span></div>
+<div class="sec-body">
 <div class="filter">
   <input type="search" id="search" placeholder="Hledat v odkazech…" />
   <label><input type="checkbox" id="onlyBroken" /> <span id="obLabel">jen rozbité</span></label>
 </div>
-
-<section class="block-wrap"><h2 id="blocksTitle">Cíle a období</h2><div class="blocks" id="blocksEl"></div>
-  <button class="add" data-act="add-block" id="addBlockBtn">+ Nový blok</button></section>
-
-<section class="inbox" id="inbox" style="display:none"></section>
 <div id="boardBar"></div>
 <div id="hiddenBar" style="display:none"></div>
 <main class="board" id="boardEl"></main>
-<section class="tasks" id="tasksEl"></section>
+</div>
+</section>
+</div>
+<div id="layMark"></div>
 <footer id="footer"></footer>
 
 <script>
@@ -230,9 +348,9 @@ const DICT={
   blocksTitle:"Cíle a období",addBlock:"+ Nový blok",want:"Chci zvládnout",doing:"Probíhá",toDoing:"Začít (do Probíhá)",toWant:"Zpět do Chci",done:"Hotovo",addGoal:"+ Přidat cíl",addDone:"+ Přidat splněné",clearDone:"vyčistit",
   inbox:"Ke zpracování",file:"Zařadit",toTasks:"Mezi úkoly",newArea:"Nová oblast",createArea:"+ Vytvořit oblast",addLink:"+ Přidat odkaz",addItem:"+ Přidat položku",emptyArea:"Zatím prázdné",
   tasks:"Úkoly a poznámky",addTask:"+ Přidat úkol",sortDue:"Seřadit dle termínu",sortManual:"Ruční pořadí",dailyNote:"Hotové úkoly v 6:00:",move:"přesunout do hotových",del:"smazat",applyNow:"udělat teď",
-  quickTaskPh:"Rychlý úkol…",watchDates:"Termíny",watchTickets:"Vstupenky",watchCalHere:"Do kalendáře tady",watchCalGoogle:"Do Google kalendáře",watchCalOk:"Vloženo do kalendáře.",watchCalPin:"Nejdřív si otevři panel Kalendář a odemkni ho PINem.",watchCalErr:"Vložit do kalendáře se nepovedlo.",watchAllDay:"celý den",watchBtn:"Hlídač",watchTitle:"Hlídač stránek",watchNew:"Nové hlídání",watchName:"Název (pro tebe)",watchPhrase:"Co hledat",watchUrls:"Kde hledat — jedna adresa na řádek",watchUrlsShort:"adres",watchEvery:"Jak často",watchDaily:"denně",watchWeekly:"týdně",watchMonthly:"měsíčně",watchDeep:"Hledat i o úroveň hlouběji",watchDeepShort:"do hloubky",watchAdd:"+ Přidat hlídání",watchEmpty:"Zatím nic nehlídáš.",watchRunNow:"Zkontrolovat teď",watchChecking:"Kontroluju…",watchPause:"Pozastavit",watchResume:"Spustit",watchDelAsk:"Smazat tohle hlídání?",watchLast:"Naposled",watchNever:"zatím nikdy",watchPages:"stránek",watchHitsTitle:"Nálezy k potvrzení",watchAsk:"Tohle jsi hledala?",watchYes:"Ano, je to ono",watchNo:"Ne, to není ono",watchAfter:"Po potvrzení",watchSleep:"pozastavit hlídání",watchDelete:"smazat hlídání",watchKeep:"hlídat dál",faqMore:"Podrobně",watchEditBtn:"Upravit",watchSave:"Uložit změny",watchCancel:"Zrušit",watchEditTitle:"Úprava hlídání",watchFromLink:"Hlídat, jestli to někde hrají",watchAlready:"Tohle už se hlídá — otevřít Hlídač",watchMadeFromLink:"Založeno hlídání „{p}“. Kouká se na adresu té položky, jednou týdně. V Hlídači si můžeš upravit frázi, přidat další adresy nebo změnit interval.",watchLinkArea:"Prolinkovat s oblastí",watchLinkNone:"— nepropojovat —",watchLinked:"Napojeno na oblast",watchLinkedNote:"Termín, který vybereš, se zapíše do popisku téhle položky a po termínu se položka sama smaže do Koše.",watchLinkNoMatch:"V oblasti {a} jsem nenašel položku, jejíž název by odpovídal hlídání.",watchNoteStamp:"Hraje se {d}",watchStamped:"Termín zapsán do oblasti.",watchSrcArea:"Hlídač: výchozí zdroj adres",watchSrcNone:"— žádná —",watchEmail:"Hlídač: e-mail pro upozornění",watchNoneFound:"Nic nenašel.",watchFoundOne:"Našel! Podívej se nahoru.",watchNeedPhrase:"Vyplň co hledat a aspoň jednu adresu.",watchQuiet:"Upozornění nejsou nastavená — nálezy uvidíš jen tady v panelu.",lendBtn:"Věci",moneyBtn:"Peníze",lendTitle:"Půjčené věci",lendOut:"Půjčeno ode mě",lendIn:"Půjčeno mně",lendWhoOut:"Komu",lendWhoIn:"Od koho",lendItem:"Co (kniha, věc…)",lendAdd:"+ Přidat",lendReturned:"Vráceno",lendEmpty:"Zatím nic.",lendDelAsk:"Smazat tento záznam?",
+  quickTaskPh:"Rychlý úkol…",watchDates:"Termíny",watchTickets:"Vstupenky",watchCalHere:"Do kalendáře tady",watchCalGoogle:"Do Google kalendáře",watchCalOk:"Vloženo do kalendáře.",watchCalPin:"Nejdřív si otevři panel Kalendář a odemkni ho PINem.",watchCalErr:"Vložit do kalendáře se nepovedlo.",watchAllDay:"celý den",watchBtn:"Hlídač",watchTitle:"Hlídač stránek",watchNew:"Nové hlídání",watchName:"Název (pro tebe)",watchPhrase:"Co hledat",watchUrls:"Kde hledat — jedna adresa na řádek",watchUrlsShort:"adres",watchEvery:"Jak často",watchDaily:"denně",watchWeekly:"týdně",watchMonthly:"měsíčně",watchDeep:"Hledat i o úroveň hlouběji",watchDeepShort:"do hloubky",watchAdd:"+ Přidat hlídání",watchEmpty:"Zatím nic nehlídáš.",watchRunNow:"Zkontrolovat teď",watchChecking:"Kontroluju…",watchPause:"Pozastavit",watchResume:"Spustit",watchDelAsk:"Smazat tohle hlídání?",watchLast:"Naposled",watchNever:"zatím nikdy",watchPages:"stránek",watchHitsTitle:"Nálezy k potvrzení",watchAsk:"Tohle jsi hledala?",watchYes:"Ano, je to ono",watchNo:"Ne, to není ono",watchAfter:"Po potvrzení",watchSleep:"pozastavit hlídání",watchDelete:"smazat hlídání",watchKeep:"hlídat dál",faqMore:"Podrobně",resizeReset:"Táhni za kraj nebo roh; dvojklik na roh vrátí původní velikost",areaMenu:"Možnosti",tabColor:"Barva záložky",bodyColor:"Barva těla",clearColors:"Zrušit barvy",watchEditBtn:"Upravit",watchSave:"Uložit změny",watchCancel:"Zrušit",watchEditTitle:"Úprava hlídání",watchFromLink:"Hlídat, jestli to někde hrají",watchAlready:"Tohle už se hlídá — otevřít Hlídač",watchMadeFromLink:"Založeno hlídání „{p}“. Kouká se na adresu té položky, jednou týdně. V Hlídači si můžeš upravit frázi, přidat další adresy nebo změnit interval.",watchLinkArea:"Prolinkovat s oblastí",watchLinkNone:"— nepropojovat —",watchLinked:"Napojeno na oblast",watchLinkedNote:"Termín, který vybereš, se zapíše do popisku téhle položky a po termínu se položka sama smaže do Koše.",watchLinkNoMatch:"V oblasti {a} jsem nenašel položku, jejíž název by odpovídal hlídání.",watchNoteStamp:"Hraje se {d}",watchStamped:"Termín zapsán do oblasti.",watchSrcArea:"Hlídač: výchozí zdroj adres",watchSrcNone:"— žádná —",watchEmail:"Hlídač: e-mail pro upozornění",watchNoneFound:"Nic nenašel.",watchFoundOne:"Našel! Podívej se nahoru.",watchNeedPhrase:"Vyplň co hledat a aspoň jednu adresu.",watchQuiet:"Upozornění nejsou nastavená — nálezy uvidíš jen tady v panelu.",lendBtn:"Věci",moneyBtn:"Peníze",lendTitle:"Půjčené věci",lendOut:"Půjčeno ode mě",lendIn:"Půjčeno mně",lendWhoOut:"Komu",lendWhoIn:"Od koho",lendItem:"Co (kniha, věc…)",lendAdd:"+ Přidat",lendReturned:"Vráceno",lendEmpty:"Zatím nic.",lendDelAsk:"Smazat tento záznam?",
   moneyTitle:"Půjčené peníze",moneyBase:"Měna souhrnu",moneyRates:"kurzy k",moneyNoRates:"kurzy se nepodařilo načíst",moneyWho:"Jméno",moneyAmount:"Částka",moneyLent:"půjčeno ode mě (dluží mi)",moneyBorrowed:"půjčeno mně (dlužím)",moneyNote:"Poznámka (volitelně)",moneyAdd:"+ Přidat",moneySettle:"Vyrovnáno",moneyDelAsk:"Smazat tento záznam?",moneyEmpty:"Zatím žádné záznamy.",moneyOwesYou:"dluží ti",moneyYouOwe:"dlužíš",moneyEven:"vyrovnáno",
-  setTz:"Časové pásmo",setLang:"Jazyk",setDaily:"Denní úklid hotových úkolů (6:00)",setRet:"Mazat „Hotovo“",weekly:"týdně",monthly:"měsíčně",never:"nikdy",setSep:"Oddělovač autora citátu",
+  setGGeneral:"Obecné",layEdit:"Upravit plochu",layDone:"Hotovo",areasTitle:"Odkazy a připomínky",tabBlocks:"Cíle",tabTasks:"Úkoly",tabAreas:"Odkazy",secMin:"Sbalit",secExpand:"Rozbalit",secToTab:"Do lišty",secToPage:"Na plochu",secModeOpen:"Rozbalené na ploše",secModeMin:"Sbalené na ploše",secModeTab:"Jen v liště",setGLook:"Rozložení",setGTasks:"Úkoly a citáty",setGWatch:"Hlídač",closeAll:"Zavřít vše",setTz:"Časové pásmo",setLang:"Jazyk",setDaily:"Denní úklid hotových úkolů (6:00)",setRet:"Mazat „Hotovo“",weekly:"týdně",monthly:"měsíčně",never:"nikdy",setSep:"Oddělovač autora citátu",
   trashTitle:"Koš (30 dní)",restore:"obnovit",emptyTrash:"Vysypat koš",trashEmpty:"Koš je prázdný.",
   pName:"Název:",pAreaType:"Typ – napiš 'odkazy' nebo 'text':",pUrl:"URL odkazu:",pItem:"Text položky:",pTitle:"Název (volitelně):",pNote:"Poznámka (volitelně):",
   pBlockName:"Název bloku:",pBlockKind:"Typ – napiš 'cyklus' (opakuje se) nebo 'datum' (do data):",pCycle:"Délka cyklu, např. '1 týden', '14 dní', '1 měsíc':",pDate:"Datum (RRRR-MM-DD):",pGoal:"Co chceš zvládnout:",pDoneAdd:"Co se povedlo:",pTaskAdd:"Úkol / poznámka:",pEditU:"URL:",
@@ -249,9 +367,9 @@ const DICT={
   blocksTitle:"Goals & periods",addBlock:"+ New block",want:"Want to do",doing:"Doing",toDoing:"Start (to Doing)",toWant:"Back to Want",done:"Done",addGoal:"+ Add goal",addDone:"+ Add done",clearDone:"clear",
   inbox:"To process",file:"File",toTasks:"To tasks",newArea:"New area",createArea:"+ Create area",addLink:"+ Add link",addItem:"+ Add item",emptyArea:"Empty",
   tasks:"Tasks & notes",addTask:"+ Add task",sortDue:"Sort by deadline",sortManual:"Manual order",dailyNote:"Done tasks at 6:00:",move:"move to done",del:"delete",applyNow:"do now",
-  quickTaskPh:"Quick task…",watchDates:"Dates",watchTickets:"Tickets",watchCalHere:"Add to calendar here",watchCalGoogle:"Add to Google Calendar",watchCalOk:"Added to your calendar.",watchCalPin:"Open the Calendar panel and unlock it with your PIN first.",watchCalErr:"Could not add it to the calendar.",watchAllDay:"all day",watchBtn:"Watcher",watchTitle:"Page watcher",watchNew:"New watch",watchName:"Name (for you)",watchPhrase:"What to look for",watchUrls:"Where to look — one address per line",watchUrlsShort:"addresses",watchEvery:"How often",watchDaily:"daily",watchWeekly:"weekly",watchMonthly:"monthly",watchDeep:"Also look one level deeper",watchDeepShort:"deep",watchAdd:"+ Add watch",watchEmpty:"Nothing watched yet.",watchRunNow:"Check now",watchChecking:"Checking…",watchPause:"Pause",watchResume:"Resume",watchDelAsk:"Delete this watch?",watchLast:"Last run",watchNever:"never yet",watchPages:"pages",watchHitsTitle:"Findings to confirm",watchAsk:"Is this what you were looking for?",watchYes:"Yes, that is it",watchNo:"No, not this",watchAfter:"After confirming",watchSleep:"pause the watch",watchDelete:"delete the watch",watchKeep:"keep watching",faqMore:"In detail",watchEditBtn:"Edit",watchSave:"Save changes",watchCancel:"Cancel",watchEditTitle:"Editing a watch",watchFromLink:"Watch for performances",watchAlready:"Already watched — open the Watcher",watchMadeFromLink:"Created the watch \u201e{p}\u201c. It looks at this item's address once a week. In the Watcher you can edit the phrase, add more addresses or change the interval.",watchLinkArea:"Link to an area",watchLinkNone:"— don't link —",watchLinked:"Linked to area",watchLinkedNote:"The date you pick is written into this item's note, and the item deletes itself to the Trash once the date has passed.",watchLinkNoMatch:"No item in {a} has a name matching this watch.",watchNoteStamp:"Playing {d}",watchStamped:"Date written into the area.",watchSrcArea:"Watcher: default source of addresses",watchSrcNone:"— none —",watchEmail:"Watcher: e-mail for alerts",watchNoneFound:"Found nothing.",watchFoundOne:"Found something! See above.",watchNeedPhrase:"Fill in what to look for and at least one address.",watchQuiet:"Alerts are not configured — findings will only show up here in the panel.",lendBtn:"Items",moneyBtn:"Money",lendTitle:"Borrowed & lent items",lendOut:"Lent by me",lendIn:"Lent to me",lendWhoOut:"To whom",lendWhoIn:"From whom",lendItem:"What (book, item…)",lendAdd:"+ Add",lendReturned:"Returned",lendEmpty:"Nothing yet.",lendDelAsk:"Delete this record?",
+  quickTaskPh:"Quick task…",watchDates:"Dates",watchTickets:"Tickets",watchCalHere:"Add to calendar here",watchCalGoogle:"Add to Google Calendar",watchCalOk:"Added to your calendar.",watchCalPin:"Open the Calendar panel and unlock it with your PIN first.",watchCalErr:"Could not add it to the calendar.",watchAllDay:"all day",watchBtn:"Watcher",watchTitle:"Page watcher",watchNew:"New watch",watchName:"Name (for you)",watchPhrase:"What to look for",watchUrls:"Where to look — one address per line",watchUrlsShort:"addresses",watchEvery:"How often",watchDaily:"daily",watchWeekly:"weekly",watchMonthly:"monthly",watchDeep:"Also look one level deeper",watchDeepShort:"deep",watchAdd:"+ Add watch",watchEmpty:"Nothing watched yet.",watchRunNow:"Check now",watchChecking:"Checking…",watchPause:"Pause",watchResume:"Resume",watchDelAsk:"Delete this watch?",watchLast:"Last run",watchNever:"never yet",watchPages:"pages",watchHitsTitle:"Findings to confirm",watchAsk:"Is this what you were looking for?",watchYes:"Yes, that is it",watchNo:"No, not this",watchAfter:"After confirming",watchSleep:"pause the watch",watchDelete:"delete the watch",watchKeep:"keep watching",faqMore:"In detail",resizeReset:"Drag an edge or the corner; double-click the corner to reset",areaMenu:"Options",tabColor:"Tab colour",bodyColor:"Body colour",clearColors:"Clear colours",watchEditBtn:"Edit",watchSave:"Save changes",watchCancel:"Cancel",watchEditTitle:"Editing a watch",watchFromLink:"Watch for performances",watchAlready:"Already watched — open the Watcher",watchMadeFromLink:"Created the watch \u201e{p}\u201c. It looks at this item's address once a week. In the Watcher you can edit the phrase, add more addresses or change the interval.",watchLinkArea:"Link to an area",watchLinkNone:"— don't link —",watchLinked:"Linked to area",watchLinkedNote:"The date you pick is written into this item's note, and the item deletes itself to the Trash once the date has passed.",watchLinkNoMatch:"No item in {a} has a name matching this watch.",watchNoteStamp:"Playing {d}",watchStamped:"Date written into the area.",watchSrcArea:"Watcher: default source of addresses",watchSrcNone:"— none —",watchEmail:"Watcher: e-mail for alerts",watchNoneFound:"Found nothing.",watchFoundOne:"Found something! See above.",watchNeedPhrase:"Fill in what to look for and at least one address.",watchQuiet:"Alerts are not configured — findings will only show up here in the panel.",lendBtn:"Items",moneyBtn:"Money",lendTitle:"Borrowed & lent items",lendOut:"Lent by me",lendIn:"Lent to me",lendWhoOut:"To whom",lendWhoIn:"From whom",lendItem:"What (book, item…)",lendAdd:"+ Add",lendReturned:"Returned",lendEmpty:"Nothing yet.",lendDelAsk:"Delete this record?",
   moneyTitle:"Money owed",moneyBase:"Summary currency",moneyRates:"rates as of",moneyNoRates:"couldn't load rates",moneyWho:"Name",moneyAmount:"Amount",moneyLent:"I lent (they owe me)",moneyBorrowed:"I borrowed (I owe)",moneyNote:"Note (optional)",moneyAdd:"+ Add",moneySettle:"Settled",moneyDelAsk:"Delete this record?",moneyEmpty:"No records yet.",moneyOwesYou:"owes you",moneyYouOwe:"you owe",moneyEven:"even",
-  setTz:"Time zone",setLang:"Language",setDaily:"Daily cleanup of done tasks (6:00)",setRet:"Clear “Done”",weekly:"weekly",monthly:"monthly",never:"never",setSep:"Quote author separator",
+  setGGeneral:"General",layEdit:"Edit layout",layDone:"Done",areasTitle:"Links & reminders",tabBlocks:"Goals",tabTasks:"Tasks",tabAreas:"Links",secMin:"Collapse",secExpand:"Expand",secToTab:"To top bar",secToPage:"Back on page",secModeOpen:"Expanded on page",secModeMin:"Collapsed on page",secModeTab:"Top bar only",setGLook:"Layout",setGTasks:"Tasks & quotes",setGWatch:"Watcher",closeAll:"Close all",setTz:"Time zone",setLang:"Language",setDaily:"Daily cleanup of done tasks (6:00)",setRet:"Clear “Done”",weekly:"weekly",monthly:"monthly",never:"never",setSep:"Quote author separator",
   trashTitle:"Trash (30 days)",restore:"restore",emptyTrash:"Empty trash",trashEmpty:"Trash is empty.",
   pName:"Name:",pAreaType:"Type – write 'links' or 'text':",pUrl:"Link URL:",pItem:"Item text:",pTitle:"Title (optional):",pNote:"Note (optional):",
   pBlockName:"Block name:",pBlockKind:"Type – write 'cycle' (repeats) or 'date' (deadline):",pCycle:"Cycle length, e.g. '1 week', '14 days', '1 month':",pDate:"Date (YYYY-MM-DD):",pGoal:"What do you want to do:",pDoneAdd:"What got done:",pTaskAdd:"Task / note:",pEditU:"URL:",
@@ -341,7 +459,7 @@ function toTrash(kind,label,payload){state.board.trash=state.board.trash||[];sta
 function applyLang(){L=DICT[state.board.settings.lang==="en"?"en":"cs"];document.documentElement.lang=state.board.settings.lang==="en"?"en":"cs";
   $("eyebrow").textContent=L.eyebrow;$("setBtn").textContent=L.settings;$("trashBtn").textContent=L.trash;$("qBtn").textContent=L.quotesBtn;
   $("qTitle").textContent=L.myQuotes;$("bulkQuotes").placeholder=L.bulkPh;$("bulkAuthor").placeholder=L.bulkAuthor;$("addQuotesBtn").textContent=L.addQuotes;
-  $("search").placeholder=L.search;$("obLabel").textContent=L.onlyBroken;$("blocksTitle").textContent=L.blocksTitle;$("addBlockBtn").textContent=L.addBlock;
+  $("search").placeholder=L.search;$("obLabel").textContent=L.onlyBroken;renderLayEdit();$("blocksTitle").textContent=L.blocksTitle;$("areasTitle").textContent=L.areasTitle;$("addAreaTopBtn").textContent="+ "+L.newArea;$("blocksTabBtn").textContent=L.tabBlocks;$("blocksTabBtn").title=L.blocksTitle;$("tasksTabBtn").textContent=L.tabTasks;$("tasksTabBtn").title=L.tasks;$("areasTabBtn").textContent=L.tabAreas;$("areasTabBtn").title=L.areasTitle;$("addBlockBtn").textContent=L.addBlock;
   const ttl=(state.board.settings.title||"").trim()||"Rozcestník";$("pageTitle").textContent=ttl;document.title=ttl;
   $("footer").innerHTML=esc(L.footer)+' · <a href="https://dash.cloudflare.com" target="_blank" rel="noreferrer">'+esc(L.cfLink)+'</a>';
   const bb=$("bookHeaderBtn");if(bb){bb.textContent=L.bookBtn;const f=state.board.settings.features;bb.style.display=(f&&f.book===false)?"none":"";}
@@ -366,6 +484,8 @@ function render(){
   renderQuotesList();renderBlocks();renderInbox();renderAreas();renderTasks();
   if($("settingsPanel").style.display==="block")renderSettings();
   if($("trashPanel").style.display==="block")renderTrash();
+  applySecModes();
+  applySecSizes();
 }
 
 function renderQuotesList(){const q=state.board.quotes||[];
@@ -386,7 +506,7 @@ function renderBlocks(){
     const col=b.color||"#246A63";
     const retSel=`<select class="bret" data-act="block-ret" data-id="${b.id}" title="${L.fRet}"><option value="week" ${b.doneRetention==="week"?"selected":""}>${L.weekly}</option><option value="month" ${b.doneRetention==="month"?"selected":""}>${L.monthly}</option><option value="never" ${(b.doneRetention||"never")==="never"?"selected":""}>${L.never}</option></select>`;
     return `<div class="block ${past?'past':''} ${b.collapsed?'collapsed':''}" data-block-id="${b.id}" style="border-left:5px solid ${col}">
-      <div class="block-head"><span class="block-title" style="color:${col}"><span class="bgrip" draggable="true" data-grip="${b.id}" title="↕">⠿</span><button class="caret" data-act="toggle-block" data-id="${b.id}">${b.collapsed?'▸':'▾'}</button>${esc(b.name)} <span class="block-meta" style="color:var(--muted)">${meta}</span></span>
+      <div class="block-head"><span class="block-title" style="color:${readableInk(col)}"><span class="bgrip" draggable="true" data-grip="${b.id}" title="↕">⠿</span><button class="caret" data-act="toggle-block" data-id="${b.id}">${b.collapsed?'▸':'▾'}</button>${esc(b.name)} <span class="block-meta" style="color:var(--muted)">${meta}</span></span>
         <span style="display:flex;align-items:center;gap:2px"><input type="color" class="bcolor" data-act="block-color" data-id="${b.id}" value="${col}" title="${L.fColor}"/><button class="icon" data-act="rename-block" data-id="${b.id}">✎</button><button class="icon danger" data-act="del-block" data-id="${b.id}">🗑</button></span></div>
       <div class="cols">
         <div class="col"><div class="col-h">${L.want}</div>${goals}<button class="add" data-act="add-goal" data-id="${b.id}">${L.addGoal}</button></div>
@@ -405,12 +525,13 @@ function syncDoneHeights(){
   });
 }
 
-function renderInbox(){const ib=$("inbox");if(!state.inbox.length){ib.style.display="none";return;}ib.style.display="block";
+function renderInbox(){const ib=$("inbox");if(!state.inbox.length){ib.style.display="none";return;}ib.style.display="";
   const opts=state.board.areas.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("");
-  ib.innerHTML=`<h2>${L.inbox} · ${state.inbox.length}</h2>`+state.inbox.map(it=>{const isLink=it.type==="link"||it.url;
+  ib.innerHTML=`<div class="sec-head"><h2>${L.inbox} · ${state.inbox.length}</h2></div><div class="sec-body">`+state.inbox.map(it=>{const isLink=it.type==="link"||it.url;
     const body=isLink?`<a href="${esc(it.url)}" target="_blank" rel="noreferrer">${esc(it.text||host(it.url))}</a>`:esc(it.text);
     const action=isLink?`<select data-sel="${it.id}">${opts}</select><button class="btn" data-act="file-link" data-id="${it.id}">${L.file}</button>`:`<button class="btn" data-act="file-task" data-id="${it.id}">${L.toTasks}</button>`;
-    return `<div class="inbox-item"><span class="ix-type">${isLink?"link":"note"}</span><span class="ix-text">${body}</span>${action}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>`;}).join("");}
+    return `<div class="inbox-item"><span class="ix-type">${isLink?"link":"note"}</span><span class="ix-text">${body}</span>${action}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>`;}).join("")+`</div>`;
+  applySecSizes();}
 
 function renderAreas(){
   const visible=state.board.areas.filter(a=>!a.hidden), hiddenAreas=state.board.areas.filter(a=>a.hidden);
@@ -420,19 +541,25 @@ function renderAreas(){
     const items=a.links.map(l=>{
       if(isText){const k="txt:"+a.id+":"+l.id;if(!matches(l))return"";const textHtml=editing===k?inp(k,l.text):`<span class="t" style="font-size:14px">${esc(l.text)}</span>`;return `<div class="item"><div style="flex:1;min-width:0">${textHtml}${l.note?`<div class="note">${esc(l.note)}</div>`:""}</div><button class="icon" data-act="edit-txt" data-area="${a.id}" data-id="${l.id}" title="${L.editTxt}">✎</button><button class="icon" data-act="note-txt" data-area="${a.id}" data-id="${l.id}" title="${L.fNote}">📝</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button></div>`;}
       if(!matches(l))return"";const h=host(l.url),letter=(h[0]||"?").toUpperCase();
-      return `<div class="link" draggable="true" data-id="${l.id}" data-area="${a.id}"><div class="fav" style="box-shadow:0 0 0 2px ${ring(l.status)}"><img src="https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(h)}" onerror="this.replaceWith(document.createTextNode('${letter}'))"/></div>
+      return `<div class="link" draggable="true" data-id="${l.id}" data-area="${a.id}"><div class="fav" style="border-color:${ring(l.status)}"><img src="https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(h)}" onerror="this.replaceWith(document.createTextNode('${letter}'))"/></div>
         <div style="flex:1;min-width:0"><a class="lk-title" href="${esc(l.url)}" target="_blank" rel="noreferrer">${esc(l.title||h)}</a><div class="lk-meta"><span class="host">${esc(h)}</span>${l.status==="broken"?`<span class="bd">${l.code||""}</span>`:""}${l.lastChecked?`<span class="when">· ${rel(l.lastChecked)}</span>`:""}</div>${l.note?`<div class="note">${esc(l.note)}</div>`:""}</div>
         <div class="lk-tools">${(()=>{const w=watchForLink(a.id,l);return `<button class="icon${w?" good":""}" data-act="watch-from-link" data-area="${a.id}" data-id="${l.id}" title="${w?esc(L.watchAlready):esc(L.watchFromLink)}">👁</button>`;})()}<button class="icon" data-act="link-up" data-area="${a.id}" data-id="${l.id}" ${0?'':''}>▲</button><button class="icon" data-act="link-down" data-area="${a.id}" data-id="${l.id}">▼</button><button class="icon" data-act="edit-link" data-area="${a.id}" data-id="${l.id}">✎</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button></div></div>`;
     }).join("");
     const acol=a.color||"#5B3A57";const collapsed=state.board.settings.areasMin||a.collapsed;
+    // Záložka dostane jemný nádech zvolené barvy, který do konce hlavičky zmizí.
+    // Tělo se obarví jen tehdy, když si uživatelka zvlášť zvolí bodyColor — proto
+    // se po nasazení nic samo nepřebarví.
+    const bodyBg=a.bodyColor?`background-image:linear-gradient(180deg,${safeTint(a.bodyColor)},#ffffff);`:"";
+    const headBg=a.color?`background-image:linear-gradient(180deg,${a.color}22,transparent)`:"";
     const sized=!state.board.settings.gridUnified;const szStyle=sized?`${a.w?`width:${a.w}px;`:""}${(a.h&&!collapsed)?`height:${a.h}px;`:""}`:"";
-    return `<section class="area${collapsed?" collapsed":""}" data-area-id="${a.id}" style="border-left:5px solid ${acol};${szStyle}"><div class="area-head"><div style="display:flex;align-items:center;gap:4px;min-width:0"><span class="areagrip" draggable="true" data-areagrip="${a.id}" title="↕">⠿</span><button class="caret" data-act="toggle-area" data-id="${a.id}">${collapsed?'▸':'▾'}</button><h2 class="area-name" style="color:${acol}">${esc(a.name)}<span class="count">${a.links.length}</span><span class="ty">${isText?L.optText.split(" ")[0]:L.optLinks}</span></h2></div>
-      <div class="tools"><span class="area-move-arrows"><button class="icon" data-act="area-left" data-id="${a.id}" ${ai===0?"disabled":""}>◀</button><button class="icon" data-act="area-right" data-id="${a.id}" ${ai===visible.length-1?"disabled":""}>▶</button></span><button class="icon" data-act="toggle-type" data-id="${a.id}" title="${L.optLinks}/${L.optText.split(" ")[0]}">⇄</button><input type="color" class="acolor" data-act="area-color" data-id="${a.id}" value="${acol}" title="${L.fColor}"/>${(a.w||a.h)?`<button class="icon" data-act="reset-size" data-id="${a.id}" title="${L.resetSize}">⤢</button>`:""}<button class="icon" data-act="hide-area" data-id="${a.id}" title="${L.hideArea}">⊟</button><button class="icon" data-act="rename-area" data-id="${a.id}">✎</button><button class="icon danger" data-act="del-area" data-id="${a.id}">🗑</button></div></div>
+    return `<section class="area${collapsed?" collapsed":""}" data-area-id="${a.id}" style="border-left:5px solid ${acol};${bodyBg}${szStyle}"><div class="area-head" style="${headBg}"><div style="display:flex;align-items:center;gap:4px;min-width:0"><span class="areagrip" draggable="true" data-areagrip="${a.id}" title="↕">⠿</span><button class="caret" data-act="toggle-area" data-id="${a.id}">${collapsed?'▸':'▾'}</button><h2 class="area-name" style="color:${readableInk(acol)}">${esc(a.name)}<span class="count">${a.links.length}</span><span class="ty">${isText?L.optText.split(" ")[0]:L.optLinks}</span></h2></div>
+      <div class="tools"><span class="area-move-arrows"><button class="icon" data-act="area-left" data-id="${a.id}" ${ai===0?"disabled":""}>◀</button><button class="icon" data-act="area-right" data-id="${a.id}" ${ai===visible.length-1?"disabled":""}>▶</button></span><button class="icon" data-act="area-menu" data-id="${a.id}" title="${esc(L.areaMenu)}">⋯</button></div>${areaMenuId===a.id?areaMenuHtml(a,collapsed):""}</div>
       <div class="links">${items||`<div class="empty">${L.emptyArea}</div>`}</div>
-      <button class="add" data-act="add-link" data-id="${a.id}">${isText?L.addItem:L.addLink}</button><div class="area-rz" data-rz="${a.id}" title="${L.resize||""}"></div></section>`;
+      <button class="add" data-act="add-link" data-id="${a.id}">${isText?L.addItem:L.addLink}</button><div class="area-rz-x" data-rz="${a.id}" data-axis="x"></div><div class="area-rz-y" data-rz="${a.id}" data-axis="y"></div><div class="area-rz" data-rz="${a.id}" data-axis="both" title="${L.resize||""}"></div></section>`;
   }).join("")+`<section class="area" style="border-style:dashed;background:transparent"><div class="area-head"><h2 class="area-name" style="color:var(--muted)">${L.newArea}</h2></div><button class="add" data-act="add-area">${L.createArea}</button></section>`;
   renderHiddenBar(hiddenAreas);
   applyAreaScroll();
+  applySecSizes();
   const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`<button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
 }
 function renderHiddenBar(hiddenAreas){const bar=$("hiddenBar");if(!bar)return;
@@ -449,25 +576,31 @@ function applyAreaScroll(){const on=state.board.settings.areaScroll!==false;
 
 function renderTasks(){const t=state.board.tasks||[];const dc=state.board.settings.dailyCleanup;const sortDue=state.board.settings.taskSort==="due";
   let list=[...t];if(sortDue)list.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||((a.due||Infinity)-(b.due||Infinity)));
-  $("tasksEl").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">${L.tasks} · ${t.filter(x=>!x.done).length}</h2><button class="btn" data-act="toggle-task-sort">${sortDue?L.sortManual:L.sortDue}</button></div>
+  $("tasksEl").innerHTML=`<div class="sec-head"><h2 style="margin:0">${L.tasks} · ${t.filter(x=>!x.done).length}</h2><span style="display:flex;gap:8px;align-items:center"><button class="btn" data-act="toggle-task-sort">${sortDue?L.sortManual:L.sortDue}</button><span class="sec-ctl" data-sec="tasks">${secCtl("tasks")}</span></span></div><div class="sec-body">
     <div class="set-row"><span>${L.dailyNote}</span><span><select data-act="set-daily"><option value="move" ${dc==="move"?"selected":""}>${L.move}</option><option value="delete" ${dc==="delete"?"selected":""}>${L.del}</option></select> <button class="icon" data-act="daily-now" title="${L.applyNow}">${L.applyNow}</button></span></div>`+
     list.map(x=>{const k="task:"+x.id;let dmeta="";if(x.due&&!isNaN(x.due)){const cd=countdown(x.due);const ds=new Intl.DateTimeFormat(calLoc(),{day:"numeric",month:"short"}).format(new Date(x.due-1));dmeta=`<span class="when"> · </span><span class="countdown ${cd.past&&!x.done?'past':''}">${L.dl} ${ds} · ${cd.text}</span>`;}
       return `<div class="item"><input type="checkbox" data-act="toggle-task" data-id="${x.id}" ${x.done?"checked":""}/><div style="flex:1;min-width:0">${editing===k?inp(k,x.text):`<span class="t" style="${x.done?'text-decoration:line-through;color:var(--muted)':''}">${esc(x.text)}</span>`}${dmeta}${x.note?`<div class="note">${esc(x.note)}</div>`:""}</div><button class="icon" data-act="task-deadline" data-id="${x.id}" title="${L.editDl}">📅</button><button class="icon" data-act="task-note" data-id="${x.id}" title="${L.fNote}">📝</button><button class="icon" data-act="edit-task" data-id="${x.id}">✎</button><button class="icon danger" data-act="del-task" data-id="${x.id}">×</button></div>`;}).join("")+
-    `<button class="add" data-act="add-task">${L.addTask}</button>`;}
+    `<button class="add" data-act="add-task">${L.addTask}</button></div>`;
+  applySecSizes();}
 
 function renderSettings(){const s=state.board.settings;
   $("settingsPanel").innerHTML=`<h3>${L.settings} <button class="linkbtn" data-act="close-panel" data-panel="settingsPanel" style="float:right;font-size:16px">×</button></h3>
-   <div class="set-row" style="align-items:flex-start"><span>${L.setTz}</span><div style="flex:1;max-width:320px"><div style="font-size:13px;margin-bottom:6px">${L.tzCurrent}: <b style="color:var(--teal)">${esc(cityOf(s.tz))} (${tzOffsetLabel(s.tz)})</b></div><input type="text" id="tzSearch" placeholder="${L.tzSearchPh}" value="${esc(tzQuery)}" style="width:100%"/><div class="tz-list" id="tzList"></div></div></div>
-   <div class="set-row"><span>${L.setLang}</span><select data-act="set-lang"><option value="cs" ${s.lang==="cs"?"selected":""}>Čeština</option><option value="en" ${s.lang==="en"?"selected":""}>English</option></select></div>
-   <div class="set-row"><span>${L.setDaily}</span><select data-act="set-daily"><option value="move" ${s.dailyCleanup==="move"?"selected":""}>${L.move}</option><option value="delete" ${s.dailyCleanup==="delete"?"selected":""}>${L.del}</option></select></div>
-   <div class="set-row"><span>${L.watchSrcArea}</span><select data-act="set-watch-area"><option value="">${esc(L.watchSrcNone)}</option>${b.areas.map(a=>`<option value="${a.id}" ${a.id===s.watchSourceArea?"selected":""}>${esc(a.name)}</option>`).join("")}</select></div>
-   <div class="set-row"><span>${L.watchEmail}</span><input type="email" data-act="set-watch-email" value="${esc(s.watchEmail||"")}" placeholder="me@example.com" style="flex:1;max-width:260px"/></div>
-   <div class="set-row"><span>${L.setSep}</span><input type="text" data-act="set-sep" value="${esc(s.quoteSep||"|")}" maxlength="3" style="width:60px"/></div>
-   <div class="set-row"><span>${L.featBook}</span><input type="checkbox" data-act="feat-book" ${(s.features&&s.features.book!==false)?"checked":""} style="width:18px;height:18px"/></div>
-   <div class="set-row"><span>${L.setAreaScroll}</span><input type="checkbox" data-act="set-areascroll" ${s.areaScroll===false?"checked":""} style="width:18px;height:18px"/></div>
-   <div class="set-row"><span>${L.setUnify}</span><input type="checkbox" data-act="set-unify" ${s.gridUnified?"checked":""} style="width:18px;height:18px"/></div>
+   <div class="set-g">${L.setGGeneral}</div>
    <div class="set-row"><span>${L.setTitle}</span><input type="text" data-act="set-title" value="${esc(s.title||"Rozcestník")}" maxlength="60" style="flex:1;max-width:240px"/></div>
+   <div class="set-row"><span>${L.setLang}</span><select data-act="set-lang"><option value="cs" ${s.lang==="cs"?"selected":""}>Čeština</option><option value="en" ${s.lang==="en"?"selected":""}>English</option></select></div>
+   <div class="set-row" style="align-items:flex-start"><span>${L.setTz}</span><div style="flex:1;max-width:320px"><div style="font-size:13px;margin-bottom:6px">${L.tzCurrent}: <b style="color:var(--teal)">${esc(cityOf(s.tz))} (${tzOffsetLabel(s.tz)})</b></div><input type="text" id="tzSearch" placeholder="${L.tzSearchPh}" value="${esc(tzQuery)}" style="width:100%"/><div class="tz-list" id="tzList"></div></div></div>
+   <div class="set-g">${L.setGLook}</div>${Object.keys(PLACE).map(k=>`
+   <div class="set-row"><span>${{blocks:L.blocksTitle,tasks:L.tasks,areas:L.areasTitle}[k]}</span><select data-act="set-secmode" data-sec="${k}">${["open","min","tab"].map(m=>`<option value="${m}" ${secMode(k)===m?"selected":""}>${L["secMode"+m[0].toUpperCase()+m.slice(1)]}</option>`).join("")}</select></div>`).join("")}
+   <div class="set-row"><span>${L.setUnify}</span><input type="checkbox" data-act="set-unify" ${s.gridUnified?"checked":""} style="width:18px;height:18px"/></div>
+   <div class="set-row"><span>${L.setAreaScroll}</span><input type="checkbox" data-act="set-areascroll" ${s.areaScroll===false?"checked":""} style="width:18px;height:18px"/></div>
    <div class="set-row"><span>${L.setHiddenPos}</span><select data-act="set-hiddenpos"><option value="top" ${s.hiddenPos!=="side"?"selected":""}>${L.optTop}</option><option value="side" ${s.hiddenPos==="side"?"selected":""}>${L.optSide}</option></select></div>
+   <div class="set-row"><span>${L.featBook}</span><input type="checkbox" data-act="feat-book" ${(s.features&&s.features.book!==false)?"checked":""} style="width:18px;height:18px"/></div>
+   <div class="set-g">${L.setGTasks}</div>
+   <div class="set-row"><span>${L.setDaily}</span><select data-act="set-daily"><option value="move" ${s.dailyCleanup==="move"?"selected":""}>${L.move}</option><option value="delete" ${s.dailyCleanup==="delete"?"selected":""}>${L.del}</option></select></div>
+   <div class="set-row"><span>${L.setSep}</span><input type="text" data-act="set-sep" value="${esc(s.quoteSep||"|")}" maxlength="3" style="width:60px"/></div>
+   <div class="set-g">${L.setGWatch}</div>
+   <div class="set-row"><span>${L.watchSrcArea}</span><select data-act="set-watch-area"><option value="">${esc(L.watchSrcNone)}</option>${state.board.areas.map(a=>`<option value="${a.id}" ${a.id===s.watchSourceArea?"selected":""}>${esc(a.name)}</option>`).join("")}</select></div>
+   <div class="set-row"><span>${L.watchEmail}</span><input type="email" data-act="set-watch-email" value="${esc(s.watchEmail||"")}" placeholder="me@example.com" style="flex:1;max-width:260px"/></div>
    <div class="block" style="border-left:5px solid var(--broken);padding:12px;margin-top:14px"><b style="color:var(--broken)">${L.dangerZone}</b><div class="empty" style="text-align:left;margin:4px 0 8px">${L.wipeAllDesc}</div><button class="btn danger" data-act="wipe-all">${L.wipeAll}</button></div>`;
   renderTzList();}
 function renderTzList(){const s=state.board.settings;const q=tzQuery.trim().toLowerCase();
@@ -566,6 +699,123 @@ document.addEventListener("keydown",e=>{const el=e.target.closest(".edit-inp");i
 document.addEventListener("focusout",e=>{const el=e.target.closest(".edit-inp");if(!el)return;if(skipCommit){skipCommit=false;return;}const k=el.dataset.editkey,v=el.value;editing=null;commitEdit(k,v);});
 function startEdit(key){editing=key;render();}
 
+/* ---------- dok panelů ----------
+   Otevřené panely se skládají do mřížky o dvou sloupcích. Nejnovější je vlevo,
+   každá další dvojice jde nad tu předchozí, lichý panel nahoře má celou šířku.
+   Kdo panel otevírá nebo zavírá, jen mu přepne style.display; zbytek dohlídá
+   MutationObserver, takže žádná cesta, která panel ukáže, nemusí na dok myslet. */
+const DOCK=["settingsPanel","trashPanel","quotesPanel","newBlockPanel","newAreaPanel","calPanel","sharePanel","faqPanel","cyclePanel","lendPanel","moneyPanel","watchPanel","bookPanel"];
+const DOCK_BTN={blocksWrapEl:"blocksTabBtn",tasksEl:"tasksTabBtn",areasWrap:"areasTabBtn",settingsPanel:"setBtn",trashPanel:"trashBtn",quotesPanel:"qBtn",calPanel:"calHeaderBtn",sharePanel:"shareHeaderBtn",faqPanel:"faqHeaderBtn",cyclePanel:"cycleHeaderBtn",lendPanel:"lendHeaderBtn",moneyPanel:"moneyHeaderBtn",watchPanel:"watchHeaderBtn",bookPanel:"bookHeaderBtn"};
+let dockOrder=[];
+/* Sekce Cíle, Úkoly a Odkazy mají tři místa: rozbalené na ploše, sbalené na
+   ploše (jen nadpis) a jen v liště. V posledním případě se sekce přestěhuje do
+   doku a otevírá se tlačítkem nahoře jako ostatní panely. Na plochu ji vrátí
+   applyLayout do její řady. */
+const PLACE={blocks:"blocksWrapEl",tasks:"tasksEl",areas:"areasWrap"};
+function secMode(k){const m=(state.board.settings.secMode||{})[k];return m==="min"||m==="tab"?m:"open";}
+function setSecMode(k,m){const s=state.board.settings;s.secMode=Object.assign({},s.secMode,{[k]:m});save();render();}
+function secCtl(k){const m=secMode(k);
+  if(m==="tab")return `<button class="sec-b" data-act="sec-page" data-sec="${k}">⤓ ${L.secToPage}</button><button class="linkbtn" data-act="close-panel" data-panel="${PLACE[k]}">×</button>`;
+  return `<button class="sec-b" data-act="sec-min" data-sec="${k}">${m==="min"?"▸ "+L.secExpand:"▾ "+L.secMin}</button><button class="sec-b" data-act="sec-tab" data-sec="${k}">⤒ ${L.secToTab}</button>`;}
+function applySecModes(){const g=$("dockGrid");if(!g)return;
+  for(const [k,id] of Object.entries(PLACE)){const el=$(id);if(!el)continue;const m=secMode(k);
+    if(m==="tab"){if(el.parentNode!==g){el.style.display="none";g.appendChild(el);}el.classList.remove("sec-min");}
+    else{if(el.parentNode===g){el.style.display="";$("layout").appendChild(el);}el.classList.toggle("sec-min",m==="min");}
+    el.querySelectorAll(':scope>.sec-head .sec-ctl[data-sec="'+k+'"]').forEach(c=>c.innerHTML=secCtl(k));}
+  applyLayout();}
+/* ---------- plocha: řady sekcí ----------
+   settings.layout = řady klíčů, např. [["goals","tasks"],["areas"]].
+   Sekce puštěná vedle jiné dostane settings.secFit[k] a přizpůsobí se volnému
+   místu v řadě; puštěná do vlastní řady fit ztratí a vrátí se k vlastní
+   velikosti (settings.secSize). Kdo v řadě zůstane sám, fit ztratí taky. */
+const LAY={inbox:["inbox",null],goals:["blocksWrapEl","blocks"],tasks:["tasksEl","tasks"],areas:["areasWrap","areas"]};
+function layoutRows(set){const keys=Object.keys(LAY),seen=new Set();
+  const rows=(Array.isArray(set.layout)?set.layout:[]).map(r=>(Array.isArray(r)?r:[]).filter(k=>keys.includes(k)&&!seen.has(k)&&seen.add(k)));
+  keys.forEach(k=>{if(!seen.has(k))rows.push([k]);});
+  return rows.filter(r=>r.length);}
+function layDrop(rows,fit,key,t){
+  if(!t||!t.anchor||t.anchor===key)return null;
+  rows=rows.map(r=>r.filter(k=>k!==key));fit=Object.assign({},fit);
+  const ri=rows.findIndex(r=>r.includes(t.anchor));if(ri<0)return null;
+  if(t.type==="newrow"){rows.splice(t.pos==="before"?ri:ri+1,0,[key]);delete fit[key];}
+  else{rows[ri].splice(rows[ri].indexOf(t.anchor)+(t.pos==="after"?1:0),0,key);fit[key]=true;}
+  rows=rows.filter(r=>r.length);rows.forEach(r=>{if(r.length===1)delete fit[r[0]];});
+  return {rows,fit};}
+function applyLayout(){const box=$("layout");if(!box)return;const set=state.board.settings,fit=set.secFit||{};
+  const want=layoutRows(set).map(r=>r.filter(k=>{const m=LAY[k][1];return !m||secMode(m)!=="tab";})).filter(r=>r.length);
+  const rowEls=[...box.children].filter(x=>x.classList.contains("lrow"));
+  while(rowEls.length<want.length){const d=document.createElement("div");d.className="lrow";box.appendChild(d);rowEls.push(d);}
+  want.forEach((r,i)=>{const row=rowEls[i];
+    r.forEach((k,j)=>{const el=$(LAY[k][0]);if(!el)return;el.dataset.lay=k;if(row.children[j]!==el)row.insertBefore(el,row.children[j]||null);});
+    const shown=r.filter(k=>{const el=$(LAY[k][0]);return el&&el.style.display!=="none";});
+    r.forEach(k=>{const el=$(LAY[k][0]);if(el)el.classList.toggle("fit",!!fit[k]&&shown.length>1);});});
+  rowEls.slice(want.length).forEach(x=>{if(!x.children.length)x.remove();});
+  [...box.children].forEach(x=>{if(x.classList.contains("lrow")&&!x.children.length)x.remove();});}
+// Kam by sekce dopadla: do řady vedle jiné sekce, nebo do nové řady nad/pod/mezi.
+function layTargetNarrow(y,key){const box=$("layout").getBoundingClientRect();
+  const items=[...$("layout").querySelectorAll(".lrow>section")].filter(c=>c.dataset.lay&&c.dataset.lay!==key&&c.style.display!=="none");
+  if(!items.length)return null;
+  let hit=items.find(c=>{const b=c.getBoundingClientRect();return y<b.top+b.height/2;}),pos="before";
+  if(!hit){hit=items[items.length-1];pos="after";}
+  const b=hit.getBoundingClientRect(),mates=[...hit.parentElement.children].filter(c=>c.dataset.lay&&c.dataset.lay!==key&&c.style.display!=="none");
+  // Nad první nebo pod poslední sekcí řady = nová řada; mezi dvěma sekcemi téže řady = přidat se k nim.
+  const edge=pos==="before"?mates[0]===hit:mates[mates.length-1]===hit;
+  return {type:edge?"newrow":"row",anchor:hit.dataset.lay,pos,mark:{x:box.left,y:(pos==="before"?b.top-8:b.bottom+5),w:box.width,h:3}};}
+function layTarget(x,y,key){if(layNarrow())return layTargetNarrow(y,key);const rows=[...$("layout").children].filter(r=>r.classList.contains("lrow")&&r.getBoundingClientRect().height>0);
+  if(!rows.length)return null;
+  const keysOf=r=>[...r.children].filter(c=>c.dataset.lay&&c.dataset.lay!==key&&c.style.display!=="none");
+  const box=$("layout").getBoundingClientRect();
+  for(let i=0;i<rows.length;i++){const r=rows[i].getBoundingClientRect(),items=keysOf(rows[i]);
+    const prevBottom=i?rows[i-1].getBoundingClientRect().bottom:-Infinity;
+    if(y<r.top&&y>=prevBottom){const a=items[0]||keysOf(rows[i-1]||rows[i])[0];if(!a)return null;return {type:"newrow",anchor:a.dataset.lay,pos:items[0]?"before":"after",mark:{x:box.left,y:r.top-10,w:box.width,h:3}};}
+    if(y>=r.top&&y<=r.bottom){
+      if(!items.length)return null;
+      const band=Math.min(24,r.height/4);
+      if(y<r.top+band)return {type:"newrow",anchor:items[0].dataset.lay,pos:"before",mark:{x:box.left,y:r.top-10,w:box.width,h:3}};
+      if(y>r.bottom-band)return {type:"newrow",anchor:items[0].dataset.lay,pos:"after",mark:{x:box.left,y:r.bottom+7,w:box.width,h:3}};
+      const next=items.find(c=>{const b=c.getBoundingClientRect();return x<b.left+b.width/2;});
+      if(next){const b=next.getBoundingClientRect();return {type:"row",anchor:next.dataset.lay,pos:"before",mark:{x:b.left-10,y:r.top,w:3,h:r.height}};}
+      const last=items[items.length-1],b=last.getBoundingClientRect();
+      return {type:"row",anchor:last.dataset.lay,pos:"after",mark:{x:b.right+7,y:r.top,w:3,h:r.height}};}}
+  const lastRow=rows[rows.length-1],items=keysOf(lastRow);const a=items[0]||keysOf(rows[rows.length-2]||lastRow)[0];if(!a)return null;
+  const r=lastRow.getBoundingClientRect();
+  return {type:"newrow",anchor:a.dataset.lay,pos:"after",mark:{x:box.left,y:r.bottom+7,w:box.width,h:3}};}
+let layDrag=null;
+function layMark(t){const m=$("layMark");if(!m)return;if(!t){m.style.display="none";return;}
+  Object.assign(m.style,{display:"block",left:t.mark.x+"px",top:t.mark.y+"px",width:t.mark.w+"px",height:t.mark.h+"px"});}
+function renderLayEdit(){const b=$("layEditBtn");if(b)b.textContent=document.body.classList.contains("lay-edit")?"✓ "+L.layDone:"✥ "+L.layEdit;}
+const layNarrow=()=>window.matchMedia("(max-width:640px)").matches;
+document.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.pointerType!=="mouse"&&!document.body.classList.contains("lay-edit"))return;
+  const head=e.target.closest("#layout .lrow>section>.sec-head");if(!head)return;
+  if(e.target.closest("button,input,select,textarea,a,label"))return;
+  layDrag={sec:head.parentElement,key:head.parentElement.dataset.lay,sx:e.clientX,sy:e.clientY,on:false,t:null};});
+window.addEventListener("pointermove",e=>{if(!layDrag)return;
+  if(!layDrag.on){if(Math.hypot(e.clientX-layDrag.sx,e.clientY-layDrag.sy)<6)return;layDrag.on=true;layDrag.sec.classList.add("lay-drag");document.body.classList.add("lay-dragging");}
+  e.preventDefault();layDrag.t=layTarget(e.clientX,e.clientY,layDrag.key);layMark(layDrag.t);});
+window.addEventListener("pointerup",()=>{if(!layDrag)return;const d=layDrag;layDrag=null;layMark(null);
+  d.sec.classList.remove("lay-drag");document.body.classList.remove("lay-dragging");
+  if(!d.on)return;const s=state.board.settings;const res=layDrop(layoutRows(s),s.secFit||{},d.key,d.t);
+  if(res){s.layout=res.rows;s.secFit=res.fit;save();applyLayout();}});
+function dockRows(order){const rows=[];for(let i=0;i<order.length;i+=2)rows.push(order.slice(i,i+2).reverse());return rows.reverse();}
+function layoutDock(){const d=$("dock"),g=$("dockGrid");if(!d||!g)return;
+  const open=DOCK.concat(Object.values(PLACE)).filter(id=>{const p=$(id);return p&&p.parentNode===g&&p.style.display==="block";});
+  dockOrder=dockOrder.filter(id=>open.includes(id)).concat(open.filter(id=>!dockOrder.includes(id)));
+  const seq=[];dockRows(dockOrder).forEach(r=>r.forEach(id=>{const p=$(id);p.classList.toggle("wide",r.length===1);seq.push(p);}));
+  const cur=[...g.children].filter(p=>p.style.display==="block");
+  if(cur.length!==seq.length||cur.some((p,i)=>p!==seq[i]))seq.forEach(p=>g.appendChild(p));
+  d.classList.toggle("on",seq.length>0);if(!seq.length)d.classList.remove("flood");
+  $("dockX").textContent="× "+L.closeAll;
+  Object.entries(DOCK_BTN).forEach(([id,b])=>{const e=$(b);if(e)e.classList.toggle("on",open.includes(id));});}
+{const mo=new MutationObserver(layoutDock);DOCK.concat(Object.values(PLACE)).forEach(id=>{const p=$(id);if(p)mo.observe(p,{attributes:true,attributeFilter:["style"]});});}
+// Najetí na křížek zaplaví červenou přesně to, co se kliknutím zavře.
+document.addEventListener("mouseover",e=>{const d=$("dock");if(!d)return;const t=e.target.closest?e.target:null;
+  d.classList.toggle("flood",!!(t&&t.closest(".dock-x")));
+  const c=t&&t.closest("#dock [data-act=close-panel]");const hit=c?$(c.dataset.panel):null;
+  d.querySelectorAll("#dockGrid>.flood").forEach(p=>{if(p!==hit)p.classList.remove("flood");});if(hit)hit.classList.add("flood");});
+// Esc zavře naposledy otevřený panel, pokud se zrovna nepíše do pole.
+document.addEventListener("keydown",e=>{if(e.key!=="Escape"||!dockOrder.length)return;if(e.target.closest&&e.target.closest("input,textarea,select,.edit-inp"))return;
+  const p=$(dockOrder[dockOrder.length-1]);if(p)p.style.display="none";});
+
 /* ---------- clicks ---------- */
 document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const act=el.dataset.act,id=el.dataset.id,areaId=el.dataset.area,blk=el.dataset.blk;
   const tg=(p)=>$(p).style.display=$(p).style.display==="block"?"none":"block";
@@ -621,6 +871,8 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
     const p=$("watchPanel");p.style.display="block";renderWatch();
     p.scrollIntoView({behavior:"smooth",block:"start"});
     if(!existing)alert(L.watchMadeFromLink.replace("{p}",phraseOfLast()));}
+  else if(act==="area-menu"){areaMenuId=areaMenuId===id?null:id;render();}
+  else if(act==="clear-colors"){const a=A(id);if(a){delete a.color;delete a.bodyColor;areaMenuId=null;save();render();}}
   else if(act==="watch-add"){const q=k=>document.querySelector('[data-wf="'+k+'"]');
     const phrase=(q("phrase").value||"").trim();
     const urls=(q("urls").value||"").split(/\n+/).map(x=>x.trim()).filter(Boolean);
@@ -744,9 +996,18 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
     else{const N=Math.max(1,parseInt($("nbCycleN").value,10)||1);const unit=$("nbCycleUnit").value;state.board.blocks.push({id:uid(),name,kind:"cycle",cycleN:N,cycleUnit:unit,anchor:Date.now(),doneRetention:ret,color,goals:[],done:[]});}
     $("newBlockPanel").style.display="none";save();render();}
   else if(act==="close-panel"){$(el.dataset.panel).style.display="none";}
+  else if(act==="open-sec"){const k=el.dataset.sec,p=$(PLACE[k]);if(!p)return;
+    if(secMode(k)==="tab"){p.style.display=p.style.display==="block"?"none":"block";}
+    else{if(secMode(k)==="min")setSecMode(k,"open");p.scrollIntoView({behavior:"smooth",block:"start"});}}
+  else if(act==="sec-min"){const k=el.dataset.sec;setSecMode(k,secMode(k)==="min"?"open":"min");}
+  else if(act==="sec-tab"){setSecMode(el.dataset.sec,"tab");}
+  else if(act==="sec-page"){setSecMode(el.dataset.sec,"open");}
+  else if(act==="lay-edit"){document.body.classList.toggle("lay-edit");renderLayEdit();}
+  else if(act==="close-all-panels"){[...$("dockGrid").children].forEach(p=>{p.style.display="none";});$("dock").classList.remove("flood");}
   else if(act==="block-color"){/* řeší change listener */}
   else if(act==="toggle-block"){const b=B(id);if(b){b.collapsed=!b.collapsed;save();render();}}
   else if(act==="area-color"){/* řeší change listener */}
+  else if(act==="area-bodycolor"){/* řeší change listener */}
   else if(act==="pick-tz"){state.board.settings.tz=el.dataset.tz;save();renderSettings();}
   else if(act==="toggle-book"){const p=$("bookPanel");if(p.style.display==="block"){p.style.display="none";}else{renderBook();renderBookResults(false);p.style.display="block";}}
   else if(act==="book-search"){const t=$("bkTitle").value.trim(),au=$("bkAuthor").value.trim();if(!t&&!au)return;renderBookResults(true);
@@ -806,6 +1067,7 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
 document.body.addEventListener("change",e=>{const el=e.target.closest("[data-act]");if(!el)return;const act=el.dataset.act,s=state.board.settings;
   if(act==="set-lang"){s.lang=el.value;applyLang();save();render();}
   else if(act==="set-daily"){s.dailyCleanup=el.value;save();render();}
+  else if(act==="set-secmode"){setSecMode(el.dataset.sec,el.value);}
   else if(act==="set-watch-area"){s.watchSourceArea=el.value;save();}
   else if(act==="set-watch-email"){s.watchEmail=(el.value||"").trim();save();}
   else if(act==="set-sep"){let v=el.value.trim();if(v===","){alert("Čárka nelze.");el.value=s.quoteSep||"|";return;}s.quoteSep=v||"|";save();}
@@ -813,6 +1075,7 @@ document.body.addEventListener("change",e=>{const el=e.target.closest("[data-act
   else if(act==="block-ret"){const b=B(el.dataset.id);if(b){b.doneRetention=el.value;save();}}
   else if(act==="block-color"){const b=B(el.dataset.id);if(b){b.color=el.value;save();render();}}
   else if(act==="area-color"){const a=A(el.dataset.id);if(a){a.color=el.value;save();render();}}
+  else if(act==="area-bodycolor"){const a=A(el.dataset.id);if(a){a.bodyColor=el.value;save();render();}}
   else if(act==="feat-book"){s.features=s.features||{};s.features.book=el.checked;applyLang();save();}
   else if(act==="set-areascroll"){s.areaScroll=!el.checked;save();renderAreas();}
   else if(act==="set-unify"){s.gridUnified=el.checked;save();renderAreas();}
@@ -834,14 +1097,18 @@ $("checkAll").onclick=async()=>{$("checkAll").disabled=true;$("checkAll").textCo
 const board=$("boardEl");let areaDrag=null;
 let rz=null;
 function rzSnap(val,cands,th){let best=val,bd=th;for(const c of cands){const d=Math.abs(c-val);if(d<bd){bd=d;best=c;}}return best;}
-board.addEventListener("pointerdown",e=>{const h=e.target.closest(".area-rz");if(!h)return;if(state.board.settings.gridUnified)return;const ae=h.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();
+board.addEventListener("pointerdown",e=>{const h=e.target.closest(".area-rz,.area-rz-x,.area-rz-y");if(!h)return;if(state.board.settings.gridUnified)return;const ae=h.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();
   const W=[],H=[];document.querySelectorAll('#boardEl .area[data-area-id]').forEach(o=>{if(o!==ae){W.push(o.offsetWidth);H.push(o.offsetHeight);}});
   const maxW=Math.max(220,(($("boardEl").clientWidth)||1200)-2);
-  rz={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,sw:ae.offsetWidth,sh:ae.offsetHeight,W,H,maxW};
+  rz={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,sw:ae.offsetWidth,sh:ae.offsetHeight,W,H,maxW,axis:h.dataset.axis||"both"};
   try{h.setPointerCapture(e.pointerId);}catch(_){}});
 window.addEventListener("pointermove",e=>{if(!rz)return;
-  let w=Math.min(rz.maxW,Math.max(200,rz.sw+(e.clientX-rz.sx))),h=Math.max(80,rz.sh+(e.clientY-rz.sy));
-  const ws=rzSnap(w,rz.W,9),hs=rzSnap(h,rz.H,9);const snapped=(ws!==w)||(hs!==h);w=ws;h=hs;
+  // pravý kraj mění jen šířku, spodní jen výšku, roh obojí
+  let w=rz.sw,h=rz.sh;
+  if(rz.axis!=="y")w=Math.min(rz.maxW,Math.max(200,rz.sw+(e.clientX-rz.sx)));
+  if(rz.axis!=="x")h=Math.max(80,rz.sh+(e.clientY-rz.sy));
+  const ws=rz.axis!=="y"?rzSnap(w,rz.W,9):w,hs=rz.axis!=="x"?rzSnap(h,rz.H,9):h;
+  const snapped=(ws!==w)||(hs!==h);w=ws;h=hs;
   rz.el.style.width=w+"px";rz.el.style.height=h+"px";rz.el.classList.toggle("snapping",snapped);});
 window.addEventListener("pointerup",()=>{if(!rz)return;const ae=rz.el,a=A(rz.id);rz=null;ae.classList.remove("snapping");if(!a)return;const w=Math.round(ae.offsetWidth),h=Math.round(ae.offsetHeight);if(a.w!==w||a.h!==h){a.w=w;a.h=h;save();renderAreas();}});
 board.addEventListener("dragstart",e=>{
@@ -874,7 +1141,7 @@ const CAL_CSS=`<style>
 .cal-hd{font-size:11px;color:var(--muted);text-align:center;padding:2px 0;text-transform:uppercase}
 .cal-cell{min-height:76px;border:1px solid var(--line);border-radius:8px;padding:3px;overflow:hidden;cursor:pointer;background:var(--card,#fff)}
 .cal-cell.out{opacity:.38}
-.cal-cell.today{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.cal-cell.today{border-color:var(--teal);border-color:var(--ink)}
 .cal-dn{font-size:12px;color:var(--muted);text-align:right;margin-bottom:2px}
 .cal-ev{font-size:11px;line-height:1.3;background:var(--teal);color:#fff;border-radius:5px;padding:1px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .cal-ev.allday{background:#5B3A57}
@@ -941,6 +1208,47 @@ function calCat(ev){return calSpan(ev)>1?"multiDay":(ev.allDay?"allDay":"timed")
 function calColorOf(ev){const c=calCfg();if(ev.id&&c.perEvent[ev.id])return c.perEvent[ev.id];const txt=((ev.summary||"")+" "+(ev.description||"")).toLowerCase();for(const r of c.rules){if(r.kw&&txt.includes(r.kw.toLowerCase()))return r.color;}return c.colors[calCat(ev)]||c.colors.timed;}
 function newEventColor(p){const c=calCfg();const txt=((p.summary||"")+" "+(p.description||"")).toLowerCase();for(const r of c.rules){if(r.kw&&txt.includes(r.kw.toLowerCase()))return r.color;}let cat="timed";if(p.allDay)cat=(p.endDate&&p.endDate!==p.date)?"multiDay":"allDay";else{const sd=(p.start||"").slice(0,10),ed=(p.end||"").slice(0,10);cat=(sd&&ed&&sd!==ed)?"multiDay":"timed";}return c.colors[cat]||c.colors.timed;}
 const GCAL_COLORS={1:"#7986cb",2:"#33b679",3:"#8e24aa",4:"#e67c73",5:"#f6bf26",6:"#f4511e",7:"#039be5",8:"#616161",9:"#3f51b5",10:"#0b8043",11:"#d50000"};
+/* ---------- čitelnost textu na barevném podkladu ----------
+   Relativní jas a kontrastní poměr podle WCAG. Běžný text potřebuje
+   proti svému podkladu aspoň 4.5:1, tiché popisky 3:1. Když se na daný
+   podklad nehodí inkoust, přepne se text na bílou, případně na šedou.
+   Paleta je schválně jen inkoust / bílá / šedá — barvu sem netaháme. */
+function srgbLum(hex){
+  const a=hexRgb(hex).map(v=>{const c=v/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);});
+  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];}
+function contrastOn(fg,bg){
+  try{const a=srgbLum(fg),b=srgbLum(bg);return (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05);}catch(e){return 1;}}
+// Text NA barevném podkladu. Inkoust má přednost, pak bílá, jinak to lepší z obou.
+function readableOn(bg){
+  try{
+    if(contrastOn("#252525",bg)>=4.5)return "#252525";
+    if(contrastOn("#ffffff",bg)>=4.5)return "#ffffff";
+    return contrastOn("#252525",bg)>=contrastOn("#ffffff",bg)?"#252525":"#ffffff";
+  }catch(e){return "#252525";}}
+// Tiché popisky snesou 3:1, ale musí být na stejné straně jako hlavní text:
+// na tmavém podkladu světlá šedá, na světlém tmavá. Střední šedá na tmavém
+// pozadí sice projde poměrem, ale vypadá zakaleně.
+function readableMutedOn(bg){
+  try{
+    const ink=readableOn(bg);
+    const grey=ink==="#ffffff"?"#c9c9c9":"#8e8e8e";
+    return contrastOn(grey,bg)>=3?grey:ink;
+  }catch(e){return "#8e8e8e";}}
+// Barva POUŽITÁ JAKO TEXT na bílé. Když je moc světlá, ustoupí inkoustu.
+function readableInk(hex){
+  try{return contrastOn(hex,"#ffffff")>=4.5?hex:"#252525";}catch(e){return "#252525";}}
+// Podklad se ztlumí k bílé, dokud na něm inkoust nedosáhne 4.5:1. Používá se
+// na přechod v těle panelu: ten končí bílou, takže text nejde přepnout na bílou
+// jen pro horní část — čitelnost proto musí zajistit podklad, ne text.
+function safeTint(hex){
+  try{
+    const rgb=hexRgb(hex);
+    for(let t=0;t<=1.0001;t+=0.05){
+      const h="#"+rgb.map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,"0")).join("");
+      if(contrastOn("#252525",h)>=4.5)return h;
+    }
+    return "#ffffff";
+  }catch(e){return hex;}}
 function hexRgb(h){h=String(h).replace("#","");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
 function nearestGColor(hex){const[r,g,b]=hexRgb(hex);let best="1",bd=1e9;for(const id in GCAL_COLORS){const[R,G,B]=hexRgb(GCAL_COLORS[id]);const d=(r-R)*(r-R)+(g-G)*(g-G)+(b-B)*(b-B);if(d<bd){bd=d;best=id;}}return best;}
 function readColorForm(){const c=calCfg();if($("colTimed"))c.colors.timed=$("colTimed").value;if($("colAllDay"))c.colors.allDay=$("colAllDay").value;if($("colMulti"))c.colors.multiDay=$("colMulti").value;if($("colPush"))c.pushToGoogle=$("colPush").checked;
@@ -1033,7 +1341,7 @@ async function saveCalEvent(btn){const summary=($("calSum").value||"").trim();if
 async function deleteCalEvent(id){if(!confirm(L.calDelConfirm))return;const r=await calApi("/api/cal/delete",{method:"POST",body:JSON.stringify({id})});if(r.status===200)loadCalEvents();else alert("Kalendář: "+((r.body&&r.body.error)||r.status));}
 
 /* ---------- Sdílení výřezů ---------- */
-function toast(msg){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink,#20262B);color:#fff;padding:10px 16px;border-radius:10px;z-index:9999;opacity:0;transition:opacity .2s;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.2)";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";clearTimeout(t._h);t._h=setTimeout(()=>{t.style.opacity="0";},1600);}
+function toast(msg){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:var(--ink);padding:10px 16px;border-radius:8px;z-index:9999;opacity:0;transition:opacity .2s;font-size:14px;border:1px solid var(--line)";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";clearTimeout(t._h);t._h=setTimeout(()=>{t.style.opacity="0";},1600);}
 async function shareApi(path,opts={}){try{const r=await fetch(path,{...opts,headers:{"content-type":"application/json",...(opts.headers||{})}});let body={};try{body=await r.json();}catch(e){}return{status:r.status,body};}catch(e){return{status:0,body:{error:String(e)}};}}
 function shareLinkOf(token){return location.origin+"/s/"+token;}
 function shareFmtExp(ts){if(!ts)return L.shareNever;try{return new Date(ts).toLocaleString(calLoc(),{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}catch{return"";}}
@@ -1104,7 +1412,7 @@ const FAQ={cs:[
    "Cloudflare dává na free plánu 100 000 požadavků denně a cron jednou za hodinu, což je na osobní rozcestník řádově víc, než spotřebuješ. Jedna věc je na to postavená schválně: hlídač stránek má strop 25 stažení na jeden běh cronu, protože free plán dovolí 50 podrequestů na jedno spuštění — kdyby ten strop nebyl, narazíš na limit a Cloudflare tě tlačí k upgradu. Co se do rozpočtu nevejde, počká na další hodinu. Upozornění přes ntfy.sh jsou zdarma a bez registrace. E-mail přes Resend je nepovinný a má free tarif, který na pár zpráv měsíčně stačí, ale bez něj se nic nerozbije."],
   ["Kam jdou má data?",
    "Všechno leží v tvém vlastním Cloudflare účtu (úložiště KV), nikde jinde. Appka mluví jen s tvým Workerem a k autorovi appky neteče nic.",
-   "Výjimky, kdy se sahá ven, jsou tyhle a žádné další: ikonky webů (favicony) se načítají z Googlu, kontrola odkazů navštěvuje tvoje uložené odkazy, Google Kalendář komunikuje s Googlem, když si ho propojíš, kurzy měn se jednou denně stahují z veřejného kurzovního API a hlídač stránek chodí na adresy, které jsi mu sama zadala. Ve všech případech odchází jen požadavek na stránku nebo na kurzy, ne tvoje jméno, e-mail ani obsah desky. Žádná analytika, žádné sledovací skripty, žádný server autora — ten o tvé existenci neví."],
+   "Výjimky, kdy se sahá ven, jsou tyhle a žádné další: písmo Inter a ikonky webů (favicony) se načítají z Googlu, kontrola odkazů navštěvuje tvoje uložené odkazy, Google Kalendář komunikuje s Googlem, když si ho propojíš, kurzy měn se jednou denně stahují z veřejného kurzovního API a hlídač stránek chodí na adresy, které jsi mu sama zadala. Ve všech případech odchází jen požadavek na stránku nebo na kurzy, ne tvoje jméno, e-mail ani obsah desky. Žádná analytika, žádné sledovací skripty, žádný server autora — ten o tvé existenci neví."],
   ["Můžu data smazat? Co se stane?",
    "Ano. Smazané věci jdou na 30 dní do Koše, pak zmizí; Koš můžeš vysypat hned. Smazat se dá i úplně všechno naráz.",
    "Koš drží položku i s tím, odkud pocházela, takže vrácení ji dá zpátky do správné oblasti nebo bloku. Po 30 dnech ji denní úklid zahodí nadobro. Když chceš skončit úplně, v Nastavení je vymazání celé desky a pak stačí ve svém Cloudflare účtu smazat Worker a KV úložiště — tím zmizí i poslední kopie. Nikdo jiný žádnou nemá, protože nikdy nikam neodešla."],
@@ -1141,7 +1449,7 @@ const FAQ={cs:[
    "Cloudflare's free plan gives you 100,000 requests a day and an hourly cron, which is orders of magnitude more than a personal dashboard uses. One thing is built around that deliberately: the page watcher is capped at 25 fetches per cron run, because the free plan allows 50 subrequests per invocation — without that cap you would hit the limit and Cloudflare would push you to upgrade. Whatever doesn't fit waits for the next hour. Alerts via ntfy.sh are free and require no signup. E-mail through Resend is optional and has a free tier that covers a few messages a month, but nothing breaks without it."],
   ["Where does my data go?",
    "Everything lives in your own Cloudflare account (KV storage), nowhere else. The app talks only to your Worker, and nothing goes to the app's author.",
-   "The exceptions, and there are no others, are these: site icons (favicons) load from Google, link checking visits your own saved links, Google Calendar talks to Google if you connect it, exchange rates are fetched once a day from a public rates API, and the page watcher visits the addresses you gave it yourself. In every case what leaves is a request for a page or for rates — not your name, your e-mail or the contents of your board. No analytics, no tracking scripts, no author's server; the author doesn't know you exist."],
+   "The exceptions, and there are no others, are these: the Inter typeface and site icons (favicons) load from Google, link checking visits your own saved links, Google Calendar talks to Google if you connect it, exchange rates are fetched once a day from a public rates API, and the page watcher visits the addresses you gave it yourself. In every case what leaves is a request for a page or for rates — not your name, your e-mail or the contents of your board. No analytics, no tracking scripts, no author's server; the author doesn't know you exist."],
   ["Can I delete my data? What happens?",
    "Yes. Deleted items go to the Trash for 30 days, then disappear; you can empty the Trash right away. You can also wipe everything at once.",
    "The Trash keeps each item along with where it came from, so restoring puts it back in the right area or block. After 30 days the daily cleanup discards it for good. If you want out entirely, Settings has a wipe for the whole board, and then deleting the Worker and the KV namespace in your own Cloudflare account removes the last copy. Nobody else has one, because it never went anywhere."],
@@ -1245,7 +1553,7 @@ function watchRowHtml(w){
   const every=opt(1,L.watchDaily,w.intervalDays||7)+opt(7,L.watchWeekly,w.intervalDays||7)+opt(30,L.watchMonthly,w.intervalDays||7);
   const after=opt("sleep",L.watchSleep,w.afterFound||"sleep")+opt("delete",L.watchDelete,w.afterFound||"sleep")+opt("keep",L.watchKeep,w.afterFound||"sleep");
   const areas=`<option value="">${esc(L.watchLinkNone)}</option>`+(b.areas||[]).map(a=>opt(a.id,a.name,w.areaId||"")).join("");
-  return `<div class="block" style="border-left:5px solid #b4881f;padding:12px;margin-top:10px">
+  return `<div class="block" style="border-left:5px solid var(--ink);padding:12px;margin-top:10px">
     <b>${esc(L.watchEditTitle)}</b>
     <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
       <input type="text" data-we="name" value="${esc(w.name||"")}" placeholder="${esc(L.watchName)}"/>
@@ -1260,12 +1568,80 @@ function watchRowHtml(w){
       <div><button class="btn primary" data-act="watch-edit-save" data-id="${w.id}">${esc(L.watchSave)}</button> 
       <button class="btn" data-act="watch-edit-cancel">${esc(L.watchCancel)}</button></div>
     </div></div>`;}
+let areaMenuId=null;
+function areaMenuHtml(a,collapsed){
+  const tab=a.color||"#ffffff",body=a.bodyColor||"#ffffff";
+  const item=(act,label,extra)=>`<button data-act="${act}" data-id="${a.id}">${esc(label)}${extra||""}</button>`;
+  return `<div class="area-menu" data-area-menu="${a.id}">
+    ${item("toggle-area",collapsed?L.expandAreas:L.minAreas)}
+    ${item("hide-area",L.hideArea)}
+    ${item("rename-area",L.rename||"✎")}
+    ${item("toggle-type",L.optLinks+" / "+L.optText.split(" ")[0])}
+    <div class="sep"></div>
+    <label>${esc(L.tabColor)}<input type="color" data-act="area-color" data-id="${a.id}" value="${tab}"/></label>
+    <label>${esc(L.bodyColor)}<input type="color" data-act="area-bodycolor" data-id="${a.id}" value="${body}"/></label>
+    ${item("clear-colors",L.clearColors)}
+    ${(a.w||a.h)?item("reset-size",L.resetSize):""}
+    <div class="sep"></div>
+    <button class="danger" data-act="del-area" data-id="${a.id}">${esc(L.del)}</button>
+  </div>`;}
+/* ---------- velikost celopruhových sekcí (Cíle, Úkoly, Ke zpracování) ----------
+   Oblasti na desce jsou dlaždice a mají vlastní a.w/a.h. Tyhle tři jsou
+   jedináčci, takže si rozměr drží Nastavení pod svým klíčem. Úchyty se
+   po každém překreslení doplňují znovu, protože render u dvou z nich
+   přepisuje celé innerHTML. */
+const SECS=[["blocksWrapEl","goals"],["tasksEl","tasks"],["inbox","inbox"],["areasWrap","areas"]];
+function secSizes(){const s=state.board.settings;return s.secSize||(s.secSize={});}
+function applySecSizes(){
+  for(const [id,key] of SECS){
+    const el=$(id);if(!el)continue;
+    if(!el.querySelector(".sec-rz")){
+      for(const cls of ["sec-rz-x","sec-rz-y","sec-rz"]){
+        const d=document.createElement("div");
+        d.className=cls;d.dataset.sec=key;
+        d.dataset.axis=cls==="sec-rz-x"?"x":cls==="sec-rz-y"?"y":"both";
+        d.title=cls==="sec-rz"?(L.resizeReset||""):"";
+        el.appendChild(d);
+      }
+    }
+    const sz=secSizes()[key];
+    if(sz&&(sz.w||sz.h)){
+      el.classList.add("sized");
+      el.style.width=sz.w?sz.w+"px":"";
+      el.style.height=sz.h?sz.h+"px":"";
+    }else{
+      el.classList.remove("sized");el.style.width="";el.style.height="";
+    }
+  }
+}
+let secRz=null;
+document.addEventListener("pointerdown",e=>{
+  const h=e.target.closest(".sec-rz,.sec-rz-x,.sec-rz-y");if(!h)return;
+  const el=h.parentElement;if(!el)return;e.preventDefault();
+  const sw=el.offsetWidth,sh=el.offsetHeight;el.classList.remove("fit");
+  secRz={key:h.dataset.sec,axis:h.dataset.axis||"both",el,sx:e.clientX,sy:e.clientY,sw,sh};
+  try{h.setPointerCapture(e.pointerId);}catch(_){}});
+window.addEventListener("pointermove",e=>{if(!secRz)return;
+  let w=secRz.sw,h=secRz.sh;
+  if(secRz.axis!=="y")w=Math.max(220,secRz.sw+(e.clientX-secRz.sx));
+  if(secRz.axis!=="x")h=Math.max(80,secRz.sh+(e.clientY-secRz.sy));
+  secRz.el.style.width=w+"px";secRz.el.style.height=h+"px";
+  secRz.el.classList.add("sized");});
+window.addEventListener("pointerup",()=>{if(!secRz)return;
+  const {key,el}=secRz;secRz=null;
+  const sf=state.board.settings.secFit;if(sf)delete sf[key];
+  secSizes()[key]={w:Math.round(el.offsetWidth),h:Math.round(el.offsetHeight)};
+  save();});
+// dvojklik na roh vrátí sekci původní velikost
+document.addEventListener("dblclick",e=>{
+  const h=e.target.closest(".sec-rz");if(!h)return;
+  delete secSizes()[h.dataset.sec];save();applySecSizes();});
 function renderWatch(){const p=$("watchPanel");if(!p)return;
   const b=state.board;b.watches=b.watches||[];b.watchHits=b.watchHits||[];
   const close=`<button class="linkbtn" data-act="close-panel" data-panel="watchPanel" style="float:right;font-size:16px">×</button>`;
   const srcArea=(b.areas||[]).find(a=>a.id===b.settings.watchSourceArea);
   const prefill=srcArea?(srcArea.links||[]).map(l=>l.url).filter(Boolean).join("\n"):"";
-  const hits=b.watchHits.map(h=>`<div class="block" style="border-left:5px solid #b4881f;padding:12px;margin-top:10px">
+  const hits=b.watchHits.map(h=>`<div class="block" style="border-left:5px solid var(--ink);padding:12px;margin-top:10px">
     <b>${esc(h.name||"")}</b>
     <div style="font-size:13px;margin:6px 0;word-break:break-all"><a href="${esc(h.url)}" target="_blank" rel="noreferrer">${esc(h.url)}</a></div>
     ${(h.dates&&h.dates.length)?`<div style="font-size:13px;margin:8px 0"><b>${esc(L.watchDates)}</b>`+h.dates.map((d,di)=>`<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">
@@ -1364,7 +1740,7 @@ function cycForm(){const T=cycT();const ev=cycleState.editId?cycleState.periods.
    <div style="margin-top:10px"><button class="btn primary" data-act="cyc-save">${T.save}</button> <button class="btn" data-act="cyc-cancel">${T.cancel}</button></div></div>`;}
 function cycCfg(){const s=state.board.settings;s.cycleCfg=s.cycleCfg||{};const c=s.cycleCfg;c.colors=Object.assign({logged:"#C0392B",pred:"#E8A598",win:"#F3D9D4",fertile:"#DCEFE6",ovul:"#2E8B7B"},c.colors||{});if(typeof c.overlay!=="boolean")c.overlay=false;return c;}
 function cycColor(t){return t?(cycCfg().colors[t]||""):"";}
-function cycContrast(hex){try{const a=hexRgb(hex);return (0.299*a[0]+0.587*a[1]+0.114*a[2])>155?"#20262B":"#fff";}catch{return "#20262B";}}
+function cycContrast(hex){return readableOn(hex);}
 function cycLegend(){const T=cycT(),c=cycCfg().colors,sw=(k)=>`<span><span class="lg" style="background:${c[k]}"></span>`;return `<div class="cyc-legend">${sw("logged")}${T.lgLogged}</span>${sw("pred")}${T.lgPred}</span>${sw("win")}${T.lgWin}</span>${sw("fertile")}${T.lgFert}</span>${sw("ovul")}${T.lgOv}</span></div>`;}
 function cycMonthGrid(c){const g=monthGrid(cycleState.cursor),cm=cycleState.cursor.getMonth(),todayKey=fmtKey(new Date());
   const head=weekdayNames().map(n=>`<div class="cmg-hd">${n}</div>`).join("");

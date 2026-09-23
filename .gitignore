@@ -16,3 +16,7 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# Stažené cizí stránky pro testy — velké a mění se. Vyrob si je:
+#   node tests/fetch-fixtures.js
+tests/fixtures/

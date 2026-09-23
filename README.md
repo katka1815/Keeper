@@ -100,6 +100,7 @@ To save links by sharing, set `"type":"link"` and put the shared link in `"url"`
 - Quick task: the box above the board drops a task straight to the top of the list — type and hit **+**.
 - Areas: add, rename, move ◀ ▶.
 - Links: drag on desktop, arrows ▲ ▼ on the phone.
+- New area: also from the **+ New area** button in the Links & reminders header.
 - Text areas: each item can also have an optional **description** (the 📝 button), just like links.
 - Goal blocks have three columns: Want to do -> Doing -> Done. Move an item with ▶ (to Doing) and ✓ (to Done), ◀ moves it back, and Doing items can have a note (📝) so you remember where each in-progress task stands.
 - Tasks can each have an optional deadline (📅) and a note (📝), and you can sort the task list by deadline with the button in the Tasks header.
@@ -112,6 +113,26 @@ To save links by sharing, set `"type":"link"` and put the shared link in `"url"`
 - "Check all" runs a link check now; otherwise it runs as part of the daily cleanup at **06:00 in
   the time zone you set in Settings** (the Worker cron ticks hourly and fires the cleanup once 6 a.m.
   has passed there).
+
+## Layout: sections, tabs and panels
+The page is modular. The main sections (**Goals & periods**, **Tasks & notes**, **Links &
+reminders**, **To process**) and the tools in the top bar all follow the same rules:
+
+- **Top bar tabs.** Goals, Tasks and Links have their own tabs next to Calendar, Watcher and the
+  rest. Each of those three sections can be **expanded on the page**, **collapsed on the page**
+  (just its header), or **top bar only**, where it leaves the page and opens as a panel from its tab.
+  Switch this with the buttons in the section header or in Settings → Layout.
+- **Panels open side by side.** Opening a second panel puts it to the left of the first, and a
+  third goes above those two. Every panel has its own × in the top-right corner, and
+  **× Close all** sits above them. Hovering any × tints red what it would close. Esc closes the
+  most recent panel.
+- **Resize any section** by dragging its corner or edges. Only the section body scrolls, so the
+  header and the handle stay put. Double-click the corner to reset the size.
+- **Drag sections anywhere** by their header. Drop one next to another and it joins that row,
+  filling the free space and matching the row height. Drop it above, below or between rows and it
+  gets its own row back at the size it had before. Drag a section's corner to make that its own size.
+- **On the phone** tap **✥ Edit layout**. Sections shrink to their headers, you drag them with a
+  finger and tap **✓ Done** in the corner.
 
 ## Items and money (who owes what)
 
@@ -476,6 +497,27 @@ Pro ukládání odkazů sdílením nastav `"type":"link"` a do `"url"` vlož sd�
   **nahoru** nebo **na bok** (dle Nastavení); kliknutím ji zase vrátíš. Jednotlivou oblast sbalíš šipkou ▾, nebo tlačítkem **Sbalit oblasti** nad deskou složíš všechny naráz — po rozbalení se každá vrátí do stavu, v jakém byla.
 - „Zkontrolovat vše" spustí kontrolu hned; jinak proběhne sama v rámci denního úklidu v **6:00 podle
   časového pásma z Nastavení** (cron Workeru tiká každé hodinu a úklid spustí, jakmile je tam po šesté).
+
+## Rozložení: sekce, záložky a panely
+Plocha je modulární. Hlavní sekce (**Cíle a období**, **Úkoly a poznámky**, **Odkazy a
+připomínky**, **Ke zpracování**) i nástroje v horní liště se řídí stejnými pravidly:
+
+- **Záložky v horní liště.** Cíle, Úkoly a Odkazy mají svoje tlačítka vedle Kalendáře, Hlídače
+  a dalších. Každá z těch tří sekcí může být **rozbalená na ploše**, **sbalená na ploše** (jen
+  nadpis), nebo **jen v liště**, kdy z plochy zmizí a otevírá se tlačítkem jako panel. Přepíná se to
+  tlačítky v nadpisu sekce nebo v Nastavení → Rozložení.
+- **Panely vedle sebe.** Druhý otevřený panel se otevře vlevo od prvního a třetí nad nimi.
+  Každý má vpravo nahoře svůj ×, nad panely je **× Zavřít vše**. Při najetí na křížek zčervená,
+  co se zavře. Esc zavře naposledy otevřený panel.
+- **Velikost jde měnit u každé sekce** tažením za roh nebo kraj. Roluje jen obsah, nadpis
+  i úchyt zůstanou na místě. Dvojklik na roh velikost vrátí.
+- **Sekce jde přetáhnout kamkoliv** za nadpis. Pustíš ji vedle jiné a přidá se do její řady:
+  zabere volné místo a srovná se s řadou na výšku. Pustíš ji nad, pod nebo mezi řady a dostane
+  vlastní řadu a rozměry, které měla předtím. Když za roh natáhneš jinou velikost, stane se jejím
+  vlastním rozměrem.
+- **Na telefonu** klepni na **✥ Upravit plochu**. Sekce se zmenší na nadpisy, přetáhneš je
+  prstem a skončíš tlačítkem **✓ Hotovo** v rohu.
+- **Novou oblast** založíš i tlačítkem **+ Nová oblast** v hlavičce Odkazů a připomínek.
 
 ## Věci a peníze (kdo co komu dluží)
 

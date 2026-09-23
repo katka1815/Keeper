@@ -26,7 +26,9 @@ ARCHITEKTURA
   (debounced PUT). Vykreslení: render(). Pomocníci: $(id), esc(text).
 - UI: klikání řeší jeden delegovaný handler přes atributy data-act="...". Panely jsou
   <section class="panel" id="xPanel"> a přepínají se zobrazením. Tlačítka v liště mají
-  data-act="toggle-x".
+  data-act="toggle-x". Nový panel patří do #dockGrid a jeho id do pole DOCK (dok je skládá
+  vedle sebe). Nová sekce na ploše patří do LAY (přetahování), SECS (velikost) a PLACE
+  (záložka v liště); pokud si přepisuje innerHTML, zavolá na konci applySecSizes().
 - Dvojjazyčnost CS/EN: objekt DICT (DICT.cs / DICT.en), aktuální jazyk je L. KAŽDÝ nový
   text do UI přidej do obou jazyků.
 - Sdílený prohlížeč je public/share.html, routovaný Workerem na /s/<kód>.
@@ -84,7 +86,9 @@ ARCHITECTURE
   PUT). Rendering: render(). Helpers: $(id), esc(text).
 - UI: a single delegated click handler dispatches on data-act="..." attributes. Panels are
   <section class="panel" id="xPanel"> toggled by display. Toolbar buttons use
-  data-act="toggle-x".
+  data-act="toggle-x". A new panel goes inside #dockGrid with its id in the DOCK array (the
+  dock lays panels out side by side). A new page section goes into LAY (dragging), SECS (resizing)
+  and PLACE (top-bar tab); if it rewrites its innerHTML it must call applySecSizes() afterwards.
 - Bilingual CS/EN: a DICT object (DICT.cs / DICT.en), current language is L. Add EVERY new
   UI string to both languages.
 - The shared viewer is public/share.html, routed by the Worker at /s/<code>.
