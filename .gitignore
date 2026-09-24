@@ -20,3 +20,10 @@ Thumbs.db
 # Stažené cizí stránky pro testy — velké a mění se. Vyrob si je:
 #   node tests/fetch-fixtures.js
 tests/fixtures/
+
+.dev.vars*
+!.dev.vars.example
+!.env.example
+
+# Zabalené rozšíření (npx web-ext build -s extension)
+web-ext-artifacts/

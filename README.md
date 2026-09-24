@@ -134,7 +134,35 @@ reminders**, **To process**) and the tools in the top bar all follow the same ru
 - **On the phone** tap **✥ Edit layout**. Sections shrink to their headers, you drag them with a
   finger and tap **✓ Done** in the corner.
 
-## Items and money (who owes what)
+## Browser extension (Firefox, Chrome)
+
+The `extension/` folder is a small add-on that saves into **To process**: the current
+page (popup with a title and a note, or Alt+Shift+D without the popup), and via right-click
+a selected text, a link, an image, or a **screenshot** of the visible part of the page. In
+the popup, Ctrl+V attaches an image from the clipboard (e.g. after Win+Shift+S). Images are
+shrunk to WebP in the browser and stored in R2 if you have it, otherwise in KV (`img:<id>`).
+
+- **Try it:** Firefox → `about:debugging` → This Firefox → Load Temporary Add-on → pick
+  `extension/manifest.json`. It stays until Firefox restarts.
+- **Keep it:** Firefox only installs signed add-ons for good. Signing is free: build the zip
+  with `npx web-ext build -s extension`, upload it at addons.mozilla.org → Submit a New
+  Add-on → **On your own**, and install the signed `.xpi` you get back. It is not published.
+- **Chrome/Edge/Brave:** `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
+
+On first run it asks for your app address and for permission to send data there — and nowhere else.
+
+**Tidy up.** The **Tidy up** button above the board has three levels. *A little* lines the
+areas up in a grid of 6 or 5 equally wide columns (heights stay as they are). *Quite a bit*
+first asks which areas to hide, collapse or expand. *Completely* also goes through every
+item and asks keep/delete (keys N/Enter, S/Delete, Backspace = back); deleted items go to
+the Trash. The grid can be removed again from the same place.
+
+**Everything is a module.** Every panel from the top bar (Calendar, Cycle, Watcher, Items,
+Money, Books, Sharing, Quotes, Trash, Settings, FAQ) can live on the page like Tasks: open,
+collapsed or only in the bar (the default). Use ⤓ in its header or Settings → Layout. On the
+page it can be dragged by its header and resized from its edges.
+
+
 
 Two toolbar buttons keep track of things that left the house and money that moved.
 
@@ -519,7 +547,35 @@ připomínky**, **Ke zpracování**) i nástroje v horní liště se řídí ste
   prstem a skončíš tlačítkem **✓ Hotovo** v rohu.
 - **Novou oblast** založíš i tlačítkem **+ Nová oblast** v hlavičce Odkazů a připomínek.
 
-## Věci a peníze (kdo co komu dluží)
+## Rozšíření do prohlížeče (Firefox, Chrome)
+
+Složka `extension/` je malý doplněk, který ukládá do **Ke zpracování**: aktuální stránku
+(okýnko s názvem a poznámkou, nebo Alt+Shift+D bez okýnka) a přes pravé tlačítko označený
+text, odkaz, obrázek nebo **screenshot** viditelné části stránky. V okýnku Ctrl+V přiloží
+obrázek ze schránky (třeba po Win+Shift+S). Obrázky se v prohlížeči zmenší do WebP a uloží
+do R2, když ho máš, jinak do KV (`img:<id>`).
+
+- **Vyzkoušet:** Firefox → `about:debugging` → Tento Firefox → Načíst dočasný doplněk →
+  vyber `extension/manifest.json`. Vydrží do restartu Firefoxu.
+- **Natrvalo:** Firefox natrvalo nainstaluje jen podepsaný doplněk. Podpis je zdarma: zabal
+  zip přes `npx web-ext build -s extension`, nahraj ho na addons.mozilla.org → Submit a New
+  Add-on → **On your own** a nainstaluj podepsaný `.xpi`, který dostaneš zpět. Nikde se nezveřejní.
+- **Chrome/Edge/Brave:** `chrome://extensions` → Režim pro vývojáře → Načíst rozbalené → `extension/`.
+
+Při prvním spuštění se zeptá na adresu appky a na povolení posílat tam data — a nikam jinam.
+
+**Pořádek.** Tlačítko **Pořádek** nad deskou má tři stupně. *Udělej trochu pořádek* srovná
+oblasti do mřížky 6 nebo 5 stejně širokých sloupců (výška zůstane). *Udělej celkem pořádek*
+se napřed zeptá, které oblasti schovat, sbalit nebo rozbalit. *Udělej úplný pořádek* k tomu
+projde každou položku a zeptá se nechat/smazat (klávesy N/Enter, S/Delete, Backspace = zpět);
+smazané jdou do Koše. Mřížka se dá na stejném místě zase zrušit.
+
+**Všechno je modul.** Každý panel z horní lišty (Kalendář, Cyklus, Hlídač, Věci, Peníze,
+Knihy, Sdílení, Citáty, Koš, Nastavení, FAQ) může ležet na ploše jako Úkoly: rozbalený,
+sbalený, nebo jen v liště (výchozí). Přepne se tlačítkem ⤓ v jeho nadpisu nebo v Nastavení →
+Rozložení. Na ploše se táhne za nadpis a velikost se mění za kraje.
+
+
 
 Dvě tlačítka v liště hlídají věci, co odešly z domu, a peníze, co se pohnuly.
 

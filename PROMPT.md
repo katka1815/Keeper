@@ -29,6 +29,7 @@ ARCHITEKTURA
   data-act="toggle-x". Nový panel patří do #dockGrid a jeho id do pole DOCK (dok je skládá
   vedle sebe). Nová sekce na ploše patří do LAY (přetahování), SECS (velikost) a PLACE
   (záložka v liště); pokud si přepisuje innerHTML, zavolá na konci applySecSizes().
+  Nový panel z horní lišty patří navíc do MOD (klíč → id panelu), aby šel dát na plochu.
 - Dvojjazyčnost CS/EN: objekt DICT (DICT.cs / DICT.en), aktuální jazyk je L. KAŽDÝ nový
   text do UI přidej do obou jazyků.
 - Sdílený prohlížeč je public/share.html, routovaný Workerem na /s/<kód>.
@@ -45,7 +46,12 @@ v oblasti, hledá frázi na zadaných adresách, z nálezu tahá
 termíny a odkaz na vstupenky, umí se napojit na oblast a zapsat termín do popisku její položky
 s automatickým smazáním po termínu (link.expiresDay), nabízí vložení do kalendáře tady i do
 Googlu, potvrzení nálezu ano/ne, upozornění přes ntfy a Resend),
-výběrové sdílení (ke čtení/úpravám, veřejné/heslo, platnost, ntfy upozornění).
+výběrové sdílení (ke čtení/úpravám, veřejné/heslo, platnost, ntfy upozornění),
+rozšíření do prohlížeče (složka extension/, Firefox napřed: stránka, výběr, odkaz, obrázek,
+screenshot do Ke zpracování přes /api/capture), obrázky v KV/R2 (/api/img/<id>),
+Pořádek (mřížka oblastí settings.areaCols, schování/rozbalení oblastí, procházení odkazů
+nechat/smazat s náhledem webu z /api/preview), moduly: každý panel z lišty může ležet
+na ploše (MOD, secMode open/min/tab, obal section.modsec).
 
 PRAVIDLA, KTERÁ MUSÍŠ DODRŽET
 - Frontend zůstává jeden soubor, vanilla JS, bez frameworku a bez build kroku.
@@ -108,7 +114,11 @@ offers adding them to the calendar here or in Google, yes/no confirmation of a f
 via ntfy and Resend),
 selective
 sharing (read/edit, public/password, expiry, ntfy
-reminders).
+reminders), a browser extension (extension/ folder, Firefox first: page, selection, link,
+image, screenshot into To process via /api/capture), images in KV/R2 (/api/img/<id>),
+Tidy up (area grid settings.areaCols, hide/expand areas, keep/delete every link with a
+website preview from /api/preview), modules: every top-bar panel can live on the page
+(MOD, secMode open/min/tab, wrapper section.modsec).
 
 RULES YOU MUST FOLLOW
 - The frontend stays one file, vanilla JS, no framework and no build step.

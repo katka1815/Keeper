@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_name__",
+  "version": "0.1.0",
+  "description": "__MSG_description__",
+  "default_locale": "cs",
+  "icons": { "192": "icon.png" },
+  "action": { "default_popup": "popup.html", "default_title": "__MSG_saveTitle__", "default_icon": { "192": "icon.png" } },
+  "background": { "scripts": ["common.js", "background.js"], "service_worker": "sw.js" },
+  "permissions": ["activeTab", "contextMenus", "storage"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "commands": {
+    "_execute_action": { "suggested_key": { "default": "Alt+Shift+S" } },
+    "save-page": { "suggested_key": { "default": "Alt+Shift+D" }, "description": "__MSG_cmdSavePage__" }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "rozcestnik@katka1815",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": { "required": ["browsingActivity", "websiteContent"] }
+    }
+  }
+}

@@ -46,7 +46,7 @@
   .btn[disabled]{opacity:.5}
   .btn.primary{background:#fff;color:var(--ink);border-color:var(--ink)}
   .lastcheck{font-size:12px;color:var(--muted);font-style:italic}
-  .panel{display:none;margin:12px 28px 0;background:var(--panel);border:1px solid var(--line);border-radius:0;padding:16px}
+  .panel{display:none;margin:12px 28px 0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
   .dock{display:none;margin:12px 28px 0}
   .dock.on{display:block}
   .dock-bar{display:flex;justify-content:flex-end;margin-bottom:8px}
@@ -74,9 +74,9 @@
   .filter{display:flex;gap:14px;align-items:center;padding:14px 28px 0;flex-wrap:wrap}
   .filter input[type=search]{flex:1;max-width:360px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px}
   .filter label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
-  section.block-card,.tasks,.inbox{margin:18px 28px 0;border-radius:0;padding:16px}
+  section.block-card,.tasks,.inbox{margin:18px 28px 0;border-radius:8px;padding:16px}
   .tasks,.block-wrap{background:var(--panel);border:1px solid var(--line)}
-  .block-wrap{margin:18px 28px 0;border-radius:0;padding:16px}
+  .block-wrap{margin:18px 28px 0;border-radius:8px;padding:16px}
   .sec-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
   .sec-head h2{margin:0!important}
   .sec-ctl{display:inline-flex;gap:4px;align-items:center}
@@ -84,6 +84,12 @@
   .sec-b:hover{border-color:var(--ink)}
   .areas-wrap>.sec-head{margin:18px 28px 0;padding-bottom:10px;border-bottom:1px solid var(--line)}
   .sec-min>:not(.sec-head){display:none!important}
+  /* Moduly z lišty na ploše: obal nese nadpis a ovládání, panel uvnitř je jen obsah. */
+  .modsec{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin:18px 28px 0;position:relative}
+  .modsec .mod-title{font-family:var(--sans);font-size:15px;font-weight:500;margin:0;color:var(--ink)}
+  .modsec>.sec-body>.panel{display:block;margin:0;border:0;border-radius:0;padding:0;background:none}
+  .modsec>.sec-body>.panel>h3:first-child{display:none}
+  .panel h3 .mod-page{float:right;margin:0 6px 0 0;font-weight:400}
   .sec-min{height:auto!important}
   .sec-min>.sec-head{margin-bottom:0}
   .areas-wrap.sec-min>.sec-head{border-bottom:0}
@@ -95,7 +101,7 @@
   #dockGrid .sec-head .linkbtn[data-act=close-panel]:hover{color:var(--broken);background:var(--lineSoft)}
   .block-wrap h2,.tasks h2,.inbox h2,.areas-wrap h2{font-family:var(--sans);font-size:15px;font-weight:500;margin:0 0 12px;color:var(--ink)}
   .blocks{display:flex;flex-direction:column;gap:14px}
-  .block{border:1px solid var(--line);border-radius:0;padding:12px;background:#fff}
+  .block{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}
   .block.past{background:var(--warnBg);border-color:var(--warn)}
   .block-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
   .block-title{font-family:var(--sans);font-size:15px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:8px}
@@ -140,7 +146,8 @@
   .inbox h2{color:var(--ink)}
   .inbox-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px;border-top:1px solid var(--lineSoft)}
   .inbox-item:first-of-type{border-top:none}
-  .quickadd{display:flex;gap:8px;align-items:center;margin:18px 28px 0;background:#fff;border:1px solid var(--ink);border-radius:0;padding:12px}
+  .ix-thumb{display:block;max-width:160px;max-height:100px;border:1px solid var(--line);margin-bottom:4px}
+  .quickadd{display:flex;gap:8px;align-items:center;margin:18px 28px 0;background:#fff;border:1px solid var(--ink);border-radius:8px;padding:12px}
   .quickadd input{flex:1;font-size:14px;padding:9px 10px;border:1px solid var(--ink);border-radius:8px;background:#fff;color:var(--ink)}
   .quickadd input::placeholder{color:var(--muted);opacity:1}
   .quickadd .qa-btn{flex:0 0 auto;font-size:18px;line-height:1;padding:8px 14px}
@@ -152,6 +159,11 @@
   .ix-text{flex:1;min-width:140px;font-size:14px;word-break:break-word}.ix-text a{color:var(--ink)}
   main.board{display:flex;flex-wrap:wrap;gap:18px;padding:18px 28px 8px;align-items:flex-start}
 .board.unified{display:block;column-width:290px;column-gap:18px}
+/* Mřížka z Pořádku: N stejně širokých sloupců, výška oblasti zůstává její. */
+.board.gridded{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));align-items:start}
+.board.gridded .area{width:auto!important;min-width:0;max-width:none}
+.board.gridded .area-rz-x{display:none}
+@media(max-width:640px){.board.gridded{grid-template-columns:minmax(0,1fr)}}
 .board.unified .area{display:inline-block;width:100%!important;height:auto!important;margin:0 0 18px;vertical-align:top;break-inside:avoid;-webkit-column-break-inside:avoid;resize:none}
 .area{flex:0 0 auto;width:290px;min-width:200px;max-width:100%;overflow:hidden;display:flex;flex-direction:column;position:relative}
 .area>.links{flex:1 1 auto;min-height:0;overflow:auto}
@@ -206,19 +218,20 @@ section:hover>.sec-rz-x,section:hover>.sec-rz-y{opacity:1;background:var(--lineS
 @media(max-width:640px){.area-rz,.area-rz-x,.area-rz-y{display:none}}
 @media(max-width:640px){.area{resize:none;width:auto;flex:1 1 100%;height:auto!important;overflow:visible}}
 #hiddenBar{display:flex;flex-wrap:wrap;gap:8px;padding:14px 28px 0}
-#boardBar{display:none;justify-content:flex-end;padding:14px 28px 0}
+#boardBar{display:none;justify-content:flex-end;gap:8px;padding:14px 28px 0}
 .area.collapsed .links,.area.collapsed .add{display:none}
-.area.collapsed .area-head{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.area.collapsed .area-head{border-bottom:0;margin-bottom:-16px;padding-bottom:16px}
 .area-head .caret{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px}
 #hiddenBar.side{position:fixed;right:8px;top:88px;flex-direction:column;max-height:74vh;overflow:auto;padding:8px;z-index:40;max-width:190px;background:transparent}
 .harea{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:5px 12px;background:var(--panel);cursor:pointer;font-size:13px;white-space:nowrap}
 .harea .hdot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
 .harea .count{margin-left:2px}
 @media(max-width:700px){#hiddenBar.side{position:static;flex-direction:row;max-height:none;max-width:none;padding:14px 16px 0}}
-  .area{background:var(--panel);border:1px solid var(--line);border-radius:0;padding:16px}
+  .area{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
   .area.over{border-color:var(--ink)}
-  .area-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--lineSoft);margin-bottom:6px;position:relative}
-  .area-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:60;min-width:210px;background:#fff;border:1px solid var(--line);border-radius:0;padding:4px 0}
+  .area-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 16px 10px;margin:-16px -16px 6px;border-bottom:1px solid var(--lineSoft);position:relative}
+  .area-menu{position:fixed;z-index:200;min-width:210px;max-height:calc(100vh - 16px);overflow:auto;background:#fff;border:1px solid var(--lineStrong);border-radius:8px;padding:4px}
+  .area-menu button,.area-menu label{border-radius:6px}
   .area-menu button,.area-menu label{display:flex;width:100%;box-sizing:border-box;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:7px 12px;font-size:13px;color:var(--ink);text-align:left;cursor:pointer;font-family:var(--sans)}
   .area-menu button:hover,.area-menu label:hover{background:var(--lineSoft)}
   .area-menu .sep{height:1px;background:var(--line);margin:4px 0}
@@ -527,15 +540,16 @@ function syncDoneHeights(){
 
 function renderInbox(){const ib=$("inbox");if(!state.inbox.length){ib.style.display="none";return;}ib.style.display="";
   const opts=state.board.areas.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("");
-  ib.innerHTML=`<div class="sec-head"><h2>${L.inbox} · ${state.inbox.length}</h2></div><div class="sec-body">`+state.inbox.map(it=>{const isLink=it.type==="link"||it.url;
-    const body=isLink?`<a href="${esc(it.url)}" target="_blank" rel="noreferrer">${esc(it.text||host(it.url))}</a>`:esc(it.text);
+  ib.innerHTML=`<div class="sec-head"><h2>${L.inbox} · ${state.inbox.length}</h2></div><div class="sec-body">`+state.inbox.map(it=>{const isImg=it.type==="image"&&it.img,isLink=isImg||it.type==="link"||it.url;
+    const note=(it.note?`<div class="note">${esc(it.note)}</div>`:"")+(it.src?`<div class="note"><a href="${esc(it.src)}" target="_blank" rel="noreferrer">${esc(host(it.src))}</a></div>`:"");
+    const body=isImg?`<a href="/api/img/${esc(it.img)}" target="_blank" rel="noreferrer"><img class="ix-thumb" src="/api/img/${esc(it.img)}" alt="" loading="lazy"/></a> ${it.url?`<a href="${esc(it.url)}" target="_blank" rel="noreferrer">${esc(it.text||host(it.url))}</a>`:esc(it.text)}`:isLink?`<a href="${esc(it.url)}" target="_blank" rel="noreferrer">${esc(it.text||host(it.url))}</a>`:esc(it.text);
     const action=isLink?`<select data-sel="${it.id}">${opts}</select><button class="btn" data-act="file-link" data-id="${it.id}">${L.file}</button>`:`<button class="btn" data-act="file-task" data-id="${it.id}">${L.toTasks}</button>`;
-    return `<div class="inbox-item"><span class="ix-type">${isLink?"link":"note"}</span><span class="ix-text">${body}</span>${action}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>`;}).join("")+`</div>`;
+    return `<div class="inbox-item"><span class="ix-type">${isImg?"img":isLink?"link":"note"}</span><span class="ix-text">${body}${note}</span>${action}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>`;}).join("")+`</div>`;
   applySecSizes();}
 
 function renderAreas(){
   const visible=state.board.areas.filter(a=>!a.hidden), hiddenAreas=state.board.areas.filter(a=>a.hidden);
-  $("boardEl").className="board"+(state.board.settings.gridUnified?" unified":"");
+  const cols=state.board.settings.gridUnified?0:(state.board.settings.areaCols||0);$("boardEl").className="board"+(state.board.settings.gridUnified?" unified":"")+(cols?" gridded":"");$("boardEl").style.setProperty("--cols",cols||1);
   $("boardEl").innerHTML=visible.map((a,ai)=>{
     const isText=a.type==="text";
     const items=a.links.map(l=>{
@@ -553,14 +567,15 @@ function renderAreas(){
     const headBg=a.color?`background-image:linear-gradient(180deg,${a.color}22,transparent)`:"";
     const sized=!state.board.settings.gridUnified;const szStyle=sized?`${a.w?`width:${a.w}px;`:""}${(a.h&&!collapsed)?`height:${a.h}px;`:""}`:"";
     return `<section class="area${collapsed?" collapsed":""}" data-area-id="${a.id}" style="border-left:5px solid ${acol};${bodyBg}${szStyle}"><div class="area-head" style="${headBg}"><div style="display:flex;align-items:center;gap:4px;min-width:0"><span class="areagrip" draggable="true" data-areagrip="${a.id}" title="↕">⠿</span><button class="caret" data-act="toggle-area" data-id="${a.id}">${collapsed?'▸':'▾'}</button><h2 class="area-name" style="color:${readableInk(acol)}">${esc(a.name)}<span class="count">${a.links.length}</span><span class="ty">${isText?L.optText.split(" ")[0]:L.optLinks}</span></h2></div>
-      <div class="tools"><span class="area-move-arrows"><button class="icon" data-act="area-left" data-id="${a.id}" ${ai===0?"disabled":""}>◀</button><button class="icon" data-act="area-right" data-id="${a.id}" ${ai===visible.length-1?"disabled":""}>▶</button></span><button class="icon" data-act="area-menu" data-id="${a.id}" title="${esc(L.areaMenu)}">⋯</button></div>${areaMenuId===a.id?areaMenuHtml(a,collapsed):""}</div>
+      <div class="tools"><span class="area-move-arrows"><button class="icon" data-act="area-left" data-id="${a.id}" ${ai===0?"disabled":""}>◀</button><button class="icon" data-act="area-right" data-id="${a.id}" ${ai===visible.length-1?"disabled":""}>▶</button></span><button class="icon" data-act="area-menu" data-id="${a.id}" title="${esc(L.areaMenu)}">⋯</button></div></div>
       <div class="links">${items||`<div class="empty">${L.emptyArea}</div>`}</div>
       <button class="add" data-act="add-link" data-id="${a.id}">${isText?L.addItem:L.addLink}</button><div class="area-rz-x" data-rz="${a.id}" data-axis="x"></div><div class="area-rz-y" data-rz="${a.id}" data-axis="y"></div><div class="area-rz" data-rz="${a.id}" data-axis="both" title="${L.resize||""}"></div></section>`;
   }).join("")+`<section class="area" style="border-style:dashed;background:transparent"><div class="area-head"><h2 class="area-name" style="color:var(--muted)">${L.newArea}</h2></div><button class="add" data-act="add-area">${L.createArea}</button></section>`;
   renderHiddenBar(hiddenAreas);
   applyAreaScroll();
   applySecSizes();
-  const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`<button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
+  placeAreaMenu(true);
+  const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`<button class="btn" id="tidyBtn" data-act="toggle-tidy">${esc(tdT().title)}</button><button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
 }
 function renderHiddenBar(hiddenAreas){const bar=$("hiddenBar");if(!bar)return;
   if(!hiddenAreas.length){bar.style.display="none";bar.innerHTML="";return;}
@@ -589,8 +604,8 @@ function renderSettings(){const s=state.board.settings;
    <div class="set-row"><span>${L.setTitle}</span><input type="text" data-act="set-title" value="${esc(s.title||"Rozcestník")}" maxlength="60" style="flex:1;max-width:240px"/></div>
    <div class="set-row"><span>${L.setLang}</span><select data-act="set-lang"><option value="cs" ${s.lang==="cs"?"selected":""}>Čeština</option><option value="en" ${s.lang==="en"?"selected":""}>English</option></select></div>
    <div class="set-row" style="align-items:flex-start"><span>${L.setTz}</span><div style="flex:1;max-width:320px"><div style="font-size:13px;margin-bottom:6px">${L.tzCurrent}: <b style="color:var(--teal)">${esc(cityOf(s.tz))} (${tzOffsetLabel(s.tz)})</b></div><input type="text" id="tzSearch" placeholder="${L.tzSearchPh}" value="${esc(tzQuery)}" style="width:100%"/><div class="tz-list" id="tzList"></div></div></div>
-   <div class="set-g">${L.setGLook}</div>${Object.keys(PLACE).map(k=>`
-   <div class="set-row"><span>${{blocks:L.blocksTitle,tasks:L.tasks,areas:L.areasTitle}[k]}</span><select data-act="set-secmode" data-sec="${k}">${["open","min","tab"].map(m=>`<option value="${m}" ${secMode(k)===m?"selected":""}>${L["secMode"+m[0].toUpperCase()+m.slice(1)]}</option>`).join("")}</select></div>`).join("")}
+   <div class="set-g">${L.setGLook}</div>${Object.keys(PLACE).concat(Object.keys(MOD)).map(k=>`
+   <div class="set-row"><span>${{blocks:L.blocksTitle,tasks:L.tasks,areas:L.areasTitle}[k]||esc(modTitle(k))}</span><select data-act="set-secmode" data-sec="${k}">${["open","min","tab"].map(m=>`<option value="${m}" ${secMode(k)===m?"selected":""}>${L["secMode"+m[0].toUpperCase()+m.slice(1)]}</option>`).join("")}</select></div>`).join("")}
    <div class="set-row"><span>${L.setUnify}</span><input type="checkbox" data-act="set-unify" ${s.gridUnified?"checked":""} style="width:18px;height:18px"/></div>
    <div class="set-row"><span>${L.setAreaScroll}</span><input type="checkbox" data-act="set-areascroll" ${s.areaScroll===false?"checked":""} style="width:18px;height:18px"/></div>
    <div class="set-row"><span>${L.setHiddenPos}</span><select data-act="set-hiddenpos"><option value="top" ${s.hiddenPos!=="side"?"selected":""}>${L.optTop}</option><option value="side" ${s.hiddenPos==="side"?"selected":""}>${L.optSide}</option></select></div>
@@ -712,7 +727,7 @@ let dockOrder=[];
    doku a otevírá se tlačítkem nahoře jako ostatní panely. Na plochu ji vrátí
    applyLayout do její řady. */
 const PLACE={blocks:"blocksWrapEl",tasks:"tasksEl",areas:"areasWrap"};
-function secMode(k){const m=(state.board.settings.secMode||{})[k];return m==="min"||m==="tab"?m:"open";}
+function secMode(k){const m=(state.board.settings.secMode||{})[k];if(MOD[k])return m==="open"||m==="min"?m:"tab";return m==="min"||m==="tab"?m:"open";}
 function setSecMode(k,m){const s=state.board.settings;s.secMode=Object.assign({},s.secMode,{[k]:m});save();render();}
 function secCtl(k){const m=secMode(k);
   if(m==="tab")return `<button class="sec-b" data-act="sec-page" data-sec="${k}">⤓ ${L.secToPage}</button><button class="linkbtn" data-act="close-panel" data-panel="${PLACE[k]}">×</button>`;
@@ -722,7 +737,41 @@ function applySecModes(){const g=$("dockGrid");if(!g)return;
     if(m==="tab"){if(el.parentNode!==g){el.style.display="none";g.appendChild(el);}el.classList.remove("sec-min");}
     else{if(el.parentNode===g){el.style.display="";$("layout").appendChild(el);}el.classList.toggle("sec-min",m==="min");}
     el.querySelectorAll(':scope>.sec-head .sec-ctl[data-sec="'+k+'"]').forEach(c=>c.innerHTML=secCtl(k));}
+  applyModModes();
   applyLayout();}
+/* ---------- moduly z lišty ----------
+   Panely z horní lišty umí totéž co Cíle, Úkoly a Odkazy: ležet na ploše
+   rozbalené nebo sbalené, nebo jen v liště (výchozí, tedy jak byly dřív).
+   Na ploše panel bydlí v obalu section.modsec (#mod-<klíč>) s nadpisem a
+   ovládáním, takže ho jde táhnout (LAY) a měnit mu velikost (SECS). Panel
+   sám dál vykresluje svůj obsah do sebe, jen jeho vlastní nadpis se na
+   ploše schová. Obsah se poprvé vykreslí „kliknutím“ na jeho tlačítko
+   v liště, takže každý panel se otevře přesně tak, jak je zvyklý. */
+const MOD={cal:"calPanel",cycle:"cyclePanel",watch:"watchPanel",lend:"lendPanel",money:"moneyPanel",book:"bookPanel",share:"sharePanel",quotes:"quotesPanel",trash:"trashPanel",settings:"settingsPanel",faq:"faqPanel"};
+const MODW={};let modOpening=false;
+function modTitle(k){const b=$(DOCK_BTN[MOD[k]]);return b&&b.textContent?b.textContent.replace(/^✎\s*/,"").trim()||k:k;}
+function modWrap(k){if(MODW[k])return MODW[k];const w=document.createElement("section");w.className="modsec";w.id="mod-"+k;
+  w.innerHTML=`<div class="sec-head"><h2 class="mod-title"></h2><span class="sec-ctl" data-sec="${k}"></span></div><div class="sec-body"></div>`;return MODW[k]=w;}
+function modShow(k){const p=$(MOD[k]);if(!p||p.style.display==="block")return;const b=$(DOCK_BTN[MOD[k]]);
+  modOpening=true;try{if(b)b.click();}finally{modOpening=false;}if(p.style.display!=="block")p.style.display="block";}
+function applyModModes(){const g=$("dockGrid"),lay=$("layout");if(!g||!lay)return;
+  for(const [k,pid] of Object.entries(MOD)){const p=$(pid);if(!p)continue;const w=modWrap(k),m=secMode(k);
+    if(m==="tab"){if(p.parentNode!==g){p.style.display="none";g.appendChild(p);}if(w.parentNode)w.remove();}
+    else{if(!w.parentNode)lay.appendChild(w);const body=w.querySelector(".sec-body");if(p.parentNode!==body)body.appendChild(p);
+      w.classList.toggle("sec-min",m==="min");w.querySelector(".mod-title").textContent=modTitle(k);w.querySelector(".sec-ctl").innerHTML=secCtl(k);modShow(k);}
+    modPageBtn(k);}
+  layoutDock();applySecSizes();}
+// V doku dostane nadpis panelu tlačítko „na plochu“ vedle křížku. Panely si
+// nadpis přepisují, proto to hlídá MutationObserver na jejich obsahu.
+function modPageBtn(k){const p=$(MOD[k]);if(!p)return;const h=p.querySelector(":scope>h3");if(!h)return;const has=h.querySelector(".mod-page");
+  if(secMode(k)!=="tab"){if(has)has.remove();return;}if(has)return;
+  const b=document.createElement("button");b.className="sec-b mod-page";b.dataset.act="sec-page";b.dataset.sec=k;b.textContent="⤓ "+L.secToPage;
+  const x=h.querySelector("[data-act=close-panel]");if(x)x.after(b);else h.appendChild(b);}
+{const mo=new MutationObserver(recs=>{recs.forEach(r=>{const k=Object.keys(MOD).find(k=>MOD[k]===r.target.id);if(!k)return;
+    if(r.type==="childList")modPageBtn(k);
+    // Na ploše panel zůstává vidět, i když ho nějaká cesta zkusí schovat.
+    else if(secMode(k)!=="tab"&&r.target.style.display!=="block")r.target.style.display="block";});});
+  Object.values(MOD).forEach(id=>{const p=$(id);if(p)mo.observe(p,{childList:true,attributes:true,attributeFilter:["style"]});});}
 /* ---------- plocha: řady sekcí ----------
    settings.layout = řady klíčů, např. [["goals","tasks"],["areas"]].
    Sekce puštěná vedle jiné dostane settings.secFit[k] a přizpůsobí se volnému
@@ -818,6 +867,7 @@ document.addEventListener("keydown",e=>{if(e.key!=="Escape"||!dockOrder.length)r
 
 /* ---------- clicks ---------- */
 document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const act=el.dataset.act,id=el.dataset.id,areaId=el.dataset.area,blk=el.dataset.blk;
+  if(!modOpening&&el.id){const mk=Object.keys(MOD).find(k=>DOCK_BTN[MOD[k]]===el.id);if(mk&&secMode(mk)!=="tab"){if(secMode(mk)==="min")setSecMode(mk,"open");const w=MODW[mk];if(w)w.scrollIntoView({behavior:"smooth",block:"start"});return;}}
   const tg=(p)=>$(p).style.display=$(p).style.display==="block"?"none":"block";
   if(act==="toggle-quotes")tg("quotesPanel");
   else if(act==="toggle-settings"){tg("settingsPanel");renderSettings();}
@@ -995,6 +1045,8 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
     if(kind==="deadline"){const ds=$("nbDate").value;const dl=dlFromInput(ds);if(isNaN(dl)){$("nbDate").focus();return;}state.board.blocks.push({id:uid(),name,kind:"deadline",deadline:dl,doneRetention:ret,color,goals:[],done:[]});}
     else{const N=Math.max(1,parseInt($("nbCycleN").value,10)||1);const unit=$("nbCycleUnit").value;state.board.blocks.push({id:uid(),name,kind:"cycle",cycleN:N,cycleUnit:unit,anchor:Date.now(),doneRetention:ret,color,goals:[],done:[]});}
     $("newBlockPanel").style.display="none";save();render();}
+  else if(act==="toggle-tidy"){if(tidyPopOpenNow())tidyPopClose();else tidyPopOpen();}
+  else if(act.startsWith("tidy-")){tidyAct(act,el);}
   else if(act==="close-panel"){$(el.dataset.panel).style.display="none";}
   else if(act==="open-sec"){const k=el.dataset.sec,p=$(PLACE[k]);if(!p)return;
     if(secMode(k)==="tab"){p.style.display=p.style.display==="block"?"none":"block";}
@@ -1044,9 +1096,9 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
   else if(act==="edit-quote"){const it=state.board.quotes.find(x=>x.id===id);const t=prompt("Citát:",it.text);if(t===null)return;const a=prompt("Autor:",it.author||"");it.text=t.trim()||it.text;it.author=(a||"").trim();save();renderQuotesList();}
   else if(act==="del-quote"){const it=state.board.quotes.find(x=>x.id===id);toTrash("quote",it.text,{item:it});state.board.quotes=state.board.quotes.filter(x=>x.id!==id);save();renderQuotesList();}
   /* inbox */
-  else if(act==="file-link"){const it=state.inbox.find(i=>i.id===id);const a=A(document.querySelector('[data-sel="'+id+'"]').value);if(a){if(a.type==="text"){a.links.push({id:uid(),text:it.text||it.url});}else{const u=normUrl(it.url);a.links.push({id:uid(),title:it.text&&!/^https?:/i.test(it.text)?it.text:host(u),url:u,note:"",status:"unknown",lastChecked:null,code:0});}state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}}
+  else if(act==="file-link"){const it=state.inbox.find(i=>i.id===id);const a=A(document.querySelector('[data-sel="'+id+'"]').value);if(a){const img=it.type==="image"&&it.img?location.origin+"/api/img/"+it.img:"";if(a.type==="text"){a.links.push({id:uid(),text:[it.text||it.url,img,it.note].filter(Boolean).join("\n")});}else{const u=img||normUrl(it.url);a.links.push({id:uid(),title:it.text&&!/^https?:/i.test(it.text)?it.text:host(it.url||u),url:u,note:[it.note,img&&it.url].filter(Boolean).join(" · "),status:"unknown",lastChecked:null,code:0});}state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}}
   else if(act==="file-task"){const it=state.inbox.find(i=>i.id===id);state.board.tasks.unshift({id:uid(),text:it.text,done:false});state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
-  else if(act==="discard"){state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
+  else if(act==="discard"){const it=state.inbox.find(i=>i.id===id);if(it&&it.type==="image"&&it.img)fetch("/api/img/"+it.img,{method:"DELETE"}).catch(()=>{});state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
   /* trash */
   else if(act==="restore"){const t=(state.board.trash||[]).find(x=>x.id===id);if(t){const pl=t.payload||{};
     if(t.kind==="task")state.board.tasks.push(pl.item);
@@ -1569,6 +1621,24 @@ function watchRowHtml(w){
       <button class="btn" data-act="watch-edit-cancel">${esc(L.watchCancel)}</button></div>
     </div></div>`;}
 let areaMenuId=null;
+/* Menu oblasti visí v <body>, ne v oblasti: oblast má overflow:hidden a menu by
+   jinak skončilo u jejího okraje. Pozice se bere od tlačítka ⋯, a když se menu
+   nevejde dolů nebo doprava, otočí se nahoru nebo doleva. */
+function placeAreaMenu(rebuild){let host=$("areaMenuHost");if(!host){host=document.createElement("div");host.id="areaMenuHost";document.body.appendChild(host);}
+  const a=areaMenuId&&A(areaMenuId),btn=a&&document.querySelector('[data-act="area-menu"][data-id="'+a.id+'"]');
+  if(!btn||!btn.getClientRects().length){areaMenuId=null;host.innerHTML="";return;}
+  if(rebuild||!host.firstElementChild)host.innerHTML=areaMenuHtml(a,state.board.settings.areasMin||a.collapsed);
+  const m=host.firstElementChild,r=btn.getBoundingClientRect(),W=innerWidth,H=innerHeight,mw=m.offsetWidth,mh=m.offsetHeight;
+  let top=r.bottom+4;if(top+mh>H-8&&r.top-4-mh>=8)top=r.top-4-mh;top=Math.max(8,Math.min(top,H-8-mh));
+  const left=Math.max(8,Math.min(r.right-mw,W-8-mw));
+  m.style.top=top+"px";m.style.left=left+"px";}
+function closeAreaMenu(){if(!areaMenuId)return;areaMenuId=null;const h=$("areaMenuHost");if(h)h.innerHTML="";}
+// Klik mimo menu (a mimo jeho ⋯) ho zavře, stejně jako Esc. Při rolování nebo
+// změně okna menu jede s tlačítkem.
+document.addEventListener("pointerdown",e=>{if(!areaMenuId)return;if(e.target.closest(".area-menu,[data-act=area-menu]"))return;closeAreaMenu();},true);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&areaMenuId){closeAreaMenu();e.stopImmediatePropagation();}},true);
+addEventListener("scroll",()=>{if(areaMenuId)placeAreaMenu();},true);
+addEventListener("resize",()=>{if(areaMenuId)placeAreaMenu();});
 function areaMenuHtml(a,collapsed){
   const tab=a.color||"#ffffff",body=a.bodyColor||"#ffffff";
   const item=(act,label,extra)=>`<button data-act="${act}" data-id="${a.id}">${esc(label)}${extra||""}</button>`;
@@ -1591,6 +1661,7 @@ function areaMenuHtml(a,collapsed){
    po každém překreslení doplňují znovu, protože render u dvou z nich
    přepisuje celé innerHTML. */
 const SECS=[["blocksWrapEl","goals"],["tasksEl","tasks"],["inbox","inbox"],["areasWrap","areas"]];
+Object.keys(MOD).forEach(k=>{LAY[k]=["mod-"+k,k];SECS.push(["mod-"+k,k]);});
 function secSizes(){const s=state.board.settings;return s.secSize||(s.secSize={});}
 function applySecSizes(){
   for(const [id,key] of SECS){
@@ -1679,6 +1750,152 @@ function renderFaq(){const p=$("faqPanel");if(!p)return;
   const close=`<button class="linkbtn" data-act="close-panel" data-panel="faqPanel" style="float:right;font-size:16px">×</button>`;
   const items=(FAQ[(L===DICT.en)?"en":"cs"]||FAQ.cs).map(([q,a,more])=>`<details class="faq-it"><summary>${esc(q)}</summary><div class="faq-a">${esc(a)}${more?`<details class="faq-more"><summary>${esc(L.faqMore)}</summary><div class="faq-a2">${esc(more)}</div></details>`:""}</div></details>`).join("");
   p.innerHTML=`<style>.faq-it{border-top:1px solid var(--line);padding:8px 0}.faq-it:first-of-type{border-top:0}.faq-it summary{cursor:pointer;font-weight:600;font-size:14px}.faq-more{margin-top:6px}.faq-more summary{cursor:pointer;font-weight:500;font-size:12.5px;opacity:.75}.faq-a2{font-size:13px;opacity:.9;margin-top:6px;line-height:1.55}.faq-a{margin-top:6px;font-size:13.5px;color:var(--ink);line-height:1.5}</style><h3>${L.faqTitle} ${close}</h3>${items}`;}
+
+/* ---------- Pořádek: průvodce úklidem desky ----------
+   Tlačítko nad deskou otevře malé okýnko se třemi stupni přímo u sebe.
+   Vybraný stupeň běží v okně přes celou stránku (#tidyModal), které nejde
+   odkliknout, jen zavřít křížkem. „Trochu“ jen nabídne mřížku, „celkem“
+   se napřed zeptá, které oblasti schovat nebo rozbalit, a „úplný“ k tomu
+   projde každou položku s náhledem webu (/api/preview, og:image z hlavičky).
+   Mřížka je settings.areaCols (5 nebo 6): všechny oblasti stejně široké,
+   výška zůstává jejich vlastní. Smazané položky jdou do Koše. */
+const TIDY={cs:{title:"Pořádek",m1:"Udělej trochu pořádek",m1d:"Srovná oblasti do mřížky se stejnou šířkou.",m2:"Udělej celkem pořádek",m2d:"Napřed vybereš, které oblasti schovat nebo rozbalit, pak mřížka.",m3:"Udělej úplný pořádek",m3d:"K tomu všemu projde každý odkaz a zeptá se, jestli ho nechat.",
+  areasQ:"Které oblasti chceš schovat, nebo rozbalit?",open:"Rozbalit",min:"Sbalit",hide:"Schovat",next:"Pokračovat",
+  linkQ:"Chceš nechat/smazat?",keep:"Nechat",del:"Smazat",back:"Zpět",skip:"Přeskočit zbytek",keys:"Klávesy: N nebo Enter = nechat, S nebo Delete = smazat, Backspace = zpět.",noLinks:"Žádné odkazy k projití.",
+  gridQ:"Jakou mřížku?",perRow:"oblastí vedle sebe",keepLayout:"Nechat, jak je",gridOff:"Zrušit mřížku",done:"Hotovo, uklizeno.",close:"Zavřít",deleted:"smazáno do Koše",loading:"Načítám náhled…"},
+ en:{title:"Tidy up",m1:"Tidy up a little",m1d:"Lines the areas up in a grid of equal width.",m2:"Tidy up quite a bit",m2d:"First pick which areas to hide or expand, then the grid.",m3:"Tidy up completely",m3d:"On top of that, goes through every link and asks whether to keep it.",
+  areasQ:"Which areas do you want to hide or expand?",open:"Expand",min:"Collapse",hide:"Hide",next:"Continue",
+  linkQ:"Keep or delete?",keep:"Keep",del:"Delete",back:"Back",skip:"Skip the rest",keys:"Keys: K or Enter = keep, D or Delete = delete, Backspace = back.",noLinks:"No links to go through.",
+  gridQ:"Which grid?",perRow:"areas per row",keepLayout:"Leave as is",gridOff:"Remove the grid",done:"Done, all tidy.",close:"Close",deleted:"deleted to Trash",loading:"Loading preview…"}};
+function tdT(){return TIDY[(L===DICT.en)?"en":"cs"];}
+let tidy={step:null},tidyPv={};
+function tidyEl(id,cls){let e=$(id);if(!e){e=document.createElement("div");e.id=id;if(cls)e.className=cls;document.body.appendChild(e);}return e;}
+function tidyVisible(){return state.board.areas.filter(a=>!a.hidden);}
+// Barvy oblasti stejně jako na desce: pruh vlevo, nádech v záložce, případně tělo.
+function tidyCol(a){const c=(a&&a.color)||"#5B3A57";return {bar:c,ink:readableInk(c),head:a&&a.color?`background-image:linear-gradient(180deg,${a.color}33,${a.color}0d)`:"",body:a&&a.bodyColor?`background-image:linear-gradient(180deg,${safeTint(a.bodyColor)},#ffffff)`:""};}
+
+/* okýnko u tlačítka */
+function tidyPopOpen(){const p=tidyEl("tidyPop","tidy-pop");const T=tdT();
+  p.innerHTML=TIDY_CSS+[1,2,3].map(n=>`<button class="tidy-mode" data-act="tidy-mode" data-mode="${n}"><b>${esc(T["m"+n])}</b><span>${esc(T["m"+n+"d"])}</span></button>`).join("");
+  p.style.display="block";tidyPopPlace();}
+function tidyPopClose(){const p=$("tidyPop");if(p){p.style.display="none";p.innerHTML="";}}
+function tidyPopOpenNow(){const p=$("tidyPop");return !!(p&&p.style.display==="block");}
+function tidyPopPlace(){const p=$("tidyPop"),b=$("tidyBtn");if(!p||!b||!b.getClientRects().length){tidyPopClose();return;}
+  const r=b.getBoundingClientRect(),mw=p.offsetWidth,mh=p.offsetHeight;
+  let top=r.bottom+4;if(top+mh>innerHeight-8&&r.top-4-mh>=8)top=r.top-4-mh;top=Math.max(8,Math.min(top,innerHeight-8-mh));
+  p.style.top=top+"px";p.style.left=Math.max(8,Math.min(r.right-mw,innerWidth-8-mw))+"px";}
+document.addEventListener("pointerdown",e=>{if(!tidyPopOpenNow())return;if(e.target.closest("#tidyPop,#tidyBtn"))return;tidyPopClose();},true);
+addEventListener("scroll",()=>{if(tidyPopOpenNow())tidyPopPlace();},true);
+addEventListener("resize",()=>{if(tidyPopOpenNow())tidyPopPlace();});
+
+/* okno přes stránku */
+function tidyModalOpen(){tidyEl("tidyModal","tidy-modal").innerHTML=`<div class="tidy-win" role="dialog" aria-modal="true"></div>`;$("tidyModal").style.display="flex";document.body.classList.add("tidy-lock");renderTidy();}
+function tidyModalClose(){const m=$("tidyModal");if(m){m.style.display="none";m.innerHTML="";}document.body.classList.remove("tidy-lock");tidy={step:null};}
+function tidyModalOpenNow(){const m=$("tidyModal");return !!(m&&m.style.display==="flex");}
+
+function tidyPreview(url){if(!url||!/^https?:/i.test(url))return null;if(tidyPv[url])return tidyPv[url];
+  tidyPv[url]="loading";fetch("/api/preview?url="+encodeURIComponent(url)).then(r=>r.json()).catch(()=>({})).then(p=>{tidyPv[url]=p&&!p.error?p:{};
+    const c=tidy.step==="links"&&tidy.queue[tidy.i],a=c&&A(c.area),it=a&&a.links.find(x=>x.id===c.id);if(it&&it.url===url)renderTidy();});
+  return "loading";}
+function tidyCard(a,it){const T=tdT(),col=tidyCol(a);
+  if(a.type==="text")return `<div class="tidy-cb"><div class="tidy-txt">${esc(it.text||"")}</div></div>`;
+  const h=host(it.url),pv=tidyPreview(it.url),p=pv&&pv!=="loading"?pv:null;
+  const img=p&&p.image?`<img class="tidy-img" src="${esc(p.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()"/>`
+    :`<div class="tidy-noimg">${pv==="loading"?`<span>${esc(T.loading)}</span>`:`<img src="https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(h)}" alt=""/><span>${esc(h)}</span>`}</div>`;
+  return img+`<div class="tidy-cb"><a class="tidy-lt" href="${esc(it.url)}" target="_blank" rel="noreferrer" style="color:${col.ink}">${esc(it.title||h)}</a>
+    <div class="tidy-url">${esc(p&&p.site?p.site+" · ":"")}${esc(it.url)}${it.status==="broken"?` · <span style="color:var(--broken)">${it.code||"✕"}</span>`:""}</div>
+    ${p&&p.description?`<div class="tidy-desc">${esc(p.description)}</div>`:""}${it.note?`<div class="note">${esc(it.note)}</div>`:""}</div>`;}
+
+function renderTidy(){const w=document.querySelector("#tidyModal .tidy-win");if(!w)return;const T=tdT();
+  const title={1:T.m1,2:T.m2,3:T.m3}[tidy.mode]||T.title;
+  const head=`<div class="tidy-h"><h2>${esc(title)}</h2><button class="linkbtn" data-act="tidy-close" title="${esc(T.close)}" style="font-size:18px">×</button></div>`;
+  let body="";
+  if(tidy.step==="areas"){
+    body=`<p class="tidy-q">${esc(T.areasQ)}</p><div class="tidy-areas">`+state.board.areas.map(a=>{const v=tidy.areas[a.id],col=tidyCol(a);
+      return `<div class="tidy-arow" style="border-left-color:${col.bar};${col.head}"><span class="tidy-an" style="color:${col.ink}">${esc(a.name)} <span class="count">${a.links.length}</span></span><span class="seg">${["open","min","hide"].map(k=>`<button class="${v===k?"on":""}" data-act="tidy-area-set" data-id="${a.id}" data-v="${k}">${esc(T[k])}</button>`).join("")}</span></div>`;}).join("")+
+      `</div><div class="tidy-foot"><span style="flex:1"></span><button class="btn primary" data-act="tidy-areas-next">${esc(T.next)}</button></div>`;
+  }else if(tidy.step==="links"){
+    const q=tidy.queue,i=tidy.i;
+    if(!q.length){body=`<p class="tidy-q">${esc(T.noLinks)}</p><div class="tidy-foot"><span style="flex:1"></span><button class="btn primary" data-act="tidy-skip">${esc(T.next)}</button></div>`;}
+    else{const c=q[i],a=A(c.area),it=a&&a.links.find(x=>x.id===c.id),col=tidyCol(a),nd=tidy.hist.filter(h=>h.del).length;
+      q.slice(i+1,i+3).forEach(n=>{const na=A(n.area),ni=na&&na.links.find(x=>x.id===n.id);if(ni&&na.type!=="text")tidyPreview(ni.url);});
+      body=`<div class="tidy-card" style="border-left-color:${col.bar};${col.body}">
+          <div class="tidy-ch" style="${col.head}"><span style="color:${col.ink}">${esc(a?a.name:"")}</span><span>${i+1} / ${q.length}${nd?` · ${nd} ${esc(T.deleted)}`:""}</span></div>
+          ${a&&it?tidyCard(a,it):""}</div>
+        <p class="tidy-q">${esc(T.linkQ)}</p>
+        <div class="tidy-foot"><button class="btn" data-act="tidy-back" ${tidy.hist.length?"":"disabled"}>← ${esc(T.back)}</button><span style="flex:1"></span><button class="btn" data-act="tidy-skip">${esc(T.skip)}</button><button class="btn tidy-del" data-act="tidy-del">${esc(T.del)}</button><button class="btn primary" data-act="tidy-keep">${esc(T.keep)}</button></div>
+        <div class="hint">${esc(T.keys)}</div>`;}
+  }else if(tidy.step==="grid"){
+    const vis=tidyVisible(),n=vis.length,cur=state.board.settings.areaCols||0;
+    const cells=vis.map(a=>{const c=(a.color||"#5B3A57");return `<i style="border-left:3px solid ${c};background:${c}22"></i>`;}).join("");
+    const opt=c=>{const r=Math.max(1,Math.ceil(n/c));return `<button class="tidy-grid${cur===c?" on":""}" data-act="tidy-grid" data-cols="${c}"><span class="tg-prev" style="grid-template-columns:repeat(${c},1fr)">${cells}</span><b>${c} × ${r}</b><span>${c} ${esc(T.perRow)}</span></button>`;};
+    body=`<p class="tidy-q">${esc(T.gridQ)}</p><div class="tidy-grids">${opt(6)}${opt(5)}</div><div class="tidy-foot">${cur?`<button class="btn" data-act="tidy-grid" data-cols="0">${esc(T.gridOff)}</button>`:""}<span style="flex:1"></span><button class="btn" data-act="tidy-close">${esc(T.keepLayout)}</button></div>`;
+  }else if(tidy.step==="done"){body=`<p class="tidy-q">${esc(T.done)}</p><div class="tidy-foot"><span style="flex:1"></span><button class="btn primary" data-act="tidy-close">${esc(T.close)}</button></div>`;}
+  w.innerHTML=TIDY_CSS+head+body;}
+function tidyQueue(){const q=[];tidyVisible().forEach(a=>(a.links||[]).forEach(l=>q.push({area:a.id,id:l.id})));return q;}
+function tidyNextAfterAreas(){if(tidy.mode===3){tidy.step="links";tidy.queue=tidyQueue();tidy.i=0;tidy.hist=[];}else tidy.step="grid";}
+function tidyAct(act,el){
+  if(act==="tidy-mode"){tidyPopClose();tidy={mode:+el.dataset.mode};
+    if(tidy.mode===1)tidy.step="grid";
+    else{tidy.step="areas";tidy.areas={};const allMin=state.board.settings.areasMin;state.board.areas.forEach(a=>{tidy.areas[a.id]=a.hidden?"hide":(allMin||a.collapsed)?"min":"open";});}
+    tidyModalOpen();return;}
+  if(act==="tidy-close"){tidyModalClose();return;}
+  if(act==="tidy-area-set"){tidy.areas[el.dataset.id]=el.dataset.v;}
+  else if(act==="tidy-areas-next"){
+    state.board.areas.forEach(a=>{const v=tidy.areas[a.id];if(!v)return;a.hidden=v==="hide";a.collapsed=v==="min";});
+    state.board.settings.areasMin=false;save();render();tidyNextAfterAreas();}
+  else if(act==="tidy-keep"){tidy.hist.push({del:false});tidyStep();return;}
+  else if(act==="tidy-del"){const c=tidy.queue[tidy.i],a=A(c.area),ix=a?a.links.findIndex(x=>x.id===c.id):-1;
+    if(ix<0){tidy.hist.push({del:false});tidyStep();return;}
+    const it=a.links[ix];toTrash(a.type==="text"?"txt":"link",it.text||it.title||it.url,{area:a.id,item:it});a.links.splice(ix,1);
+    tidy.hist.push({del:true,area:a.id,item:it,ix,trash:state.board.trash[0].id});save();render();tidyStep();return;}
+  else if(act==="tidy-back"){const h=tidy.hist.pop();if(!h)return;tidy.i=Math.max(0,tidy.i-1);
+    if(h.del){const a=A(h.area);if(a&&!a.links.some(x=>x.id===h.item.id))a.links.splice(Math.min(h.ix,a.links.length),0,h.item);state.board.trash=(state.board.trash||[]).filter(t=>t.id!==h.trash);save();render();}}
+  else if(act==="tidy-skip"){tidy.step="grid";}
+  else if(act==="tidy-grid"){const c=+el.dataset.cols;state.board.settings.areaCols=c;if(c)state.board.settings.gridUnified=false;save();renderAreas();tidy.step="done";}
+  renderTidy();}
+function tidyStep(){tidy.i++;if(tidy.i>=tidy.queue.length)tidy.step="grid";renderTidy();}
+// Klávesy: Esc zavře okýnko u tlačítka (okno přes stránku ne, to se zavírá křížkem).
+// Při procházení odkazů N/Enter, S/Delete, Backspace, pokud se nepíše do pole.
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&tidyPopOpenNow()){tidyPopClose();e.stopImmediatePropagation();return;}
+  if(tidyModalOpenNow()&&e.key==="Escape"){e.stopImmediatePropagation();return;}
+  if(!tidyModalOpenNow()||tidy.step!=="links"||!tidy.queue||!tidy.queue.length)return;
+  if(e.target.closest&&e.target.closest("input,textarea,select,.edit-inp")||e.ctrlKey||e.metaKey||e.altKey)return;
+  const k=e.key.toLowerCase(),en=L===DICT.en;
+  if(k==="enter"&&e.target.closest&&e.target.closest("button,a"))return;
+  const act=(k==="enter"||k===(en?"k":"n"))?"tidy-keep":(k==="delete"||k===(en?"d":"s"))?"tidy-del":k==="backspace"?"tidy-back":null;
+  if(!act)return;e.preventDefault();if(act==="tidy-back"&&!tidy.hist.length)return;tidyAct(act,null);},true);
+const TIDY_CSS=`<style>
+.tidy-pop{position:fixed;z-index:210;width:300px;max-width:calc(100vw - 16px);background:var(--panel);border:1px solid var(--lineStrong);border-radius:8px;padding:4px}
+.tidy-pop .tidy-mode{margin:0;border:0;border-radius:6px}.tidy-pop .tidy-mode+.tidy-mode{margin-top:2px}
+.tidy-modal{position:fixed;inset:0;z-index:300;background:rgba(37,37,37,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+body.tidy-lock{overflow:hidden}
+.tidy-win{background:var(--panel);border:1px solid var(--ink);border-radius:8px;width:min(680px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:20px}
+.tidy-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.tidy-h h2{font-size:15px;font-weight:500;margin:0}
+.tidy-mode{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--lineStrong);border-radius:8px;padding:10px 12px;cursor:pointer;font:inherit;color:var(--ink)}
+.tidy-mode:hover{background:var(--lineSoft)}.tidy-mode b{font-weight:500}.tidy-mode span{color:var(--caption);font-size:12px}
+.tidy-q{margin:0 0 12px;font-weight:500}
+.tidy-areas{display:flex;flex-direction:column;gap:6px;max-height:60vh;overflow:auto}
+.tidy-arow{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-left:5px solid var(--line)}
+.tidy-an{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.seg{display:inline-flex;border:1px solid var(--lineStrong);border-radius:8px;overflow:hidden;flex:0 0 auto;background:var(--panel)}
+.seg button{border:0;border-left:1px solid var(--lineStrong);background:var(--panel);color:var(--caption);padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+.seg button:first-child{border-left:0}.seg button.on{background:var(--ink);color:#fff}
+.tidy-foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.tidy-card{border:1px solid var(--line);border-left:5px solid var(--line);margin-bottom:12px;word-break:break-word;overflow:hidden}
+.tidy-ch{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;border-bottom:1px solid var(--lineSoft);font-size:12px;color:var(--caption)}.tidy-ch span:first-child{font-weight:500}
+.tidy-img{display:block;width:100%;max-height:260px;object-fit:cover;border-bottom:1px solid var(--lineSoft)}
+.tidy-noimg{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:140px;color:var(--caption);font-size:12px;border-bottom:1px solid var(--lineSoft)}.tidy-noimg img{width:48px;height:48px}
+.tidy-cb{padding:12px}
+.tidy-lt{font-weight:500}.tidy-url{color:var(--caption);font-size:12px;margin-top:4px}.tidy-desc{margin-top:8px;font-size:13px}.tidy-txt{white-space:pre-wrap}
+.btn.tidy-del{color:var(--broken)}
+.tidy-grids{display:flex;gap:12px;flex-wrap:wrap}
+.tidy-grid{flex:1 1 220px;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--lineStrong);border-radius:8px;padding:12px;cursor:pointer;font:inherit;color:var(--ink)}
+.tidy-grid:hover,.tidy-grid.on{border-color:var(--ink)}.tidy-grid b{font-weight:500}.tidy-grid span:last-child{color:var(--caption);font-size:12px}
+.tg-prev{display:grid;gap:3px;width:100%;max-width:220px;margin-bottom:6px}.tg-prev i{display:block;height:16px}
+@media(max-width:640px){.tidy-modal{padding:0;align-items:stretch}.tidy-win{width:100%;max-height:none;border-radius:0}}
+</style>`;
 
 /* ---------- Cyklus (menstruační, za PINem) ---------- */
 const CYCT={cs:{title:"Cyklus",lock:"Zadej PIN pro přístup k cyklu (stejný jako u kalendáře).",unlock:"Odemknout",pinPh:"PIN",bad:"Špatný PIN, nebo cyklus není zapnutý (chybí CAL_PIN, viz README).",logToday:"Začátek dnes",endToday:"Konec dnes",add:"+ Přidat ručně",start:"Začátek",end:"Konec (volitelně)",save:"Uložit",cancel:"Zrušit",none:"Zatím nic zaznamenaného.",records:"Záznamy",avgCycle:"Průměrný cyklus",avgPeriod:"Délka menstruace",logged:"Zaznamenáno",cyclesU:"cyklů",days:"dní",variability:"kolísání",nextPeriod:"Další menstruace (odhad)",more:"další",fertile:"Plodné okno (odhad)",ovul:"Ovulace (odhad)",needMore:"Zaznamenej aspoň 2 začátky menstruace, ať jde odhadovat. Zatím počítám s průměrem 28 dní.",lgLogged:"menstruace",lgPred:"předpověď",lgFert:"plodné okno",lgOv:"ovulace",disclaimer:"Jen orientační odhad z tvých dat — není to lékařská rada ani antikoncepce. Přesnost roste s počtem zaznamenaných cyklů a u nepravidelných cyklů je nižší.",delConfirm:"Smazat tento záznam?",ongoing:"probíhá",len:"délka",between:"spíš mezi",regReg:"pravidelný",regSemi:"mírně nepravidelný",regIrr:"nepravidelný",regFew:"málo dat",irrNote:"Tvé cykly dost kolísají — ber předpověď jako široké okno, ne přesné datum.",skip:"Atypický (nepočítat do statistik)",skipBadge:"atypický",lgWin:"možné okno",colorsBtn:"Barvy",projTitle:"Promítnout do kalendáře",projApp:"Zobrazit fáze v appkovém kalendáři (nesdílí data s Googlem)",projGoogle:"Poslat předpověď do Google Kalendáře",projWarn:"Pozor: poslání do Google Kalendáře znamená, že tvá data o cyklu opustí tvůj Cloudflare a budou uložená u Googlu (třetí strana) podle jeho podmínek. Appkový překryv výš zůstává jen u tebe.",projConfirm:"Tím se vytvoří události o předpovědi menstruace přímo v tvém Google Kalendáři — tato citlivá data se tím sdílejí s Googlem. Pokračovat?",projDone:"Vytvořeno {n} událostí v Google Kalendáři.",projNoConn:"Nejdřív připoj Google Kalendář (v panelu Kalendář).",evPeriod:"Menstruace (předpověď)",evOvul:"Ovulace (odhad)",evDesc:"Vytvořeno appkou Rozcestník – orientační odhad."},

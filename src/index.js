@@ -31,6 +31,74 @@ async function getBoard(env) { const r = await env.KV.get("board"); return r ? J
 const putBoard = (env, b) => env.KV.put("board", JSON.stringify(b));
 async function getInbox(env) { const r = await env.KV.get("inbox"); return r ? JSON.parse(r) : []; }
 const putInbox = (env, x) => env.KV.put("inbox", JSON.stringify(x));
+// Obrázky (screenshoty z rozšíření): R2, když je nastavené, jinak KV. Každý má vlastní klíč,
+// do JSONu desky ani inboxu se nevkládají, aby /api/state zůstal rychlý.
+const IMG_MAX = 4 * 1024 * 1024;
+function parseDataUrl(d) {
+  const m = /^data:(image\/(?:webp|jpeg|png|gif));base64,([A-Za-z0-9+/=]+)$/.exec(d || "");
+  if (!m) return null;
+  const bin = atob(m[2]); if (bin.length > IMG_MAX) return null;
+  const bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return { type: m[1], bytes };
+}
+async function putImg(env, id, img) {
+  if (env.BOOKS) await env.BOOKS.put("img/" + id, img.bytes, { httpMetadata: { contentType: img.type } });
+  else await env.KV.put("img:" + id, img.bytes, { metadata: { type: img.type } });
+}
+async function getImg(env, id) {
+  if (env.BOOKS) { const o = await env.BOOKS.get("img/" + id); if (o) return { body: o.body, type: (o.httpMetadata && o.httpMetadata.contentType) || "image/webp" }; }
+  const r = await env.KV.getWithMetadata("img:" + id, "arrayBuffer");
+  return r && r.value ? { body: r.value, type: (r.metadata && r.metadata.type) || "image/webp" } : null;
+}
+// Náhled odkazu pro Pořádek: z hlavičky stránky vytáhne og:image, název a popis.
+// Žádná cizí služba, jen jeden fetch Workeru; výsledek se drží týden v KV.
+function metaContent(head, keys) {
+  for (const k of keys) {
+    const re = new RegExp("<meta[^>]+(?:property|name)=[\"']" + k.replace(/[:.]/g, "\\$&") + "[\"'][^>]*>", "i");
+    const tag = head.match(re);
+    if (tag) { const m = tag[0].match(/content=["']([^"']*)["']/i); if (m && m[1].trim()) return m[1].trim(); }
+  }
+  return "";
+}
+function decodeEnt(t) {
+  return (t || "").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
+    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+}
+function parsePreview(html, base) {
+  const head = html.slice(0, 200000);
+  const abs = (u) => { try { return u ? new URL(decodeEnt(u), base).href : ""; } catch (e) { return ""; } };
+  const t = head.match(/<title[^>]*>([^<]*)<\/title>/i);
+  return {
+    title: decodeEnt(metaContent(head, ["og:title", "twitter:title"]) || (t ? t[1].trim() : "")).slice(0, 300),
+    description: decodeEnt(metaContent(head, ["og:description", "twitter:description", "description"])).slice(0, 500),
+    image: abs(metaContent(head, ["og:image", "og:image:url", "twitter:image", "twitter:image:src"])),
+    site: decodeEnt(metaContent(head, ["og:site_name"])).slice(0, 100),
+  };
+}
+async function linkPreview(env, u) {
+  let url; try { url = new URL(u); } catch (e) { return null; }
+  if (!/^https?:$/.test(url.protocol)) return null;
+  // YouTube v EU přesměruje na souhlas s cookies, náhled videa je ale na pevné adrese.
+  const yt = /(?:^|\.)youtube\.com$/.test(url.hostname) ? url.searchParams.get("v") || (url.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{6,})/) || [])[1] : url.hostname === "youtu.be" ? url.pathname.slice(1) : "";
+  if (yt && /^[\w-]{6,}$/.test(yt)) return { title: "", description: "", image: "https://i.ytimg.com/vi/" + yt + "/hqdefault.jpg", site: "YouTube" };
+  const dig = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(url.href));
+  const key = "pv:" + [...new Uint8Array(dig)].slice(0, 16).map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hit = await env.KV.get(key); if (hit) return JSON.parse(hit);
+  let out = { title: "", description: "", image: "", site: "" };
+  try {
+    const r = await fetch(url.href, { redirect: "follow", signal: AbortSignal.timeout(6000), headers: { "user-agent": "Mozilla/5.0 (compatible; RozcestnikBot/1.0)", accept: "text/html" } });
+    if (r.ok && /html/i.test(r.headers.get("content-type") || "")) {
+      // Stačí začátek stránky, meta značky jsou v hlavičce.
+      const rd = r.body.getReader(), dec = new TextDecoder(); let html = "";
+      while (html.length < 300000) { const { done, value } = await rd.read(); if (done) break; html += dec.decode(value, { stream: true }); if (/<\/head>/i.test(html)) break; }
+      try { rd.cancel(); } catch (e) {}
+      out = parsePreview(html, r.url || url.href);
+    }
+  } catch (e) {}
+  await env.KV.put(key, JSON.stringify(out), { expirationTtl: 7 * 86400 });
+  return out;
+}
+async function delImg(env, id) { if (env.BOOKS) await env.BOOKS.delete("img/" + id); await env.KV.delete("img:" + id); }
 
 // ---- směnné kurzy (denní, základ EUR) ----
 async function fetchRates() {
@@ -655,6 +723,14 @@ export default {
         h.set("content-type", (obj.httpMetadata && obj.httpMetadata.contentType) || "application/octet-stream");
         return new Response(obj.body, { headers: h });
       }
+      if (path.startsWith("/api/img/")) {
+        const id = path.slice("/api/img/".length);
+        if (!/^[a-z0-9-]{4,40}$/i.test(id)) return new Response("nenalezeno", { status: 404 });
+        if (request.method === "DELETE") { await delImg(env, id); return json({ ok: true }); }
+        const img = await getImg(env, id);
+        if (!img) return new Response("nenalezeno", { status: 404 });
+        return new Response(img.body, { headers: { "content-type": img.type, "cache-control": "private, max-age=31536000, immutable" } });
+      }
       try {
         // ---- Kalendář: datové endpointy, všechny za PINem ----
         if (path.startsWith("/api/cal/")) {
@@ -781,16 +857,28 @@ export default {
           }
           return json({ error: "not found" }, 404);
         }
+        if (path === "/api/preview" && request.method === "GET") {
+          const p = await linkPreview(env, url.searchParams.get("url") || "");
+          return p ? json(p) : json({ error: "bad-url" }, 400);
+        }
         if (path === "/api/fx" && request.method === "GET") {
           const fx = await getFx(env);
           return fx ? json(fx) : json({ error: "fx-unavailable" }, 502);
         }
         if (path === "/api/capture" && request.method === "POST") {
           const b = await request.json().catch(() => ({}));
-          const text = (b.text || "").trim(), link = (b.url || "").trim();
-          if (!text && !link) return json({ error: "empty" }, 400);
+          const text = (b.text || "").trim(), link = (b.url || "").trim(), note = (b.note || "").trim().slice(0, 2000);
+          const id = rid(), item = { id, type: b.type || (link ? "link" : "point"), text, url: link, created: Date.now() };
+          if (note) item.note = note;
+          if (b.image) {
+            const img = parseDataUrl(b.image);
+            if (!img) return json({ error: "bad-image" }, 400);
+            await putImg(env, id, img);
+            item.type = "image"; item.img = id;
+          } else if (!text && !link) return json({ error: "empty" }, 400);
+          if (b.src) item.src = String(b.src).slice(0, 2000);
           const inbox = await getInbox(env);
-          inbox.unshift({ id: rid(), type: b.type || (link ? "link" : "point"), text, url: link, created: Date.now() });
+          inbox.unshift(item);
           await putInbox(env, inbox);
           return json({ ok: true });
         }
