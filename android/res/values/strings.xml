@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app">Rozcestník</string>
+    <string name="widget_name">Rozcestník: quick note</string>
+    <string name="widget_hint">Quick note…</string>
+    <string name="sc_note">Quick note</string>
+    <string name="sc_base">App address</string>
+    <string name="setup_title">Where is your Rozcestník?</string>
+    <string name="setup_hint">The address you open in the browser, for example https://rozcestnik.your-account.workers.dev. The app talks to this address only.</string>
+    <string name="setup_go">Save and open</string>
+    <string name="setup_bad">This does not look like an address.</string>
+    <string name="load_err">Rozcestník could not be loaded. Are you online, and is the address right?</string>
+    <string name="cap_title">Save to Rozcestník</string>
+    <string name="cap_note">Note</string>
+    <string name="cap_quick">What do you want to keep?</string>
+    <string name="cap_save">Save</string>
+    <string name="cap_cancel">Cancel</string>
+    <string name="cap_working">One moment…</string>
+    <string name="cap_saved">Saved to To process</string>
+    <string name="cap_empty">Nothing to save.</string>
+    <string name="cap_images">Images: %d</string>
+    <string name="cap_noimg">The image could not be read.</string>
+    <string name="cap_nobase">Set your Rozcestník address first.</string>
+    <string name="err_network">Rozcestník is not reachable. Are you online?</string>
+    <string name="err_server">Rozcestník refused to save it</string>
+</resources>

@@ -51,7 +51,9 @@ rozšíření do prohlížeče (složka extension/, Firefox napřed: stránka, v
 screenshot do Ke zpracování přes /api/capture), obrázky v KV/R2 (/api/img/<id>),
 Pořádek (mřížka oblastí settings.areaCols, schování/rozbalení oblastí, procházení odkazů
 nechat/smazat s náhledem webu z /api/preview), moduly: každý panel z lišty může ležet
-na ploše (MOD, secMode open/min/tab, obal section.modsec).
+na ploše (MOD, secMode open/min/tab, obal section.modsec), appka pro Android (složka android/:
+WebView na zadanou adresu, cíl sdílení a widget „Rychlá poznámka", obojí přes /api/capture;
+staví se android/build.sh bez Gradlu).
 
 PRAVIDLA, KTERÁ MUSÍŠ DODRŽET
 - Frontend zůstává jeden soubor, vanilla JS, bez frameworku a bez build kroku.
@@ -118,7 +120,9 @@ reminders), a browser extension (extension/ folder, Firefox first: page, selecti
 image, screenshot into To process via /api/capture), images in KV/R2 (/api/img/<id>),
 Tidy up (area grid settings.areaCols, hide/expand areas, keep/delete every link with a
 website preview from /api/preview), modules: every top-bar panel can live on the page
-(MOD, secMode open/min/tab, wrapper section.modsec).
+(MOD, secMode open/min/tab, wrapper section.modsec), an Android app (android/ folder: a WebView
+on the entered address, a share target and a "Quick note" widget, both via /api/capture; built
+by android/build.sh without Gradle).
 
 RULES YOU MUST FOLLOW
 - The frontend stays one file, vanilla JS, no framework and no build step.

@@ -85,13 +85,33 @@ The manual route is three commands, shown under Deploy above: `npm install -g wr
 3. **iPhone (Safari):** Share → *Add to Home Screen*.
 An icon "Rozcestník" appears and opens the app full screen.
 
+## Android app (APK) with sharing and a widget
+The `android/` folder is a thin Android wrapper. It asks once for the address of your
+Rozcestník and then:
+- **opens the app** in its own window; links that lead elsewhere open in the browser,
+- **appears in the Share menu** of every app: share a page, a text or pictures → a small
+  "Save to Rozcestník" window with an optional note → the item lands in **To process**
+  (pictures are shrunk to about 300 kB first),
+- **adds a home-screen widget** "Quick note…" (long-press the home screen → Widgets →
+  Rozcestník) and a "Quick note" shortcut on a long-press of the icon. "App address" in the
+  same menu changes the address.
+
+A ready-made build is at
+[Releases](https://github.com/katka1815/Keeper/releases/latest/download/Rozcestnik.apk).
+Its only permission is internet access, and it talks only to the address you enter. Build
+it with `bash android/build.sh <version number>` in Git Bash; it needs a portable JDK 17 and
+the Android SDK (platform 34, build-tools 34.0.0) in the folder named by `TOOLS`. No Gradle.
+The signing key is created on the first build next to the tools — keep it, a build signed
+with another key cannot be installed over the old one. iPhone has no such wrapper; use
+*Add to Home Screen* above and the Shortcuts recipe below.
+
 ## Quick-capture widget
 The home-screen app is full screen; for a **widget** (a capture button) use:
 - **iPhone:** Shortcuts → action "Get Contents of URL", POST to
   `https://YOUR-ADDRESS/api/capture`, JSON body `{"type":"point","text":"…"}`. Add the
   shortcut to the home screen (Shortcuts widget). No password header needed.
-- **Android:** the *HTTP Shortcuts* app → POST to the same endpoint, same JSON body, then
-  place the widget on the home screen.
+- **Android:** the app above brings its own widget. Without it: the *HTTP Shortcuts* app →
+  POST to the same endpoint, same JSON body, then place the widget on the home screen.
 To save links by sharing, set `"type":"link"` and put the shared link in `"url"`.
 
 ## Using it
@@ -414,6 +434,7 @@ MIT — see [`LICENSE`](LICENSE). Do what you like with it; there is no warranty
 - `public/share.html` — read/edit viewer for shared links (`/s/<code>`)
 - `public/manifest.webmanifest`, `public/sw.js`, `public/icon-*.png` — install as an app
 - `src/index.js` — API, link checking, calendar, sharing, exchange rates, the watcher
+- `extension/` — browser add-on, `android/` — Android app (wrapper, sharing, widget)
 - `wrangler.toml.example` — config template; the installer copies it to `wrangler.toml`
 - `wrangler.toml` — KV, cron schedule, push, optional secrets/R2 (yours, not in the repo)
 After changes run `wrangler deploy` again.
@@ -500,13 +521,33 @@ Ruční postup jsou tři příkazy, jsou výš v sekci Nasazení: `npm install -
 3. **iPhone (Safari):** Sdílet → *Přidat na plochu*.
 Vznikne ikona „Rozcestník", která otevírá appku na celou obrazovku.
 
+## Appka pro Android (APK) se sdílením a widgetem
+Složka `android/` je tenký androidí obal. Jednou se zeptá na adresu tvého Rozcestníku
+a potom:
+- **otevírá appku** ve vlastním okně; odkazy, které vedou jinam, se otevřou v prohlížeči,
+- **je v nabídce Sdílet** každé appky: nasdílíš stránku, text nebo obrázky → malé okýnko
+  „Uložit do Rozcestníku" s nepovinnou poznámkou → položka přistane v **Ke zpracování**
+  (obrázky se napřed zmenší asi na 300 kB),
+- **přidá widget na plochu** „Rychlá poznámka…" (podrž prst na ploše → Widgety →
+  Rozcestník) a zkratku „Rychlá poznámka" při podržení ikonky. „Adresa appky" ve stejné
+  nabídce adresu změní.
+
+Hotový build je ke stažení v
+[Releases](https://github.com/katka1815/Keeper/releases/latest/download/Rozcestnik.apk).
+Jediné oprávnění je přístup k internetu a appka mluví jen s adresou, kterou zadáš. Staví
+se přes `bash android/build.sh <číslo verze>` v Git Bash; chce přenosné JDK 17 a Android
+SDK (platform 34, build-tools 34.0.0) ve složce z proměnné `TOOLS`. Bez Gradlu. Podpisový
+klíč vznikne při prvním buildu vedle nástrojů — schovej si ho, build podepsaný jiným klíčem
+nejde nainstalovat přes starý. Pro iPhone takový obal není; použij *Přidat na plochu* výš
+a recept se Zkratkami níž.
+
 ## Widget na rychlý zápis
 Appka z plochy je celá obrazovka; pro **widget** (tlačítko na zápis) použij:
 - **iPhone:** Zkratky → akce „Získat obsah URL", POST na `https://TVOJE-ADRESA/api/capture`,
   tělo JSON `{"type":"point","text":"…"}`. Přidej zkratku na plochu (widget Zkratky). Žádná
   hlavička s heslem už není potřeba.
-- **Android:** appka *HTTP Shortcuts* → POST na stejný endpoint, stejné JSON tělo, pak umísti
-  widget na plochu.
+- **Android:** appka výš má vlastní widget. Bez ní: appka *HTTP Shortcuts* → POST na stejný
+  endpoint, stejné JSON tělo, pak umísti widget na plochu.
 Pro ukládání odkazů sdílením nastav `"type":"link"` a do `"url"` vlož sdílený odkaz.
 
 ## Použití
@@ -814,6 +855,7 @@ MIT, viz [`LICENSE`](LICENSE). Dělej si s tím, co chceš; bez jakékoli záruk
 - `public/share.html` — prohlížeč sdílených odkazů ke čtení/úpravám (`/s/<kód>`)
 - `public/manifest.webmanifest`, `public/sw.js`, `public/icon-*.png` — instalace jako appka
 - `src/index.js` — API, kontrola odkazů, kalendář, sdílení, kurzy měn, hlídač
+- `extension/` — rozšíření do prohlížeče, `android/` — appka pro Android (obal, sdílení, widget)
 - `wrangler.toml.example` — šablona configu, průvodce z ní vyrobí `wrangler.toml`
 - `wrangler.toml` — KV, plán kontroly, push, volitelné secrety/R2 (tvůj, v repozitáři není)
 Po úpravách znovu `wrangler deploy`.

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="note" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_note">
+        <intent android:action="cz.katka.rozcestnik.NOTE" android:targetPackage="cz.katka.rozcestnik"
+            android:targetClass="cz.katka.rozcestnik.CaptureActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="base" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_base">
+        <intent android:action="cz.katka.rozcestnik.SETUP" android:targetPackage="cz.katka.rozcestnik"
+            android:targetClass="cz.katka.rozcestnik.MainActivity" />
+    </shortcut>
+</shortcuts>
