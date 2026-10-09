@@ -102,7 +102,15 @@ Its only permission is internet access, and it talks only to the address you ent
 it with `bash android/build.sh <version number>` in Git Bash; it needs a portable JDK 17 and
 the Android SDK (platform 34, build-tools 34.0.0) in the folder named by `TOOLS`. No Gradle.
 The signing key is created on the first build next to the tools — keep it, a build signed
-with another key cannot be installed over the old one. iPhone has no such wrapper; use
+with another key cannot be installed over the old one.
+
+**Example: saving from Instagram.** On a post tap the paper plane (or ⋯) → *Share to…* →
+**Rozcestník**, add a note, Save. Instagram shares only the link, not the picture, and gives
+no usable title without a login, so the note is what tells you later what it was. For the
+picture itself take a screenshot and share it from the gallery. The same works from YouTube,
+the browser or anything else with a Share button.
+
+iPhone has no such wrapper; use
 *Add to Home Screen* above and the Shortcuts recipe below.
 
 ## Quick-capture widget
@@ -170,6 +178,14 @@ shrunk to WebP in the browser and stored in R2 if you have it, otherwise in KV (
 - **Chrome/Edge/Brave:** `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
 
 On first run it asks for your app address and for permission to send data there — and nowhere else.
+
+**What to expect.** Alt+Shift+S opens the popup, Alt+Shift+D saves the page straight away.
+After every save the toolbar icon shows ✓ for two seconds, or ! on an error (hover the icon
+to read it). The right-click menu offers *Save page*, *Capture page* (screenshot), and on a
+selection, a link or an image the matching *Save…* item. If a site does not let the image be
+downloaded, the link to it is saved instead. Firefox does not let add-ons run on its own
+pages (`about:…`, the new tab, addons.mozilla.org). A shortcut that does nothing is usually
+taken by another add-on; change it in `about:addons` → cog → Manage Extension Shortcuts.
 
 **Tidy up.** The **Tidy up** button above the board has three levels. *A little* lines the
 areas up in a grid of 6 or 5 equally wide columns (heights stay as they are). *Quite a bit*
@@ -538,7 +554,15 @@ Jediné oprávnění je přístup k internetu a appka mluví jen s adresou, kter
 se přes `bash android/build.sh <číslo verze>` v Git Bash; chce přenosné JDK 17 a Android
 SDK (platform 34, build-tools 34.0.0) ve složce z proměnné `TOOLS`. Bez Gradlu. Podpisový
 klíč vznikne při prvním buildu vedle nástrojů — schovej si ho, build podepsaný jiným klíčem
-nejde nainstalovat přes starý. Pro iPhone takový obal není; použij *Přidat na plochu* výš
+nejde nainstalovat přes starý.
+
+**Příklad: uložení z Instagramu.** U příspěvku ťukni na papírovou vlaštovku (nebo ⋯) →
+*Sdílet do…* → **Rozcestník**, připiš poznámku, Uložit. Instagram sdílí jen odkaz, ne
+obrázek, a bez přihlášení nedá rozumný název, takže až poznámka ti později řekne, o co šlo.
+Když chceš samotný obrázek, udělej screenshot a nasdílej ho z galerie. Stejně to funguje
+z YouTube, prohlížeče a čehokoli dalšího s tlačítkem Sdílet.
+
+Pro iPhone takový obal není; použij *Přidat na plochu* výš
 a recept se Zkratkami níž.
 
 ## Widget na rychlý zápis
@@ -604,6 +628,14 @@ do R2, když ho máš, jinak do KV (`img:<id>`).
 - **Chrome/Edge/Brave:** `chrome://extensions` → Režim pro vývojáře → Načíst rozbalené → `extension/`.
 
 Při prvním spuštění se zeptá na adresu appky a na povolení posílat tam data — a nikam jinam.
+
+**Co čekat.** Alt+Shift+S otevře okýnko, Alt+Shift+D uloží stránku rovnou. Po každém uložení
+se na ikonce v liště na dvě vteřiny ukáže ✓, při chybě ! (text chyby je vidět po najetí myší
+na ikonku). Pravé tlačítko nabízí *Uložit stránku*, *Vyfotit stránku* (screenshot) a na
+označeném textu, odkazu nebo obrázku příslušné *Uložit…*. Když web stažení obrázku nedovolí,
+uloží se aspoň odkaz na něj. Na vlastních stránkách Firefoxu (`about:…`, nová karta,
+addons.mozilla.org) doplňky běžet nesmějí. Zkratku, která nic nedělá, má nejspíš zabranou
+jiný doplněk; změníš ji v `about:addons` → ozubené kolo → Spravovat klávesové zkratky.
 
 **Pořádek.** Tlačítko **Pořádek** nad deskou má tři stupně. *Udělej trochu pořádek* srovná
 oblasti do mřížky 6 nebo 5 stejně širokých sloupců (výška zůstane). *Udělej celkem pořádek*
