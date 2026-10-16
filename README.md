@@ -175,9 +175,18 @@ shrunk to WebP in the browser and stored in R2 if you have it, otherwise in KV (
 - **Keep it:** Firefox only installs signed add-ons for good. Signing is free: build the zip
   with `npx web-ext build -s extension`, upload it at addons.mozilla.org → Submit a New
   Add-on → **On your own**, and install the signed `.xpi` you get back. It is not published.
+  Already uploaded it once? The signed file waits at addons.mozilla.org → **My Add-ons** →
+  Rozcestník → **Manage Status & Versions** → the version → download the `.xpi`.
 - **Chrome/Edge/Brave:** `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
 
 On first run it asks for your app address and for permission to send data there — and nowhere else.
+
+**Can't see the icon?** Firefox puts a new add-on under the **puzzle piece** at the right of
+the toolbar, not on the toolbar itself. Click the puzzle piece → the cog next to Rozcestník →
+**Pin to Toolbar**. If Rozcestník is not under the puzzle piece at all, it is not installed:
+a temporary add-on from `about:debugging` disappears when Firefox restarts, so install the
+signed `.xpi`. If saving fails, open `about:addons` → Rozcestník → **Options**, enter the
+app address again and click **Allow** when Firefox asks.
 
 **What to expect.** Alt+Shift+S opens the popup, Alt+Shift+D saves the page straight away.
 After every save the toolbar icon shows ✓ for two seconds, or ! on an error (hover the icon
@@ -625,9 +634,17 @@ do R2, když ho máš, jinak do KV (`img:<id>`).
 - **Natrvalo:** Firefox natrvalo nainstaluje jen podepsaný doplněk. Podpis je zdarma: zabal
   zip přes `npx web-ext build -s extension`, nahraj ho na addons.mozilla.org → Submit a New
   Add-on → **On your own** a nainstaluj podepsaný `.xpi`, který dostaneš zpět. Nikde se nezveřejní.
+  Už jsi ho jednou nahrála? Podepsaný soubor čeká na addons.mozilla.org → **My Add-ons** →
+  Rozcestník → **Manage Status & Versions** → verze → stáhni `.xpi`.
 - **Chrome/Edge/Brave:** `chrome://extensions` → Režim pro vývojáře → Načíst rozbalené → `extension/`.
 
 Při prvním spuštění se zeptá na adresu appky a na povolení posílat tam data — a nikam jinam.
+
+**Nevidíš ikonku?** Firefox dává nový doplněk pod **dílek puzzle** vpravo na liště, ne přímo
+na lištu. Klikni na dílek puzzle → ozubené kolo u Rozcestníku → **Připnout na lištu**. Když
+tam Rozcestník vůbec není, není nainstalovaný: dočasný doplněk z `about:debugging` po restartu
+Firefoxu zmizí, takže nainstaluj podepsaný `.xpi`. Když ukládání nejde, otevři `about:addons`
+→ Rozcestník → **Možnosti**, zadej znovu adresu appky a na dotaz Firefoxu dej **Povolit**.
 
 **Co čekat.** Alt+Shift+S otevře okýnko, Alt+Shift+D uloží stránku rovnou. Po každém uložení
 se na ikonce v liště na dvě vteřiny ukáže ✓, při chybě ! (text chyby je vidět po najetí myší
