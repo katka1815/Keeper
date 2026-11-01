@@ -15,6 +15,25 @@ Phone: app (PWA) + quick-capture widget  ──►  /api/capture
 Web on your address  ◄───────────────────────►  /api/state
 ```
 
+## Install: three ways · Instalace: tři cesty
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/katka1815/Keeper)
+
+| | 🇬🇧 English | 🇨🇿 Česky |
+|---|---|---|
+| **1. Deploy to Cloudflare** (recommended · doporučeno) | Click the button above. You need free **Cloudflare** and **GitHub** accounts. Confirm the setup page; every optional field can stay empty. Storage (KV) and the hourly job are created for you. Your data lives in your own account and is encrypted from the first save. | Klikni na tlačítko výš. Potřebuješ účet na **Cloudflare** a na **GitHubu** (oba zdarma). Potvrď stránku s nastavením, všechna nepovinná pole můžou zůstat prázdná. Úložiště (KV) a hodinová úloha se založí samy. Data leží na tvém vlastním účtu a jsou šifrovaná od prvního uložení. |
+| **2. Installer on your computer** | Download the ZIP, double-click **`Click this to install the app.bat`** (Windows) or **`… (Mac).command`**. Same result as 1, without GitHub; needs Node.js (the wizard helps). See [`INSTALL.md`](INSTALL.md). | Stáhni ZIP a dvojklikni na **`Click this to install the app.bat`** (Windows) nebo **`… (Mac).command`**. Výsledek jako u 1, jen bez GitHubu; potřebuje Node.js (průvodce pomůže). Viz [`INSTALL.md`](INSTALL.md). |
+| **3. Only on my computer** | The same installer, option **[2] full privacy**: runs locally, no account at all, but not reachable from your phone. | Stejný průvodce, volba **[2] úplné soukromí**: běží jen u tebe, bez jakéhokoli účtu, ale z telefonu se k ní nedostaneš. |
+
+**Right after installing, open your new address and set a password.** Until then whoever opens
+it first sets it. The app then walks you through the phone app, the browser extension and a QR
+code for your phone. · **Hned po instalaci otevři svou novou adresu a nastav heslo.** Do té doby
+ho nastaví ten, kdo ji otevře první. Appka tě pak provede telefonem, rozšířením do prohlížeče
+a QR kódem pro telefon.
+
+Your address (`https://<name>.<your-account>.workers.dev`) is in the Cloudflare dashboard under
+**Workers & Pages**. · Svou adresu najdeš v Cloudflare v **Workers & Pages**.
+
 ---
 
 # English
@@ -33,8 +52,10 @@ npm install -g wrangler
 wrangler login          # or use a scoped API token (CLOUDFLARE_API_TOKEN)
 wrangler deploy
 ```
-The repo ships `wrangler.toml.example`; the installer copies it to `wrangler.toml` and fills in
-the KV id of a namespace it creates in your own account (manually: `wrangler kv namespace create KV`).
+The config has no KV id: `wrangler deploy` (4.45 or newer) and the Deploy button create the
+storage in your own account on the first deploy, and the installer creates it and writes the id in.
+Optional secrets (ntfy, calendar, Resend) are listed in `.dev.vars.example`; set them with
+`wrangler secret put <NAME>`.
 After `wrangler deploy` it prints a public
 address like `https://rozcestnik.your-account.workers.dev` — that's your web.
 
@@ -64,8 +85,7 @@ shipping it this way.
 4. Signs you in to Cloudflare using Cloudflare's own browser login. Your password is typed on
    cloudflare.com, not into the script; the script never sees it.
 5. Asks, each one optional and skippable with Enter, for a PIN, an ntfy topic, a Resend key and
-   Google Calendar credentials. Each is stored as an encrypted Worker secret, except the ntfy
-   topic, which goes into `wrangler.toml`.
+   Google Calendar credentials. Each is stored as an encrypted Worker secret.
 6. Runs `wrangler deploy`, which uploads the app to **your** Cloudflare account and prints the
    address it lives at.
 
@@ -558,8 +578,10 @@ MIT — see [`LICENSE`](LICENSE). Do what you like with it; there is no warranty
 - `extension/` — browser add-on, `android/` — Android app (wrapper, sharing, widget)
 - `tests/` — tests without libraries, run `node tests/run.js`
 - `docs/HANDOVER.md` — project state, decisions and pitfalls (Czech)
-- `wrangler.toml.example` — config template; the installer copies it to `wrangler.toml`
-- `wrangler.toml` — KV, cron schedule, push, optional secrets/R2 (yours, not in the repo)
+- `wrangler.toml` — KV (without an id, created on the first deploy), cron schedule, optional R2.
+  In the author’s working copy it is `wrangler.toml.example` and `wrangler.toml` stays out of git.
+- `.dev.vars.example` — the optional secrets (ntfy, calendar, Resend)
+- `package.json` — only for the Deploy button (field descriptions) and `npm test`
 After changes run `wrangler deploy` again.
 
 ## Notes
@@ -567,8 +589,8 @@ After changes run `wrangler deploy` again.
 - **Password and encryption:** the app is locked with a password (the server only gets a key
   derived from it), the content is encrypted in the browser (see *Content encryption*), and the
   cycle has its own password on top.
-- **Broken-link push:** fill `NTFY_TOPIC` in `wrangler.toml` and in the phone subscribe to the
-  same topic in the *ntfy* app.
+- **Broken-link push:** set the `NTFY_TOPIC` secret (`wrangler secret put NTFY_TOPIC`, or the
+  field on the Deploy setup page) and in the phone subscribe to the same topic in the *ntfy* app.
 - **Data sovereignty:** everything lives in your Cloudflare (KV/R2). Exceptions: favicons are fetched by your own server straight from the sites (cached for
   30 days, Google learns nothing), link checking visits your saved links, Google Calendar (if connected) talks
   to Google, and reading text from images downloads Tesseract.js once from jsdelivr (the images
@@ -625,8 +647,7 @@ rozdává.
 4. Přihlásí tě k Cloudflare jeho vlastním přihlašovacím oknem v prohlížeči. Heslo píšeš na
    cloudflare.com, ne do skriptu; ten ho nikdy nevidí.
 5. Zeptá se — všechno nepovinné a přeskočitelné Enterem — na PIN, téma pro ntfy, klíč k Resendu
-   a údaje ke Google Kalendáři. Každé se uloží jako šifrovaný secret Workeru, kromě tématu pro
-   ntfy, které jde do `wrangler.toml`.
+   a údaje ke Google Kalendáři. Každé se uloží jako šifrovaný secret Workeru.
 6. Spustí `wrangler deploy`, který appku nahraje do **tvého** Cloudflare účtu a vypíše adresu,
    na které běží.
 
@@ -1101,8 +1122,10 @@ MIT, viz [`LICENSE`](LICENSE). Dělej si s tím, co chceš; bez jakékoli záruk
 - `extension/` — rozšíření do prohlížeče, `android/` — appka pro Android (obal, sdílení, widget)
 - `tests/` — testy bez knihoven, pouštět `node tests/run.js`
 - `docs/HANDOVER.md` — stav projektu, rozhodnutí a pasti
-- `wrangler.toml.example` — šablona configu, průvodce z ní vyrobí `wrangler.toml`
-- `wrangler.toml` — KV, plán kontroly, push, volitelné secrety/R2 (tvůj, v repozitáři není)
+- `wrangler.toml` — KV (bez id, založí se při prvním nasazení), plán kontroly, volitelně R2.
+  V autorčině pracovní kopii je to `wrangler.toml.example` a `wrangler.toml` zůstává mimo git.
+- `.dev.vars.example` — nepovinné secrets (ntfy, kalendář, Resend)
+- `package.json` — jen pro tlačítko Deploy (popisky polí) a `npm test`
 Po úpravách znovu `wrangler deploy`.
 
 ## Poznámky
@@ -1110,8 +1133,8 @@ Po úpravách znovu `wrangler deploy`.
 - **Heslo a šifrování:** appka je zamčená heslem (server dostane jen klíč z něj odvozený),
   obsah je šifrovaný v prohlížeči (viz *Šifrování obsahu*) a cyklus má navíc vlastní heslo.
 
-- **Push na rozbité odkazy:** vyplň `NTFY_TOPIC` v `wrangler.toml` a v telefonu se v appce *ntfy*
-  přihlas ke stejnému tématu.
+- **Push na rozbité odkazy:** nastav secret `NTFY_TOPIC` (`wrangler secret put NTFY_TOPIC` nebo
+  pole na stránce tlačítka Deploy) a v telefonu se v appce *ntfy* přihlas ke stejnému tématu.
 - **Data zůstávají u tebe:** vše leží v tvém Cloudflare (KV/R2). Výjimky: ikonky webů stahuje tvůj server přímo z těch webů (drží je 30 dní, Google
   se nedozví nic), kontrola odkazů navštěvuje tvé uložené odkazy, Google Kalendář (když ho propojíš)
   komunikuje s Googlem a čtení textu z obrázků si jednou stáhne Tesseract.js z jsdelivr

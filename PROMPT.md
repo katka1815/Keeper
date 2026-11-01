@@ -41,7 +41,8 @@ oblasti (odkazy/text), úkoly (termín, popisek, rychlý úkol nad deskou), blok
 koš (30 dní) s obnovou, denní úklid přes cron, půjčené věci (loans) a dluhy (debts) s přepočtem
 měn přes /api/fx, hledání knih jen z legálních zdrojů, Google Kalendář (OAuth, za PINem,
 obousměrně, barvy), sledování menstruačního cyklu (šifrované v prohlížeči vlastním heslem,
-KV cycle_enc), zámek appky heslem (/api/auth/*, cookie rz_s), FAQ panel v appce,
+KV cycle_enc), zámek appky heslem (/api/auth/*, cookie rz_s), průvodce po prvním spuštění (/?welcome=1: adresa, vlastní QR
+kód qrMatrix, APK, rozšíření), FAQ panel v appce,
 hlídač stránek (board.watches/watchHits: hlídání jde založit tlačítkem 👁 přímo u odkazu
 v oblasti, hledá frázi na zadaných adresách, z nálezu tahá
 termíny a odkaz na vstupenky, umí se napojit na oblast a zapsat termín do popisku její položky
@@ -117,7 +118,7 @@ quotes, trash (30 days) with restore, daily cleanup cron, lent/borrowed items (l
 debts with currency conversion via /api/fx, book search from legal sources only, Google
 Calendar (OAuth, behind a PIN, two-way, colors), menstrual cycle tracking (encrypted in the
 browser with its own password, KV cycle_enc), an app lock with a password (/api/auth/*,
-cookie rz_s), an in-app FAQ panel, a page watcher (board.watches/watchHits: looks for a phrase on
+cookie rz_s), a first-run guide (/?welcome=1: address, own QR code qrMatrix, APK, extension), an in-app FAQ panel, a page watcher (board.watches/watchHits: looks for a phrase on
 given addresses (a watch can be created straight from a link in an area with its 👁 button),
 pulls dates and a ticket link out of a finding, can link to an area and write
 the date into a matching item's note with automatic removal once it passes (link.expiresDay),

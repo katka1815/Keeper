@@ -7,20 +7,20 @@ directory = "./public/"
 binding = "ASSETS"
 run_worker_first = true
 
-# Tvoje KV úložiště. Necháš prázdné — průvodce instalací ho vytvoří
-# a id sem doplní sám. Ručně: wrangler kv namespace create KV
+# Tvoje KV úložiště. Bez id: tlačítko Deploy to Cloudflare i `wrangler deploy` (od verze
+# 4.45) ho při prvním nasazení vytvoří samy. Průvodce instalací ho vytvoří a id sem doplní.
 [[kv_namespaces]]
 binding = "KV"
-id = ""
 
 # Běží každou hodinu; v 6:00 místního času (dle settings.tz) proběhne denní úklid,
 # promazání "Hotovo", kontrola odkazů a úklid koše.
 [triggers]
 crons = ["0 * * * *"]
 
-# Nepovinné push upozornění na rozbité odkazy přes ntfy.sh – vyplň vlastní téma.
-[vars]
-NTFY_TOPIC = ""
+# Nepovinné push upozornění přes ntfy.sh (rozbité odkazy, Hlídač, sdílení). Téma funguje
+# jako heslo (kdo ho zná, čte i píše), proto je to secret, ne proměnná tady:
+#   wrangler secret put NTFY_TOPIC
+# Všechny nepovinné secrets jsou v .dev.vars.example.
 
 # Heslo k appce se nastavuje v appce při prvním otevření (ne tady). Otevři ji hned po
 # nasazení, jinak ho nastaví ten, kdo ji otevře první. Cyklus má vlastní heslo a šifruje se

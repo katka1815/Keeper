@@ -48,7 +48,7 @@ eval(html.match(/const DOCK_BTN=\{[^\n]*\};/)[0].replace("const ", "var "));
 eval(grab("modTitle"));
 eval(grab("secMode"));
 eval(grab("secCtl"));
-const libSettingsHtml = () => "", lkSettingsHtml = () => "", lookSettingsHtml = () => "", lookT = () => ({ adv: "Pokročilé" });
+const libSettingsHtml = () => "", lkSettingsHtml = () => "", gdSettingsHtml = () => "", lookSettingsHtml = () => "", lookT = () => ({ adv: "Pokročilé" });
 eval(grab("renderSettings"));
 let err = null; try { renderSettings(); } catch (e) { err = e.message; }
 t("nastaveni se vykresli bez chyby", err === null, err);

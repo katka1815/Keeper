@@ -2,9 +2,8 @@
 # Jsou v tom tvoje data z desky, do repozitáře nepatří.
 .wrangler/
 
-# Osobní config: tvoje KV id a tvoje ntfy téma. Do repozitáře patří jen
-# wrangler.toml.example, ze kterého si ho průvodce vyrobí.
-wrangler.toml
+# wrangler.toml je v repozitáři schválně: je to šablona bez KV id pro tlačítko Deploy to
+# Cloudflare. Tajné věci (ntfy téma, klíče) patří do secrets, ne do něj.
 
 # Lokální secrety pro `wrangler dev` (APP_TOKEN atd.). NIKDY necommitovat.
 .dev.vars

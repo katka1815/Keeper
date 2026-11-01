@@ -759,6 +759,7 @@ function renderSettings(){const s=state.board.settings;
    <div class="set-row"><span>${L.watchSrcArea}</span><select data-act="set-watch-area"><option value="">${esc(L.watchSrcNone)}</option>${state.board.areas.map(a=>`<option value="${a.id}" ${a.id===s.watchSourceArea?"selected":""}>${esc(a.name)}</option>`).join("")}</select></div>
    <div class="set-row"><span>${L.watchEmail}</span><input type="email" data-act="set-watch-email" value="${esc(s.watchEmail||"")}" placeholder="me@example.com" style="flex:1;max-width:260px"/></div>
    ${libSettingsHtml()}
+   ${gdSettingsHtml()}
    ${lkSettingsHtml()}
    <div class="block" style="border-left:5px solid var(--broken);padding:12px;margin-top:14px"><b style="color:var(--broken)">${L.dangerZone}</b><div class="empty" style="text-align:left;margin:4px 0 8px">${L.wipeAllDesc}</div><button class="btn danger" data-act="wipe-all">${L.wipeAll}</button></div></details>`;
   renderTzList();}
@@ -2645,7 +2646,7 @@ function lkShow(mode){lkMode=mode;const T=lkT(),closable=/^(change|newcode|e2e)/
 function lkHide(){lkMode=null;const el=$("lk");if(el){el.style.display="none";el.innerHTML="";}if(!tidyModalOpenNow())document.body.classList.remove("tidy-lock");}
 function lkErr(m){const e=$("lk_err"),b=$("lk_go");if(e)e.textContent=m||"";if(b)b.disabled=false;}
 function lkWhy(x){const T=lkT();return x.status===429?T.blocked:x.status===403?T.wrong:T.net;}
-function lkDone(kind){lkForeign(kind==="f");lkReload();}
+function lkDone(kind,welcome){lkForeign(kind==="f");if(!welcome)return lkReload();lkMode="out";location.replace("/?welcome=1");}
 async function lkSubmit(){const T=lkT(),mode=lkMode,v=id=>(($("lk_"+id)||{}).value||""),fail=m=>lkErr(m);
   const kind=(document.querySelector("input[name=lk_dev]:checked")||{}).value==="f"?"f":"t";
   const newPass=()=>{const p=v("p");if(p.length<12){fail(T.short);return null;}if(p!==v("p2")){fail(T.mismatch);return null;}return p;};
@@ -2656,7 +2657,7 @@ async function lkSubmit(){const T=lkT(),mode=lkMode,v=id=>(($("lk_"+id)||{}).val
       const n=await e2eNewKeys(),wdk=await e2eWrap(a.enc,n.dkRaw),rwdk=await e2eWrap(r.enc,n.dkRaw);
       const x=await lkPost("/api/auth/setup",{key:a.key,salt,iter:LK_ITER,rkey:r.key,rsalt,hint:lkPend.hint,kind:lkPend.kind,...n.keys,wdk,rwdk});
       if(x.status===200)await e2eStore(lkPend.kind,n.keys.kid,n.dkRaw,{...n.keys,wdk});
-      return x.status===200||x.status===409?lkDone(lkPend.kind):fail(T.net);}
+      return x.status===200?lkDone(lkPend.kind,1):x.status===409?lkDone(lkPend.kind):fail(T.net);}
     if(mode==="login"){const p=v("p");if(!p)return;busy();const a=await lkDerive(p,lkInfo.salt,lkInfo.iter),x=await lkPost("/api/auth/login",{key:a.key,kind});
       if(x.status!==200)return fail(lkWhy(x));await e2eAfterAuth(a.enc,kind);return lkDone(kind);}
     if(mode==="recover"){const p=newPass();if(!p)return;busy();const rs=await lkPost("/api/auth/recover-salt");if(rs.status!==200)return fail(T.net);
@@ -2823,6 +2824,103 @@ document.head.insertAdjacentHTML("beforeend",`<style>
 .lk-err{color:var(--broken);min-height:1.2em}.lk-links{display:flex;gap:14px;flex-wrap:wrap}
 .lk-card .btn.lk-go{background:var(--ink);color:var(--paper);border-color:var(--ink);padding:11px;font-size:15px}.lk-card .btn.lk-go:disabled{opacity:.45}
 .lk-x{position:absolute;top:0;right:0;font-size:22px}
+</style>`);
+
+/* ---------- QR kód: vlastní, bez knihovny a bez cizí služby ----------
+   Bajtový režim, oprava chyb M, verze 1–10 (do 213 bajtů, adresa appky se vejde). Postup podle
+   ISO/IEC 18004: data → bloky → Reed-Solomon → prokládání → umístění → nejlepší z 8 masek. */
+const QR_V=[0,[16,10,1,0],[28,16,1,0],[44,26,1,0],[32,18,2,0],[43,24,2,0],[27,16,4,0],[31,18,4,0],[38,22,2,2],[36,22,3,2],[43,26,4,1]]; // [data v bloku, oprava v bloku, bloků, bloků o 1 delších]
+const QR_AL=[0,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50]];
+function qrMatrix(text){
+  const bytes=[...new TextEncoder().encode(text)];let v=1;
+  for(;v<=10;v++){const t=QR_V[v];if(bytes.length+(v<10?2:3)<=t[0]*t[2]+(t[0]+1)*t[3])break;}
+  if(v>10)return null;
+  const [dl,ecl,b1,b2]=QR_V[v],cap=dl*b1+(dl+1)*b2,bits=[],put=(x,n)=>{for(let i=n-1;i>=0;i--)bits.push(x>>>i&1);};
+  put(4,4);put(bytes.length,v<10?8:16);bytes.forEach(b=>put(b,8));put(0,Math.min(4,cap*8-bits.length));
+  while(bits.length%8)bits.push(0);
+  const cw=[];for(let i=0;i<bits.length;i+=8)cw.push(parseInt(bits.slice(i,i+8).join(""),2));
+  for(let p=0xEC;cw.length<cap;p^=0xEC^0x11)cw.push(p);
+  const ex=[],lg=[];for(let i=0,x=1;i<255;i++){ex[i]=x;lg[x]=i;x=x<<1^(x&128?0x11d:0);}
+  const mul=(a,b)=>a&&b?ex[(lg[a]+lg[b])%255]:0;
+  let gen=[1];for(let i=0;i<ecl;i++){const g=gen.concat(0);for(let j=1;j<g.length;j++)g[j]^=mul(gen[j-1],ex[i]);gen=g;}
+  const blocks=[],ecs=[];let o=0;
+  for(let i=0;i<b1+b2;i++){const d=cw.slice(o,o+=dl+(i<b1?0:1)),r=d.concat(Array(ecl).fill(0));
+    for(let j=0;j<d.length;j++){const f=r[j];if(f)for(let k=1;k<gen.length;k++)r[j+k]^=mul(gen[k],f);}
+    blocks.push(d);ecs.push(r.slice(d.length));}
+  const all=[];for(let j=0;j<=dl;j++)blocks.forEach(d=>{if(j<d.length)all.push(d[j]);});
+  for(let j=0;j<ecl;j++)ecs.forEach(e=>all.push(e[j]));
+  const N=17+4*v,M=[...Array(N)].map(()=>Array(N).fill(0)),F=[...Array(N)].map(()=>Array(N).fill(false));
+  const fn=(x,y,d)=>{M[y][x]=d?1:0;F[y][x]=true;};
+  for(let i=0;i<N;i++){fn(6,i,i%2===0);fn(i,6,i%2===0);}
+  [[3,3],[N-4,3],[3,N-4]].forEach(([cx,cy])=>{for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const x=cx+dx,y=cy+dy,d=Math.max(Math.abs(dx),Math.abs(dy));
+    if(x>=0&&x<N&&y>=0&&y<N)fn(x,y,d!==2&&d!==4);}});
+  const al=QR_AL[v],last=al.length-1;
+  al.forEach((ay,i)=>al.forEach((ax,j)=>{if((i===0&&j===0)||(i===0&&j===last)||(i===last&&j===0))return;
+    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)fn(ax+dx,ay+dy,Math.max(Math.abs(dx),Math.abs(dy))!==1);}));
+  const format=mask=>{const d=mask;let r=d;for(let i=0;i<10;i++)r=r<<1^(r>>>9)*0x537;const b=(d<<10|r)^0x5412,g=i=>(b>>>i&1)===1;
+    for(let i=0;i<=5;i++)fn(8,i,g(i));fn(8,7,g(6));fn(8,8,g(7));fn(7,8,g(8));for(let i=9;i<15;i++)fn(14-i,8,g(i));
+    for(let i=0;i<8;i++)fn(N-1-i,8,g(i));for(let i=8;i<15;i++)fn(8,N-15+i,g(i));fn(8,N-8,true);};
+  format(0);
+  if(v>=7){let r=v;for(let i=0;i<12;i++)r=r<<1^(r>>>11)*0x1F25;const b=v<<12|r;
+    for(let i=0;i<18;i++){const d=(b>>>i&1)===1,a=N-11+i%3,c=Math.floor(i/3);fn(a,c,d);fn(c,a,d);}}
+  let k=0;for(let right=N-1;right>=1;right-=2){if(right===6)right=5;
+    for(let vert=0;vert<N;vert++)for(let j=0;j<2;j++){const x=right-j,y=(right+1&2)===0?N-1-vert:vert;
+      if(!F[y][x]&&k<all.length*8){M[y][x]=all[k>>>3]>>>(7-(k&7))&1;k++;}}}
+  const MASK=[(x,y)=>(x+y)%2===0,(x,y)=>y%2===0,x=>x%3===0,(x,y)=>(x+y)%3===0,(x,y)=>(Math.floor(x/3)+Math.floor(y/2))%2===0,
+    (x,y)=>x*y%2+x*y%3===0,(x,y)=>(x*y%2+x*y%3)%2===0,(x,y)=>((x+y)%2+x*y%3)%2===0];
+  const flip=m=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!F[y][x]&&MASK[m](x,y))M[y][x]^=1;};
+  const score=()=>{let p=0,dark=0;const P1=[1,0,1,1,1,0,1,0,0,0,0].join(""),P2=[0,0,0,0,1,0,1,1,1,0,1].join("");
+    for(let a=0;a<N;a++){const row=M[a].join(""),col=M.map(r=>r[a]).join("");
+      for(const s of [row,col]){(s.match(/0{5,}|1{5,}/g)||[]).forEach(r=>p+=r.length-2);
+        for(let i=0;i+11<=N;i++){const w=s.substr(i,11);if(w===P1||w===P2)p+=40;}}
+      for(let b=0;b<N;b++){dark+=M[a][b];if(a<N-1&&b<N-1){const c=M[a][b];if(c===M[a][b+1]&&c===M[a+1][b]&&c===M[a+1][b+1])p+=3;}}}
+    return p+Math.max(0,Math.ceil(Math.abs(dark*20-N*N*10)/(N*N))-1)*10;};
+  let best=0,low=Infinity;
+  for(let m=0;m<8;m++){flip(m);format(m);const s=score();if(s<low){low=s;best=m;}flip(m);}
+  flip(best);format(best);return M;}
+// Kód je vždy černý na bílém i v tmavém režimu: čtečky v telefonech převrácené barvy často neberou.
+function qrSvg(text){const M=qrMatrix(text);if(!M)return "";const n=M.length;let d="";
+  M.forEach((r,y)=>r.forEach((c,x)=>{if(c)d+=`M${x+4} ${y+4}h1v1h-1z`;}));
+  return `<svg class="gd-qr" viewBox="0 0 ${n+8} ${n+8}" shape-rendering="crispEdges" role="img" aria-label="QR"><rect width="100%" height="100%" fill="white"/><path d="${d}" fill="black"/></svg>`;}
+
+/* ---------- Průvodce po prvním spuštění: telefon, appka pro Android, rozšíření ----------
+   Ukáže se jednou po nastavení hesla (/?welcome=1) a znovu z Nastavení. Nic neukládá. */
+const GD_APK="https://github.com/katka1815/Keeper/releases/latest",GD_AMO="https://addons.mozilla.org/firefox/addon/rozcestnik/";
+const GD={cs:{h:"Rozcestník je připravený",p:"Ještě tři věci, ať ho máš všude po ruce. Každou můžeš přeskočit a vrátit se k ní v Nastavení.",
+  addr:"Adresa tvojí appky",copy:"Kopírovat",copied:"Zkopírováno",
+  phH:"1. Do telefonu",phP:"Naskenuj kód fotoaparátem telefonu a adresu otevři. Pak ji přidej na plochu: na Androidu v Chromu ⋮ → Přidat na plochu (nebo Instalovat aplikaci), na iPhonu v Safari Sdílet → Přidat na plochu.",
+  apkH:"2. Appka pro Android (nepovinná)",apkP:"Umí navíc posílat do Rozcestníku z jiných appek přes Sdílet a má widget na rychlou poznámku. Po spuštění se zeptá na adresu výš. Android se zeptá, jestli povolit instalaci z tohoto zdroje; appka je z GitHubu tohohle projektu.",apkB:"Stáhnout APK",
+  exH:"3. Rozšíření do prohlížeče",exP:"Uloží stránku, odkaz, text, obrázek nebo screenshot jedním kliknutím. Po instalaci se otevře jeho nastavení, tam vlož adresu výš. Ikonka se schová pod dílek puzzle, připni si ji. V Chromu se instaluje ze složky extension/ podle README.",exB:"Přidat do Firefoxu",
+  done:"Hotovo",setG:"Telefon a rozšíření",setB:"Průvodce instalací"},
+ en:{h:"Rozcestník is ready",p:"Three more things so you have it everywhere. You can skip any of them and come back to them in Settings.",
+  addr:"Your app's address",copy:"Copy",copied:"Copied",
+  phH:"1. On your phone",phP:"Scan the code with your phone's camera and open the address. Then add it to the home screen: on Android in Chrome ⋮ → Add to Home screen (or Install app), on iPhone in Safari Share → Add to Home Screen.",
+  apkH:"2. Android app (optional)",apkP:"It can also send things to Rozcestník from other apps via Share and has a quick-note widget. On first start it asks for the address above. Android asks whether to allow installs from this source; the app comes from this project's GitHub.",apkB:"Download the APK",
+  exH:"3. Browser extension",exP:"Saves a page, link, text, image or screenshot in one click. After installing, its settings open; paste the address above there. The icon hides under the puzzle piece, pin it. In Chrome it installs from the extension/ folder as described in the README.",exB:"Add to Firefox",
+  done:"Done",setG:"Phone and extension",setB:"Installation guide"}};
+const gdT=()=>GD[lkT()===LK.en?"en":"cs"];
+function gdShow(){const T=gdT(),u=location.origin;lkMode="welcome";let el=$("lk");
+  if(!el){el=document.createElement("div");el.id="lk";el.className="lk";document.body.appendChild(el);}
+  el.innerHTML=`<div class="lk-card gd"><button type="button" class="linkbtn lk-x" data-act="gd-close" aria-label="${esc(T.done)}">×</button>
+    <h2>${esc(T.h)}</h2><p>${esc(T.p)}</p>
+    <div class="gd-addr"><span>${esc(T.addr)}</span><code>${esc(u)}</code><button type="button" class="btn" data-act="gd-copy">${esc(T.copy)}</button></div>
+    <h3>${esc(T.phH)}</h3>${qrSvg(u)}<p>${esc(T.phP)}</p>
+    <h3>${esc(T.apkH)}</h3><p>${esc(T.apkP)}</p><a class="btn" href="${GD_APK}" target="_blank" rel="noopener">${esc(T.apkB)}</a>
+    <h3>${esc(T.exH)}</h3><p>${esc(T.exP)}</p><a class="btn" href="${GD_AMO}" target="_blank" rel="noopener">${esc(T.exB)}</a>
+    <button type="button" class="btn lk-go" data-act="gd-close">${esc(T.done)}</button></div>`;
+  el.style.display="flex";document.body.classList.add("tidy-lock");}
+function gdSettingsHtml(){const T=gdT();return `<div class="set-g">${esc(T.setG)}</div>
+   <div class="set-row"><span>${esc(T.setB)}</span><button class="btn" data-act="gd-open">${esc(T.setB)}</button></div>`;}
+document.body.addEventListener("click",async e=>{const el=e.target.closest("[data-act^='gd-']");if(!el)return;const act=el.dataset.act;
+  if(act==="gd-open")gdShow();
+  else if(act==="gd-close")lkHide();
+  else if(act==="gd-copy"){try{await navigator.clipboard.writeText(location.origin);el.textContent=gdT().copied;}catch(x){}}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&lkMode==="welcome"){lkHide();e.stopImmediatePropagation();}},true);
+document.head.insertAdjacentHTML("beforeend",`<style>
+.gd h3{margin:8px 0 -4px;font-size:15px;font-weight:600}.gd>a.btn{align-self:flex-start;text-decoration:none}
+.gd-addr{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r)}
+.gd-addr span{width:100%;font-size:12px;color:var(--muted)}.gd-addr code{flex:1;min-width:0;word-break:break-all;font-size:14px}
+.gd-qr{width:180px;height:180px;align-self:center;border-radius:var(--r)}
 </style>`);
 
 /* ---------- Vzhled: téma, obrázek v záhlaví, úklid, řazení podle používání ----------
@@ -3021,6 +3119,7 @@ async function start(){
   if(e2e)setTimeout(e2eSealImagesLoop,4000);
   if(new URLSearchParams(location.search).get("cal")==="1"){openCal();}
   if(new URLSearchParams(location.search).get("shares")==="1"){openShare();}
+  if(new URLSearchParams(location.search).get("welcome")==="1"){history.replaceState(null,"",location.pathname);gdShow();}
 }
 start();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshState();});

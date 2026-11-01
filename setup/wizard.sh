@@ -3,8 +3,16 @@
 # Spust:  bash install.sh    (nebo dvojklik na install.command na macu)
 set -e
 cd "$(dirname "$0")"
-while [ ! -f wrangler.toml ] && [ "$PWD" != "/" ]; do cd ..; done
-[ -f wrangler.toml ] || { echo "wrangler.toml nenalezen / not found"; exit 1; }
+while [ ! -f wrangler.toml ] && [ ! -f wrangler.toml.example ] && [ "$PWD" != "/" ]; do cd ..; done
+[ -f wrangler.toml ] || [ -f wrangler.toml.example ] || { echo "wrangler.toml nenalezen / not found"; exit 1; }
+# KV id do wrangler.toml: prepise radek id, a kdyz chybi (sablona bez id), prida ho za binding = "KV".
+set_kv(){
+  if grep -qE '^id *=' wrangler.toml; then
+    sed -i.bak -E "s/^id = \".*\"/id = \"$1\"/" wrangler.toml && rm -f wrangler.toml.bak
+  else
+    awk -v id="$1" '{print} /^binding = "KV"/{print "id = \"" id "\""}' wrangler.toml > wrangler.toml.tmp && mv wrangler.toml.tmp wrangler.toml
+  fi
+}
 
 echo ""
 echo "  ============================================"
@@ -73,19 +81,19 @@ echo ""; echo "$(t '[4/6] Vytvarim tve vlastni uloziste dat (KV)...' '[4/6] Crea
 KVOUT=$(WR kv namespace create KV 2>&1 || WR kv:namespace create KV 2>&1 || true)
 KVID=$(echo "$KVOUT" | grep -oE '[0-9a-fA-F]{32}' | head -n1)
 if [ -n "$KVID" ]; then
-  sed -i.bak -E "s/^id = \".*\"/id = \"$KVID\"/" wrangler.toml && rm -f wrangler.toml.bak
+  set_kv "$KVID"
   echo "  OK: KV id $KVID"
 else
   echo "$KVOUT"
   read -r -p "$(t '  Vloz rucne id (32 znaku): ' '  Paste id manually (32 chars): ')" KVID
-  [ -n "$KVID" ] && { sed -i.bak -E "s/^id = \".*\"/id = \"$KVID\"/" wrangler.toml && rm -f wrangler.toml.bak; } || exit 1
+  [ -n "$KVID" ] && set_kv "$KVID" || exit 1
 fi
 
 echo ""; echo "$(t '[5/6] Nepovinne (Enter = preskocit).' '[5/6] Optional (Enter to skip).')"
 read -r -p "$(t '  PIN pro Google kalendar: ' '  PIN for Google Calendar: ')" PIN
 [ -n "$PIN" ] && printf '%s' "$PIN" | WR secret put CAL_PIN || true
 read -r -p "$(t '  ntfy.sh tema pro upozorneni: ' '  ntfy.sh topic for alerts: ')" NTFY
-[ -n "$NTFY" ] && { sed -i.bak -E "s/^NTFY_TOPIC = \".*\"/NTFY_TOPIC = \"$NTFY\"/" wrangler.toml && rm -f wrangler.toml.bak; }
+[ -n "$NTFY" ] && printf '%s' "$NTFY" | WR secret put NTFY_TOPIC || true
 read -r -p "$(t '  Resend API klic (e-mail z Hlidace): ' '  Resend API key (Watcher e-mail): ')" RSND
 [ -n "$RSND" ] && printf '%s' "$RSND" | WR secret put RESEND_KEY || true
 

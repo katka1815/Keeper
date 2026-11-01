@@ -1,0 +1,19 @@
+# Nepovinné secrets / Optional secrets. Všechno může zůstat prázdné, appka pak danou
+# funkci jen vypne. / Everything may stay empty; the app then just switches that feature off.
+# Tlačítko Deploy to Cloudflare se na ně zeptá při instalaci; jinak: wrangler secret put <NÁZEV>.
+# Pro `wrangler dev` si soubor zkopíruj jako .dev.vars (ten do gitu nepatří).
+
+# Téma na ntfy.sh pro upozornění do telefonu. Vymysli dlouhé náhodné, funguje jako heslo.
+# Topic on ntfy.sh for phone alerts. Make it long and random, it works like a password.
+NTFY_TOPIC=
+
+# PIN ke Google Kalendáři. Bez něj je kalendář vypnutý. / PIN for Google Calendar; empty = off.
+CAL_PIN=
+# Z Google Cloud Console, postup v README. / From Google Cloud Console, steps in the README.
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# E-mail z Hlídače přes resend.com. / Watcher e-mail via resend.com.
+RESEND_KEY=
+# Odesílatel s ověřenou doménou; prázdné = onboarding@resend.dev. / Sender on a verified domain.
+RESEND_FROM=

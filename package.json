@@ -1,0 +1,32 @@
+{
+  "name": "rozcestnik",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rozcestník: your own dashboard on Cloudflare Workers, encrypted from the start.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/run.js"
+  },
+  "cloudflare": {
+    "bindings": {
+      "NTFY_TOPIC": {
+        "description": "Optional, leave empty. A long random topic on [ntfy.sh](https://ntfy.sh) for phone alerts. / Nepovinné, nech prázdné. Téma na ntfy.sh pro upozornění do telefonu."
+      },
+      "CAL_PIN": {
+        "description": "Optional, leave empty. A PIN that switches on Google Calendar. / Nepovinné, nech prázdné. PIN, kterým zapneš Google Kalendář."
+      },
+      "GOOGLE_CLIENT_ID": {
+        "description": "Optional, leave empty. For Google Calendar, steps in the README. / Nepovinné, nech prázdné. Pro Google Kalendář, postup v README."
+      },
+      "GOOGLE_CLIENT_SECRET": {
+        "description": "Optional, leave empty. For Google Calendar, steps in the README. / Nepovinné, nech prázdné. Pro Google Kalendář, postup v README."
+      },
+      "RESEND_KEY": {
+        "description": "Optional, leave empty. A [Resend](https://resend.com) API key for Watcher e-mails. / Nepovinné, nech prázdné. Klíč k Resendu pro e-maily z Hlídače."
+      },
+      "RESEND_FROM": {
+        "description": "Optional, leave empty. Sender address on a domain verified in Resend. / Nepovinné, nech prázdné. Odesílatel na doméně ověřené v Resendu."
+      }
+    }
+  }
+}

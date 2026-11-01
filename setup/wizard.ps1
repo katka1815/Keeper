@@ -3,11 +3,18 @@
 $ErrorActionPreference = "Stop"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
-while($dir -and -not (Test-Path (Join-Path $dir 'wrangler.toml'))){ $dir = Split-Path -Parent $dir }
+while($dir -and -not (Test-Path (Join-Path $dir 'wrangler.toml')) -and -not (Test-Path (Join-Path $dir 'wrangler.toml.example'))){ $dir = Split-Path -Parent $dir }
 if(-not $dir){ Write-Host "wrangler.toml nenalezen / not found"; Read-Host "Enter"; exit }
 Set-Location -Path $dir
 
 function Pause-End($msg){ Write-Host ""; Read-Host $msg | Out-Null }
+# KV id do wrangler.toml: prepise radek id, a kdyz chybi (sablona bez id), prida ho za binding = "KV".
+function Set-KvId($id){
+  $toml = Get-Content -Raw "wrangler.toml"
+  if($toml -match '(?m)^id\s*='){ $toml = [regex]::Replace($toml, '(?m)^id\s*=\s*".*?"', 'id = "' + $id + '"') }
+  else { $toml = [regex]::Replace($toml, '(?m)^(binding\s*=\s*"KV")[ \t]*(\r?\n)', '$1$2id = "' + $id + '"$2') }
+  Set-Content -Path "wrangler.toml" -Value $toml -NoNewline
+}
 
 Write-Host ""
 Write-Host "  ============================================"
@@ -108,19 +115,13 @@ $m = [regex]::Match($kvout, 'id\s*=\s*"([0-9a-fA-F]{32})"')
 if(-not $m.Success){ $m = [regex]::Match($kvout, '"id"\s*:\s*"([0-9a-fA-F]{32})"') }
 if($m.Success){
   $kvid = $m.Groups[1].Value
-  $toml = Get-Content -Raw "wrangler.toml"
-  $toml = [regex]::Replace($toml, '(?m)^id\s*=\s*".*?"', 'id = "' + $kvid + '"')
-  Set-Content -Path "wrangler.toml" -Value $toml -NoNewline
+  Set-KvId $kvid
   Write-Host ("  OK: KV id " + $kvid)
 } else {
   Write-Host (T "  Nepodarilo se automaticky precist KV id. Vypis vyse:" "  Could not auto-read the KV id. Output above:")
   Write-Host $kvout
   $kvid = Read-Host (T "  Vloz rucne 'id' z radku [[kv_namespaces]] (32 znaku)" "  Paste the 'id' from the [[kv_namespaces]] line (32 chars)")
-  if($kvid){
-    $toml = Get-Content -Raw "wrangler.toml"
-    $toml = [regex]::Replace($toml, '(?m)^id\s*=\s*".*?"', 'id = "' + ($kvid.Trim()) + '"')
-    Set-Content -Path "wrangler.toml" -Value $toml -NoNewline
-  } else { Pause-End (T "  Bez KV nelze pokracovat. Enter pro konec." "  Cannot continue without KV. Press Enter."); exit }
+  if($kvid){ Set-KvId ($kvid.Trim()) } else { Pause-End (T "  Bez KV nelze pokracovat. Enter pro konec." "  Cannot continue without KV. Press Enter."); exit }
 }
 
 # --- 5) Nepovinne: PIN a push ---
@@ -129,11 +130,7 @@ Write-Host (T "[5/6] Nepovinne nastaveni (vse muzes preskocit Enterem)." "[5/6] 
 $pin = Read-Host (T "  PIN pro Google kalendar (zapne kalendar)" "  PIN for Google Calendar (enables the calendar)")
 if($pin){ try { $pin | Wrangler secret put CAL_PIN } catch {} }
 $ntfy = Read-Host (T "  ntfy.sh tema pro upozorneni na rozbite odkazy" "  ntfy.sh topic for broken-link alerts")
-if($ntfy){
-  $toml = Get-Content -Raw "wrangler.toml"
-  $toml = [regex]::Replace($toml, '(?m)^NTFY_TOPIC\s*=\s*".*?"', 'NTFY_TOPIC = "' + ($ntfy.Trim()) + '"')
-  Set-Content -Path "wrangler.toml" -Value $toml -NoNewline
-}
+if($ntfy){ try { $ntfy.Trim() | Wrangler secret put NTFY_TOPIC } catch {} }
 $rsnd = Read-Host (T "  Resend API klic (e-mail z Hlidace, Enter = preskocit)" "  Resend API key (Watcher e-mail, Enter to skip)")
 if($rsnd){ try { $rsnd | Wrangler secret put RESEND_KEY } catch {} }
 $go2 = Read-Host (T "  Nastavit ted i Google Kalendar? (a/n) [doporuceno az pozdeji dle README]" "  Set up Google Calendar now? (y/n) [easier later per README]")
