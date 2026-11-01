@@ -4,7 +4,7 @@ Podklady pro nahrání rozšíření jako **veřejného** (On this site). Nahrá
 
 ## Postup
 
-1. Zabal rozšíření: `npx web-ext build -s extension` → `web-ext-artifacts/rozcestnik-1.0.0.zip`
+1. Zabal rozšíření: `npx web-ext build -s extension` → `web-ext-artifacts/rozcestnik-1.0.1.zip`
    (předtím `npx web-ext lint -s extension`; jediné varování o `background.service_worker`
    je v pořádku, je tam kvůli Chromu a Firefox ho přeskočí).
 2. https://addons.mozilla.org/developers/addon/rozcestnik@katka1815/versions/submit/
