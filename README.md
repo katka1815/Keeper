@@ -19,6 +19,8 @@ Web on your address  ◄──────────────────�
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/katka1815/Keeper)
 
+New to Cloudflare? A step-by-step page: **[katka1815.github.io/Keeper](https://katka1815.github.io/Keeper/)** · Cloudflare neznáš? Stránka krok za krokem: **[katka1815.github.io/Keeper](https://katka1815.github.io/Keeper/)**
+
 | | 🇬🇧 English | 🇨🇿 Česky |
 |---|---|---|
 | **1. Deploy to Cloudflare** (recommended · doporučeno) | Click the button above. You need free **Cloudflare** and **GitHub** accounts. Confirm the setup page; every optional field can stay empty. Storage (KV) and the hourly job are created for you. Your data lives in your own account and is encrypted from the first save. | Klikni na tlačítko výš. Potřebuješ účet na **Cloudflare** a na **GitHubu** (oba zdarma). Potvrď stránku s nastavením, všechna nepovinná pole můžou zůstat prázdná. Úložiště (KV) a hodinová úloha se založí samy. Data leží na tvém vlastním účtu a jsou šifrovaná od prvního uložení. |

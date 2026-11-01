@@ -22,7 +22,8 @@ function defaultBoard() {
     watches: [],
     watchHits: [],
     trash: [],
-    settings: { tz: "Europe/Prague", lang: "cs", dailyCleanup: "move", doneRetention: "week", quoteSep: "|", lastDailyKey: 0 },
+    settings: { tz: "Europe/Prague", lang: "cs", dailyCleanup: "move", doneRetention: "week", quoteSep: "|", lastDailyKey: 0,
+      look: { theme: "duna", dark: "on", art: { kind: "paint", id: "pissarro-pontoise" } } },
     meta: { lastCheckedAll: null },
   };
 }

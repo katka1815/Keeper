@@ -53,8 +53,12 @@ const gs = html.indexOf("const GD={cs:"), ge = html.indexOf("const gdT=");
 const GD = new Function(html.slice(gs, ge) + ";return GD;")();
 t("průvodce má obě jazykové verze se stejnými klíči", JSON.stringify(Object.keys(GD.cs)) === JSON.stringify(Object.keys(GD.en)));
 t("žádný text průvodce není prázdný", [...Object.values(GD.cs), ...Object.values(GD.en)].every((s) => typeof s === "string" && s.length > 1));
-t("po nastavení hesla se otevře průvodce", html.includes("x.status===200?lkDone(lkPend.kind,1)") && html.includes('location.replace("/?welcome=1")'));
-t("start průvodce ukáže a parametr z adresy uklidí", html.includes('get("welcome")==="1"){history.replaceState(null,"",location.pathname);gdShow();}'));
+t("po nastavení hesla se otevře průvodce", html.includes("x.status===200?lkDone(lkPend.kind,1,lkPend.name)") && html.includes('new URLSearchParams({welcome:"1"') && html.includes('location.replace("/?"+q)'));
+t("start průvodce ukáže a parametr z adresy uklidí", html.includes('wq.get("welcome")==="1"){history.replaceState(null,"",location.pathname);') && html.includes("gdShow();}"));
+t("název z obrazovky hesla se uloží jako nadpis", html.includes('lkF("name",T.name,"text","off")') && html.includes('name:v("name").trim().slice(0,60)') && html.includes("if(nm)s.title=nm;"));
+const lkA = html.indexOf("const LK={cs:"), lkB = html.indexOf("};", html.indexOf(" en:{setupH:", lkA));
+const LKo = new Function(html.slice(lkA, lkB + 2) + ";return LK;")();
+t("kolonka pro název má text česky i anglicky", LKo.cs.name && LKo.en.name && LKo.cs.nameNote && LKo.en.nameNote);
 t("průvodce jde otevřít z Nastavení", html.includes("${gdSettingsHtml()}") && html.includes('data-act="gd-open"'));
 t("QR nevolá žádnou cizí službu", !/qrserver|chart\.googleapis|quickchart/i.test(html));
 

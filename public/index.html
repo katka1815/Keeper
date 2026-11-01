@@ -50,6 +50,10 @@
   .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   .acts .grp{display:flex;gap:8px;flex-wrap:wrap}
   .acts .grp+.grp{border-left:1px solid var(--lineStrong);padding-left:8px}
+  .acts .langs{gap:4px;align-items:center}
+  .flag{display:inline-flex;padding:5px;border:1px solid transparent;border-radius:var(--r);background:none;opacity:.45}
+  .flag svg{display:block;border-radius:2px;outline:1px solid var(--line)}
+  .flag:hover{opacity:.8}.flag.on{opacity:1;border-color:var(--lineStrong)}
   .health-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
   .btn.on{border-color:var(--ink);font-weight:500;background:var(--lineSoft)}
   .linkbtn.on{color:var(--ink);font-weight:500}
@@ -130,7 +134,8 @@
   .item .t{flex:1;font-size:14px;word-break:break-word}
   .item.done-i .t{color:var(--muted)}
   .donelist{overflow:auto;min-height:60px}
-  .col-done .donelist{flex:1}
+  .col-done .donelist,.col-want .goallist{flex:1}
+  .col-want{display:flex;flex-direction:column}.col-want .goallist{min-height:60px}
   .caret{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:2px 6px}
   .block.collapsed .cols{display:none}
   .bgrip{cursor:grab;color:var(--muted);font-size:14px;user-select:none}
@@ -323,6 +328,7 @@ section:hover>.sec-rz-x,section:hover>.sec-rz-y{opacity:1;background:var(--lineS
         <button class="btn" data-act="toggle-settings" id="setBtn">Nastavení</button>
         <button class="btn" data-act="toggle-faq" id="faqHeaderBtn">FAQ</button>
       </div>
+      <div class="grp langs"><button class="flag" data-act="lang-pick" data-lang="cs" title="Čeština"><svg viewBox="0 0 6 4" width="21" height="14" aria-hidden="true"><rect width="6" height="4" fill="#d7141a"/><rect width="6" height="2" fill="#fff"/><path d="M0 0L3 2L0 4z" fill="#11457e"/></svg></button><button class="flag" data-act="lang-pick" data-lang="en" title="English"><svg viewBox="0 0 60 30" width="28" height="14" aria-hidden="true"><clipPath id="ukClip"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath><path d="M0,0v30h60v-30z" fill="#012169"/><path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0L60,30M60,0L0,30" clip-path="url(#ukClip)" stroke="#C8102E" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></svg></button></div>
     </div>
     <div class="health-row"><div class="health" id="health"></div><button class="btn primary" id="checkAll">Zkontrolovat vše</button></div>
     <div class="lastcheck" id="lastcheck"></div>
@@ -526,6 +532,7 @@ function toTrash(kind,label,payload){state.board.trash=state.board.trash||[];sta
 
 /* ---------- render ---------- */
 function applyLang(){applyLook();L=DICT[state.board.settings.lang==="en"?"en":"cs"];document.documentElement.lang=state.board.settings.lang==="en"?"en":"cs";
+  document.querySelectorAll(".flag").forEach(b=>b.classList.toggle("on",b.dataset.lang===document.documentElement.lang));
   $("eyebrow").textContent=L.eyebrow;$("setBtn").textContent=L.settings;$("trashBtn").textContent=L.trash;$("qBtn").textContent=L.quotesBtn;
   $("qTitleTxt").textContent=L.myQuotes;$("bulkQuotes").placeholder=L.bulkPh;$("bulkAuthor").placeholder=L.bulkAuthor;$("addQuotesBtn").textContent=L.addQuotes;
   $("search").placeholder=L.search;$("obLabel").textContent=L.onlyBroken;renderLayEdit();$("blocksTitle").textContent=L.blocksTitle;$("areasTitle").textContent=L.areasTitle;$("addAreaTopBtn").textContent="+ "+L.newArea;$("blocksTabBtn").textContent=L.tabBlocks;$("blocksTabBtn").title=L.blocksTitle;$("tasksTabBtn").textContent=L.tabTasks;$("tasksTabBtn").title=L.tasks;$("areasTabBtn").textContent=L.tabAreas;$("areasTabBtn").title=L.areasTitle;$("addBlockBtn").textContent=L.addBlock;
@@ -580,7 +587,7 @@ function renderBlocks(){
       <div class="block-head"><span class="block-title" style="color:${readableInk(col)}"><span class="bgrip" draggable="true" data-grip="${b.id}" title="↕">⠿</span><button class="caret" data-act="toggle-block" data-id="${b.id}">${b.collapsed?'▸':'▾'}</button>${esc(b.name)} <span class="block-meta" style="color:var(--muted)">${meta}</span></span>
         <span style="display:flex;align-items:center;gap:2px"><input type="color" class="bcolor" data-act="block-color" data-id="${b.id}" value="${col}" title="${L.fColor}"/><button class="icon" data-act="rename-block" data-id="${b.id}">✎</button><button class="icon danger" data-act="del-block" data-id="${b.id}">🗑</button></span></div>
       <div class="cols">
-        <div class="col"><div class="col-h">${L.want}</div>${goals}<button class="add" data-act="add-goal" data-id="${b.id}">${L.addGoal}</button></div>
+        <div class="col col-want"><div class="col-h">${L.want}</div><div class="goallist">${goals}</div><button class="add" data-act="add-goal" data-id="${b.id}">${L.addGoal}</button></div>
         <div class="col"><div class="col-h">${L.doing}</div>${doings}</div>
         <div class="col col-done"><div class="col-h"><span>${L.done}</span><span style="display:flex;align-items:center;gap:4px"><span style="font-size:10px">${L.blockRet}</span>${retSel}<button class="icon" data-act="clear-done" data-id="${b.id}">${L.clearDone}</button></span></div><div class="donelist">${dones}</div><button class="add" data-act="add-done" data-id="${b.id}">${L.addDone}</button></div>
       </div></div>`;
@@ -592,7 +599,8 @@ function syncDoneHeights(){
   document.querySelectorAll("#blocksEl .block").forEach(bl=>{
     const cols=bl.querySelector(".cols");if(!cols)return;
     const left=cols.children[0],right=cols.querySelector(".col-done");if(!left||!right)return;
-    if(mobile){right.style.height="";}else{right.style.height=Math.max(120,left.offsetHeight)+"px";}
+    left.style.minHeight="";
+    if(mobile){right.style.height="";}else{const h=Math.max(120,left.offsetHeight)+"px";right.style.height=h;left.style.minHeight=h;}
   });
 }
 
@@ -1044,6 +1052,7 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
   else if(act==="cal-save"){saveCalEvent(el);}
   else if(act==="cal-delete"){deleteCalEvent(id);}
   else if(act==="toggle-share"){const p=$("sharePanel");if(p.style.display==="block"){p.style.display="none";}else{openShare();}}
+  else if(act==="lang-pick"){state.board.settings.lang=el.dataset.lang;applyLang();save();render();}
   else if(act==="toggle-faq"){const p=$("faqPanel");if(p.style.display==="block"){p.style.display="none";}else{p.style.display="block";renderFaq();}}
   else if(act==="toggle-cycle"){const p=$("cyclePanel");if(p.style.display==="block"){p.style.display="none";}else{openCycle();}}
   else if(act==="toggle-lend"){const p=$("lendPanel");if(p.style.display==="block"){p.style.display="none";}else{renderLend();p.style.display="block";}}
@@ -2554,7 +2563,7 @@ document.head.insertAdjacentHTML("beforeend",`<style>
    (přihlašovací klíč) a druhá zůstává pro šifrování dat. Přihlášení drží cookie HttpOnly.
    Cizí zařízení: odhlásí se po 20 min nečinnosti a po zavření karty (značka v sessionStorage).
    Server na zamčené API odpoví 401 s hlavičkou x-rz-lock; obal fetch pak stránku zamkne. */
-const LK={cs:{setupH:"Zamkni si Rozcestník",setupP:"Nastav heslo. Bez něj se k tvým datům nikdo nedostane. Nejlepší je pár slov, třeba modrý-kocour-pije-čaj.",
+const LK={cs:{setupH:"Zamkni si Rozcestník",name:"Jak se má tvůj Rozcestník jmenovat",nameNote:"Uvidíš to nahoře v appce. Změnit to jde kdykoli v Nastavení.",setupP:"Nastav heslo. Bez něj se k tvým datům nikdo nedostane. Nejlepší je pár slov, třeba modrý-kocour-pije-čaj.",
   pass:"Heslo",pass2:"Heslo znovu",hint:"Nápověda (nepovinná)",hintNote:"Nápovědu uvidí každý, kdo zná adresu appky. Nesmí heslo prozradit.",
   dev:"Tohle zařízení",devT:"Moje zařízení – pamatovat přihlášení",devF:"Cizí zařízení – odhlásit po 20 minutách nečinnosti nebo po zavření karty",
   next:"Pokračovat",codeH:"Tvůj záchranný kód",codeP:"Když zapomeneš heslo, odemkneš appku jen tímhle kódem. Ulož si ho mimo tohle zařízení: vytiskni, vyfoť nebo dej do správce hesel. Bez hesla i kódu se k datům nedostane nikdo, ani ty.",
@@ -2574,7 +2583,7 @@ const LK={cs:{setupH:"Zamkni si Rozcestník",setupP:"Nastav heslo. Bez něj se k
   e2eKidBad:"Tahle záloha je zašifrovaná jiným klíčem, tady ji otevřít nejde.",
   shImg:"Obrázky ve sdílení",shImgEnc:"Šifrované (příjemce je neuvidí)",shImgPlain:"Čitelné (příjemce je uvidí)",
   shImgWarn:"Obrázky budou na serveru čitelné, takže tahle data dostane služba Cloudflare."},
- en:{setupH:"Lock your Rozcestník",setupP:"Set a password. Without it nobody gets to your data. A few words work best, e.g. blue-cat-drinks-tea.",
+ en:{setupH:"Lock your Rozcestník",name:"What should your Rozcestník be called",nameNote:"You'll see it at the top of the app. You can change it any time in Settings.",setupP:"Set a password. Without it nobody gets to your data. A few words work best, e.g. blue-cat-drinks-tea.",
   pass:"Password",pass2:"Password again",hint:"Hint (optional)",hintNote:"Anyone who knows the app's address can see the hint. It must not give the password away.",
   dev:"This device",devT:"My device – stay signed in",devF:"Someone else's device – sign out after 20 minutes idle or when the tab closes",
   next:"Continue",codeH:"Your recovery code",codeP:"If you forget the password, only this code unlocks the app. Keep it off this device: print it, photograph it or put it in a password manager. Without the password and the code nobody can get to the data, not even you.",
@@ -2629,7 +2638,7 @@ function lkShow(mode){lkMode=mode;const T=lkT(),closable=/^(change|newcode|e2e)/
   if(!el){el=document.createElement("div");el.id="lk";el.className="lk";document.body.appendChild(el);}
   const go=(label,dis)=>`<div class="lk-err" id="lk_err" role="alert"></div><button class="btn lk-go" id="lk_go"${dis?" disabled":""}>${esc(label)}</button>`;
   const body={
-    setup:`<h2>${esc(T.setupH)}</h2><p>${esc(T.setupP)}</p>${lkF("p",T.pass,"password","new-password")}${lkF("p2",T.pass2,"password","new-password")}${lkF("hint",T.hint,"text","off")}<p class="lk-small">${esc(T.hintNote)}</p>${lkDevHtml()}${go(T.next)}`,
+    setup:`<h2>${esc(T.setupH)}</h2>${lkF("name",T.name,"text","off")}<p class="lk-small">${esc(T.nameNote)}</p><p>${esc(T.setupP)}</p>${lkF("p",T.pass,"password","new-password")}${lkF("p2",T.pass2,"password","new-password")}${lkF("hint",T.hint,"text","off")}<p class="lk-small">${esc(T.hintNote)}</p>${lkDevHtml()}${go(T.next)}`,
     "setup-code":lkCodeHtml()+go(T.done,true),
     login:`<h2>${esc(T.loginH)}</h2>${lkF("p",T.pass,"password","current-password")}${lkDevHtml()}${go(T.unlock)}
       <div class="lk-links">${lkInfo&&lkInfo.hint?`<button type="button" class="linkbtn" data-act="lk-hint">${esc(T.showHint)}</button>`:""}<button type="button" class="linkbtn" data-act="lk-forgot">${esc(T.forgot)}</button></div><p id="lk_hint" hidden></p>`,
@@ -2646,18 +2655,20 @@ function lkShow(mode){lkMode=mode;const T=lkT(),closable=/^(change|newcode|e2e)/
 function lkHide(){lkMode=null;const el=$("lk");if(el){el.style.display="none";el.innerHTML="";}if(!tidyModalOpenNow())document.body.classList.remove("tidy-lock");}
 function lkErr(m){const e=$("lk_err"),b=$("lk_go");if(e)e.textContent=m||"";if(b)b.disabled=false;}
 function lkWhy(x){const T=lkT();return x.status===429?T.blocked:x.status===403?T.wrong:T.net;}
-function lkDone(kind,welcome){lkForeign(kind==="f");if(!welcome)return lkReload();lkMode="out";location.replace("/?welcome=1");}
+// Po prvním nastavení nese adresa i název a jazyk z obrazovky hesla; start() je uloží do nástěnky.
+function lkDone(kind,welcome,name){lkForeign(kind==="f");if(!welcome)return lkReload();lkMode="out";
+  const q=new URLSearchParams({welcome:"1",lang:lkT()===LK.en?"en":"cs"});if(name)q.set("name",name);location.replace("/?"+q);}
 async function lkSubmit(){const T=lkT(),mode=lkMode,v=id=>(($("lk_"+id)||{}).value||""),fail=m=>lkErr(m);
   const kind=(document.querySelector("input[name=lk_dev]:checked")||{}).value==="f"?"f":"t";
   const newPass=()=>{const p=v("p");if(p.length<12){fail(T.short);return null;}if(p!==v("p2")){fail(T.mismatch);return null;}return p;};
   const busy=()=>{const e=$("lk_err"),b=$("lk_go");if(e)e.textContent=T.working;if(b)b.disabled=true;};
   try{
-    if(mode==="setup"){const p=newPass();if(!p)return;lkPend={p,hint:v("hint"),kind};lkCode=lkNewCode();return lkShow("setup-code");}
+    if(mode==="setup"){const p=newPass();if(!p)return;lkPend={p,hint:v("hint"),kind,name:v("name").trim().slice(0,60)};lkCode=lkNewCode();return lkShow("setup-code");}
     if(mode==="setup-code"){busy();const salt=lkRand(16),rsalt=lkRand(16),a=await lkDerive(lkPend.p,salt,LK_ITER),r=await lkDerive(lkNormCode(lkCode),rsalt,LK_ITER);
       const n=await e2eNewKeys(),wdk=await e2eWrap(a.enc,n.dkRaw),rwdk=await e2eWrap(r.enc,n.dkRaw);
       const x=await lkPost("/api/auth/setup",{key:a.key,salt,iter:LK_ITER,rkey:r.key,rsalt,hint:lkPend.hint,kind:lkPend.kind,...n.keys,wdk,rwdk});
       if(x.status===200)await e2eStore(lkPend.kind,n.keys.kid,n.dkRaw,{...n.keys,wdk});
-      return x.status===200?lkDone(lkPend.kind,1):x.status===409?lkDone(lkPend.kind):fail(T.net);}
+      return x.status===200?lkDone(lkPend.kind,1,lkPend.name):x.status===409?lkDone(lkPend.kind):fail(T.net);}
     if(mode==="login"){const p=v("p");if(!p)return;busy();const a=await lkDerive(p,lkInfo.salt,lkInfo.iter),x=await lkPost("/api/auth/login",{key:a.key,kind});
       if(x.status!==200)return fail(lkWhy(x));await e2eAfterAuth(a.enc,kind);return lkDone(kind);}
     if(mode==="recover"){const p=newPass();if(!p)return;busy();const rs=await lkPost("/api/auth/recover-salt");if(rs.status!==200)return fail(T.net);
@@ -3119,7 +3130,9 @@ async function start(){
   if(e2e)setTimeout(e2eSealImagesLoop,4000);
   if(new URLSearchParams(location.search).get("cal")==="1"){openCal();}
   if(new URLSearchParams(location.search).get("shares")==="1"){openShare();}
-  if(new URLSearchParams(location.search).get("welcome")==="1"){history.replaceState(null,"",location.pathname);gdShow();}
+  const wq=new URLSearchParams(location.search);
+  if(wq.get("welcome")==="1"){history.replaceState(null,"",location.pathname);const s=state.board.settings,nm=(wq.get("name")||"").trim().slice(0,60);
+    if(nm)s.title=nm;if(wq.get("lang")==="en"||wq.get("lang")==="cs")s.lang=wq.get("lang");if(nm||wq.get("lang")){applyLang();render();save();}gdShow();}
 }
 start();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshState();});

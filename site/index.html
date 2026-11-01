@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vlastní Rozcestník</title>
+<meta name="description" content="Osobní nástěnka na odkazy, úkoly a cíle. Na vašem vlastním účtu, zdarma." />
+<style>
+  /* Uvítací stránka pro ostatní (GitHub Pages). Jen statický soubor, žádné cizí služby. */
+  :root{--paper:#120e14;--panel:#1b161d;--ink:#efe9f1;--muted:#aba1b0;--line:#2e2731;--lineStrong:#564b5a;--sun:#dea367;--sunInk:#1b0624;--r:10px;
+    --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55}
+  .art{height:220px;background:url("pissarro-pontoise.webp") center 35%/cover;-webkit-mask-image:linear-gradient(180deg,#000 55%,transparent);mask-image:linear-gradient(180deg,#000 55%,transparent)}
+  main{max-width:680px;margin:-40px auto 0;padding:0 16px 48px;position:relative}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .eyebrow{font-size:11px;letter-spacing:.28em;color:var(--muted)}
+  h1{font-size:30px;font-weight:600;margin:6px 0 10px;line-height:1.2}
+  .lead{color:var(--muted);margin:0 0 22px}
+  .langs{display:flex;gap:4px}
+  .flag{display:inline-flex;padding:5px;border:1px solid transparent;border-radius:var(--r);background:none;cursor:pointer;opacity:.45}
+  .flag svg{display:block;border-radius:2px;outline:1px solid var(--line)}
+  .flag:hover{opacity:.8}.flag.on{opacity:1;border-color:var(--lineStrong)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin:0 0 18px}
+  .card p{margin:0 0 10px}.card p:last-child{margin:0}
+  .go{display:block;text-align:center;background:var(--sun);color:var(--sunInk);font-weight:600;font-size:18px;text-decoration:none;padding:15px 18px;border-radius:var(--r);margin:4px 0 8px}
+  .go:hover{filter:brightness(1.06)}
+  .go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .small{font-size:13px;color:var(--muted)}
+  .note{border-left:3px solid var(--sun);padding:10px 14px;background:var(--panel);border-radius:0 var(--r) var(--r) 0;margin:0 0 22px}
+  h2{font-size:17px;font-weight:600;margin:28px 0 10px}
+  ol{margin:0;padding-left:22px}ol li{margin:0 0 12px}ol li::marker{color:var(--sun);font-weight:600}
+  b{font-weight:600}
+  code{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:14px;background:var(--line);padding:1px 5px;border-radius:4px}
+  a{color:var(--sun)}
+  footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--line)}
+  [data-l]{display:none}
+  html[lang="cs"] [data-l="cs"],html[lang="en"] [data-l="en"]{display:revert}
+</style>
+</head>
+<body>
+<div class="art" role="img" aria-label="Camille Pissarro: Slunce na cestě, Pontoise (1874)"></div>
+<main>
+  <div class="top">
+    <div class="eyebrow"><span data-l="cs">OSOBNÍ ARCHIV</span><span data-l="en">PERSONAL ARCHIVE</span></div>
+    <div class="langs">
+      <button class="flag" data-lang="cs" title="Čeština"><svg viewBox="0 0 6 4" width="21" height="14" aria-hidden="true"><rect width="6" height="4" fill="#d7141a"/><rect width="6" height="2" fill="#fff"/><path d="M0 0L3 2L0 4z" fill="#11457e"/></svg></button>
+      <button class="flag" data-lang="en" title="English"><svg viewBox="0 0 60 30" width="28" height="14" aria-hidden="true"><clipPath id="ukClip"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath><path d="M0,0v30h60v-30z" fill="#012169"/><path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0L60,30M60,0L0,30" clip-path="url(#ukClip)" stroke="#C8102E" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></svg></button>
+    </div>
+  </div>
+
+  <div data-l="cs">
+    <h1>Vlastní Rozcestník</h1>
+    <p class="lead">Osobní nástěnka na odkazy, úkoly, cíle a poznámky. Každý ji má na svém vlastním účtu, zdarma, a nikdo jiný do ní nevidí.</p>
+    <div class="card">
+      <p>Pokud chcete vlastní Rozcestník, klikněte na tlačítko <b>Přidat Cloudflare</b> níže. Vytvoří se váš osobní účet u Cloudflare a v něm budou data vašeho Rozcestníku.</p>
+      <a class="go" href="https://deploy.workers.cloudflare.com/?url=https://github.com/katka1815/Keeper">Přidat Cloudflare</a>
+      <p class="small">Cloudflare je služba, na které Rozcestník poběží. Pro jednoho člověka je zdarma a nechce platební kartu.</p>
+    </div>
+    <div class="note"><b>Název svého Rozcestníku napíšete až v něm</b>, na první obrazovce spolu s heslem. Na stránkách Cloudflare nic nepřejmenovávejte ani nevyplňujte, všechno se nastaví samo.</div>
+
+    <h2>Co vás čeká (asi 5 minut)</h2>
+    <ol>
+      <li><b>Přihlášení u Cloudflare.</b> Po kliknutí na tlačítko se otevře Cloudflare. Přihlaste se, nebo si založte účet. Jde to i přes Google.</li>
+      <li><b>Propojení s GitHubem.</b> Cloudflare si do vašeho účtu na GitHubu uloží kopii programu, ze které Rozcestník poběží. Když GitHub nemáte, založte si ho. Je taky zdarma.</li>
+      <li><b>Stránka s nastavením.</b> Nic na ní neměňte. Kolonky pro nepovinné služby nechte prázdné a dole klikněte na <b>Create and deploy</b>. Za minutu je hotovo.</li>
+      <li><b>Adresa vašeho Rozcestníku.</b> Klikněte na odkaz, který končí na <code>.workers.dev</code>, a uložte si ho do záložek. Je jen váš, s nikým jiným ho nesdílíte.</li>
+      <li><b>První obrazovka.</b> Napište, jak se má váš Rozcestník jmenovat, a nastavte heslo. Pak vám appka ukáže, jak si ji dát do telefonu a do prohlížeče.</li>
+    </ol>
+
+    <footer class="small">
+      <p>Data leží jen na vašem účtu u Cloudflare. Autorka Rozcestníku k nim přístup nemá. Texty a poznámky jsou šifrované od prvního uložení, takže je nepřečte ani Cloudflare.</p>
+      <p>Raději přes vlastní počítač? Návod je v <a href="https://github.com/katka1815/Keeper#readme">popisu projektu</a>. Kód je otevřený (MIT).</p>
+      <p>Obraz: Camille Pissarro, Slunce na cestě, Pontoise (1874), volné dílo.</p>
+    </footer>
+  </div>
+
+  <div data-l="en">
+    <h1>Your own Rozcestník</h1>
+    <p class="lead">A personal board for links, tasks, goals and notes. Everyone runs it on their own account, for free, and nobody else can see into it.</p>
+    <div class="card">
+      <p>If you want your own Rozcestník, click the <b>Add Cloudflare</b> button below. It creates your personal Cloudflare account, and your Rozcestník's data will live in it.</p>
+      <a class="go" href="https://deploy.workers.cloudflare.com/?url=https://github.com/katka1815/Keeper">Add Cloudflare</a>
+      <p class="small">Cloudflare is the service Rozcestník runs on. For one person it's free and needs no credit card.</p>
+    </div>
+    <div class="note"><b>You name your Rozcestník inside it</b>, on the first screen together with the password. Don't rename or fill in anything on the Cloudflare pages; everything sets itself up.</div>
+
+    <h2>What happens next (about 5 minutes)</h2>
+    <ol>
+      <li><b>Sign in to Cloudflare.</b> The button opens Cloudflare. Sign in or create an account. Google sign-in works too.</li>
+      <li><b>Connect GitHub.</b> Cloudflare saves a copy of the program to your GitHub account and runs Rozcestník from it. If you don't have GitHub, create an account. It's free as well.</li>
+      <li><b>The settings page.</b> Don't change anything. Leave the fields for optional services empty and click <b>Create and deploy</b> at the bottom. It's done in about a minute.</li>
+      <li><b>Your Rozcestník's address.</b> Click the link ending in <code>.workers.dev</code> and bookmark it. It's yours alone, shared with nobody.</li>
+      <li><b>The first screen.</b> Type what your Rozcestník should be called and set a password. The app then shows you how to add it to your phone and your browser.</li>
+    </ol>
+
+    <footer class="small">
+      <p>Your data lives only on your Cloudflare account. The author of Rozcestník has no access to it. Texts and notes are encrypted from the first save, so not even Cloudflare can read them.</p>
+      <p>Prefer your own computer? The guide is in the <a href="https://github.com/katka1815/Keeper#readme">project description</a>. The code is open (MIT).</p>
+      <p>Painting: Camille Pissarro, Sunlight on the Road, Pontoise (1874), public domain.</p>
+    </footer>
+  </div>
+</main>
+<script>
+  // jazyk: uložená volba, jinak podle prohlížeče
+  const T = { cs: ["Vlastní Rozcestník", "Osobní nástěnka na odkazy, úkoly a cíle. Na vašem vlastním účtu, zdarma."],
+              en: ["Your own Rozcestník", "A personal board for links, tasks and goals. On your own account, for free."] };
+  function setLang(l) {
+    document.documentElement.lang = l;
+    document.title = T[l][0];
+    document.querySelector('meta[name="description"]').content = T[l][1];
+    document.querySelectorAll(".flag").forEach((b) => b.classList.toggle("on", b.dataset.lang === l));
+  }
+  let saved = null;
+  try { saved = localStorage.getItem("rozc_lang"); } catch (e) {}
+  setLang(saved === "cs" || saved === "en" ? saved : /^(cs|sk)/i.test(navigator.language || "") ? "cs" : "en");
+  document.querySelectorAll(".flag").forEach((b) => b.addEventListener("click", () => {
+    setLang(b.dataset.lang);
+    try { localStorage.setItem("rozc_lang", b.dataset.lang); } catch (e) {}
+  }));
+</script>
+</body>
+</html>
