@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Sdíleno – Rozcestník</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
 <style>
 :root{--bg:#ffffff;--card:#ffffff;--ink:#252525;--muted:#8e8e8e;--caption:#a8a8a8;--teal:#252525;--ok:#ebebeb;--broken:#7a2e2e;--line:#ebebeb}
 *{box-sizing:border-box}
@@ -93,7 +90,9 @@ function render(){
         if(a.type==="text") h+='<div class="item edit"><input id="e1" value="'+esc(l.text)+'"><div class="erow"><button data-act="save-ai" data-area="'+a.id+'" data-item="'+l.id+'" data-type="text">Uložit</button><button class="ghost" data-act="cancel">Zrušit</button></div></div>';
         else h+='<div class="item edit"><input id="e1" placeholder="název" value="'+esc(l.title||"")+'"><input id="e2" placeholder="https://" value="'+esc(l.url||"")+'"><div class="erow"><button data-act="save-ai" data-area="'+a.id+'" data-item="'+l.id+'" data-type="links">Uložit</button><button class="ghost" data-act="cancel">Zrušit</button></div></div>';
       } else {
-        var main = a.type==="text" ? esc(l.text) : '<a href="'+esc(l.url)+'" target="_blank" rel="noreferrer">'+esc(l.title||l.url)+'</a>'+(l.status==="broken"?' <span class="broken">(nedostupné)</span>':'');
+        // zašifrovaný obrázek (sdílení bez čitelných obrázků) příjemce neotevře
+        var locked = !data.images && /\/api\/img\//.test(l.url||"") && a.type!=="text";
+        var main = a.type==="text" ? esc(l.text) : locked ? esc(l.title||"")+' <span class="muted">🔒 šifrovaný obrázek</span>' : '<a href="'+esc(l.url)+'" target="_blank" rel="noreferrer">'+esc(l.title||l.url)+'</a>'+(l.status==="broken"?' <span class="broken">(nedostupné)</span>':'');
         h+='<div class="item">'+main+(ed?'<span class="ctrl"><button class="mini" data-act="edit-ai" data-area="'+a.id+'" data-item="'+l.id+'">✎</button><button class="mini del" data-act="del-ai" data-area="'+a.id+'" data-item="'+l.id+'">×</button></span>':'')+'</div>';
       }
     });

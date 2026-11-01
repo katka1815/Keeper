@@ -126,7 +126,7 @@ if($m.Success){
 # --- 5) Nepovinne: PIN a push ---
 Write-Host ""
 Write-Host (T "[5/6] Nepovinne nastaveni (vse muzes preskocit Enterem)." "[5/6] Optional settings (press Enter to skip each).")
-$pin = Read-Host (T "  PIN pro kalendar a cyklus (zapne tyto funkce)" "  PIN for calendar and cycle (enables those features)")
+$pin = Read-Host (T "  PIN pro Google kalendar (zapne kalendar)" "  PIN for Google Calendar (enables the calendar)")
 if($pin){ try { $pin | Wrangler secret put CAL_PIN } catch {} }
 $ntfy = Read-Host (T "  ntfy.sh tema pro upozorneni na rozbite odkazy" "  ntfy.sh topic for broken-link alerts")
 if($ntfy){

@@ -22,11 +22,12 @@ crons = ["0 * * * *"]
 [vars]
 NTFY_TOPIC = ""
 
-# Heslo pro běžný web tato verze NEPOUŽÍVÁ – odkazy a úkoly jsou otevřené.
+# Heslo k appce se nastavuje v appce při prvním otevření (ne tady). Otevři ji hned po
+# nasazení, jinak ho nastaví ten, kdo ji otevře první. Cyklus má vlastní heslo a šifruje se
+# v prohlížeči; CAL_PIN už nepotřebuje.
 
 # ---- VOLITELNÉ: Google Kalendář (obousměrný) ----
-# Funkce je VYPNUTÁ, dokud nenastavíš CAL_PIN. Kalendář je pak schovaný za PINem,
-# zbytek appky zůstává otevřený. Tyto tři hodnoty NIKDY nepiš sem do souboru –
+# Funkce je VYPNUTÁ, dokud nenastavíš CAL_PIN. Kalendář je pak navíc schovaný za PINem. Tyto tři hodnoty NIKDY nepiš sem do souboru –
 # ulož je jako šifrované Worker secrets (po nasazení), aby se nedostaly do gitu:
 #
 #   wrangler secret put CAL_PIN              # tvůj PIN/heslo ke kalendáři

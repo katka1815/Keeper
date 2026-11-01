@@ -5,7 +5,7 @@ Stav: schváleno k rozpracování do implementačního plánu
 
 ## Proč
 
-Katka má na desce záložku s doporučenými divadly a chce vědět, až se konkrétní
+Uživatelka má na desce záložku s doporučenými divadly a chce vědět, až se konkrétní
 inscenace objeví v programu. Ruční obcházení webů jednou za čas nefunguje —
 člověk to přestane dělat dřív, než se inscenace vypíše.
 

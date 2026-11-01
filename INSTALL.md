@@ -12,8 +12,10 @@ Na začátku si vybereš: **dostupné odkudkoliv** (běží v tvém Cloudflare �
 2. Dvojklikni na **`Click this to install the app.bat`**.
 3. Průvodce postupně: zkontroluje (a případně doinstaluje) **Node.js**, přihlásí tě do
    **Cloudflare** (otevře prohlížeč), vytvoří ti **vlastní úložiště (KV)** a id rovnou doplní
-   do nastavení, nepovinně se zeptá na **PIN** a téma upozornění, **nasadí** appku a na konci
-   ukáže (a otevře) tvou adresu `…workers.dev`.
+   do nastavení, nepovinně se zeptá na **PIN ke kalendáři** a téma upozornění, **nasadí** appku
+   a na konci ukáže (a otevře) tvou adresu `…workers.dev`.
+4. **Hned ji otevři a nastav si heslo.** Dokud heslo není nastavené, appka je otevřená a heslo
+   nastaví ten, kdo ji otevře první. Dostaneš i záchranný kód, ulož si ho mimo počítač.
 
 > Když Windows zobrazí modré okno „Windows ochránil váš počítač", klikni na **Další informace
 > → Přesto spustit** (objeví se to jen proto, že soubor není podepsaný certifikátem).
@@ -54,8 +56,10 @@ At the start you choose: **from anywhere** (runs in your Cloudflare — private,
 2. Double-click **`Click this to install the app.bat`**.
 3. The wizard will: check (and optionally install) **Node.js**, log you into **Cloudflare**
    (opens a browser), create **your own storage (KV)** and write its id into the config,
-   optionally ask for a **PIN** and an alert topic, **deploy** the app and finally show (and
-   open) your `…workers.dev` address.
+   optionally ask for a **calendar PIN** and an alert topic, **deploy** the app and finally show
+   (and open) your `…workers.dev` address.
+4. **Open it right away and set a password.** Until a password is set the app is open and
+   whoever opens it first sets it. You also get a recovery code; keep it off the computer.
 
 > If Windows shows a blue "Windows protected your PC" box, click **More info → Run anyway**
 > (it only appears because the file isn't signed with a certificate).

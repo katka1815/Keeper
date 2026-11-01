@@ -40,7 +40,8 @@ CO UŽ APPKA UMÍ
 oblasti (odkazy/text), úkoly (termín, popisek, rychlý úkol nad deskou), bloky cílů, citáty,
 koš (30 dní) s obnovou, denní úklid přes cron, půjčené věci (loans) a dluhy (debts) s přepočtem
 měn přes /api/fx, hledání knih jen z legálních zdrojů, Google Kalendář (OAuth, za PINem,
-obousměrně, barvy), sledování menstruačního cyklu (za týmž PINem), FAQ panel v appce,
+obousměrně, barvy), sledování menstruačního cyklu (šifrované v prohlížeči vlastním heslem,
+KV cycle_enc), zámek appky heslem (/api/auth/*, cookie rz_s), FAQ panel v appce,
 hlídač stránek (board.watches/watchHits: hlídání jde založit tlačítkem 👁 přímo u odkazu
 v oblasti, hledá frázi na zadaných adresách, z nálezu tahá
 termíny a odkaz na vstupenky, umí se napojit na oblast a zapsat termín do popisku její položky
@@ -57,12 +58,19 @@ staví se android/build.sh bez Gradlu).
 
 PRAVIDLA, KTERÁ MUSÍŠ DODRŽET
 - Frontend zůstává jeden soubor, vanilla JS, bez frameworku a bez build kroku.
-- Žádné localStorage (jediná povolená výjimka už v kódu je PIN ke kalendáři).
+- Žádné localStorage (jediná povolená výjimka už v kódu je PIN ke kalendáři). Zámek používá
+  sessionStorage (značka cizího zařízení), cyklus IndexedDB (nevyexportovatelný klíč).
 - Data zůstávají v uživatelově Cloudflare (KV/R2). Nepřidávej třetí strany ani neposílej
   data jinam bez výslovného souhlasu uživatele.
 - Jen legální zdroje obsahu, žádné stínové knihovny. Cizí weby jen číst šetrně:
   respektovat robots.txt, rozumný interval, nic z nich nepřepublikovávat.
-- Hlavní deska je bez přihlášení (otevřená po URL). Citlivé věci dávej za PIN nebo heslo.
+- Appka je za heslem (src/index.js: authRoute, apiPublic). Nové API je automaticky za zámkem;
+  veřejné endpointy přidávej do apiPublic jen vědomě. Heslo ani klíče nikdy neposílej na
+  server čitelně. Citlivá data šifruj ve stránce (vzor: cyklus, cySeal/cyOpen).
+- Šifrování obsahu (e2e): api() šifruje PUT /api/state a odšifruje každou odpověď. Šifrují se
+  jen pole v E2E_SENS (name, title, text, note, who, item, label, author, snippet, ocr, src,
+  desc). Nové pole s obsahem přidej do E2E_SENS; pole, které čte server, tam nedávej. Co
+  server vyrábí sám, zamyká veřejným klíčem (sealer/sealFields v src/index.js).
 - Nové UI texty vždy do DICT.cs i DICT.en.
 - Drž se existujících vzorů: data-act handlery, panely, tvar dat v KV, odpovědi přes json().
 
@@ -107,8 +115,9 @@ WHAT THE APP ALREADY DOES
 areas (links/text), tasks (deadline, note, quick-task box above the board), goal blocks,
 quotes, trash (30 days) with restore, daily cleanup cron, lent/borrowed items (loans) and
 debts with currency conversion via /api/fx, book search from legal sources only, Google
-Calendar (OAuth, behind a PIN, two-way, colors), menstrual cycle tracking (behind the same
-PIN), an in-app FAQ panel, a page watcher (board.watches/watchHits: looks for a phrase on
+Calendar (OAuth, behind a PIN, two-way, colors), menstrual cycle tracking (encrypted in the
+browser with its own password, KV cycle_enc), an app lock with a password (/api/auth/*,
+cookie rz_s), an in-app FAQ panel, a page watcher (board.watches/watchHits: looks for a phrase on
 given addresses (a watch can be created straight from a link in an area with its 👁 button),
 pulls dates and a ticket link out of a finding, can link to an area and write
 the date into a matching item's note with automatic removal once it passes (link.expiresDay),
@@ -126,12 +135,20 @@ by android/build.sh without Gradle).
 
 RULES YOU MUST FOLLOW
 - The frontend stays one file, vanilla JS, no framework and no build step.
-- No localStorage (the only allowed exception already in the code is the calendar PIN).
+- No localStorage (the only allowed exception already in the code is the calendar PIN). The
+  lock uses sessionStorage (foreign-device marker), the cycle IndexedDB (non-extractable key).
 - Data stays in the user's own Cloudflare (KV/R2). Don't add third parties or send data
   elsewhere without the user's explicit opt-in.
 - Legal content sources only, no shadow libraries. Other people's sites may only be read
   politely: respect robots.txt, keep the interval sane, never republish their content.
-- The main board has no login (open by URL). Put sensitive things behind a PIN or password.
+- The app is behind a password (src/index.js: authRoute, apiPublic). New API is locked by
+  default; add public endpoints to apiPublic only deliberately. Never send the password or
+  keys to the server in clear. Encrypt sensitive data in the page (pattern: the cycle,
+  cySeal/cyOpen).
+- Content encryption (e2e): api() encrypts PUT /api/state and decrypts every response. Only
+  fields in E2E_SENS are encrypted (name, title, text, note, who, item, label, author, snippet,
+  ocr, src, desc). Add new content fields to E2E_SENS; never add fields the server reads. What
+  the server produces itself is sealed with the public key (sealer/sealFields in src/index.js).
 - Always add new UI strings to both DICT.cs and DICT.en.
 - Follow existing patterns: data-act handlers, panels, the KV data shape, json() responses.
 

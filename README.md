@@ -19,9 +19,10 @@ Web on your address  ◄──────────────────�
 
 # English
 
-This version has **no password** for the main board — the web and editing are open to
-anyone who knows the address. The calendar is behind a PIN; shares can be public-by-link
-or password-protected. Keep your main address private.
+On the first visit the app asks you to set a **password**; without it nobody gets to your data
+(details under *Using it → Lock*). The **cycle** is additionally encrypted in the browser with
+its own password, so not even the server or Cloudflare can read it. The calendar is behind a
+PIN; shares can be public-by-link or password-protected.
 
 ## Deploy
 **Easiest:** unzip and double-click **`Click this to install the app.bat`** (Windows) or **`Click this to install the app (Mac).command`** (macOS) — a wizard walks you through everything. See [`INSTALL.md`](INSTALL.md). Manual steps below.
@@ -125,6 +126,52 @@ To save links by sharing, set `"type":"link"` and put the shared link in `"url"`
 ## Using it
 - What comes from the phone appears at the top in "To process" — from there you file it
   into an area or into tasks.
+- **Ctrl+V anywhere** puts a clipboard image (e.g. Win+Shift+S) into "To process", shrunk to
+  ~300 kB. Pasting a link or text outside a text box saves it there too.
+- In "To process", **List / Grid** switches between rows and cards with previews. **Sort**
+  goes through the items one by one: keys 1–9 file the item into the numbered area, U moves a
+  note to tasks, Enter skips, Delete removes, Esc stops.
+- **Search finds everything:** areas (hidden ones too, the matches show as a number in the
+  hidden bar), To process, the saved text of web pages and the text in screenshots. Accents
+  don't matter (`svickova` finds *Svíčková*) and several words may be in any order.
+- **Saved page text:** for every link the app stores the readable text of the page, so it
+  stays even when the site disappears. 📄 next to a link opens it. New links get it right
+  away; older ones are filled in by the hourly job, a few at a time.
+- **Text in images:** screenshots and photos are read in your browser (Tesseract.js, free,
+  nothing is sent anywhere; about 10 MB is downloaded once). Can be turned off in Settings.
+- **Duplicates:** To process shows "Already in area …"; adding a link by hand that you
+  already have asks first; import skips links you already have.
+- **Cards with previews:** an area's ⋯ menu → *Cards with previews* shows the links as cards
+  with the page's picture.
+- **Backup and import** (Settings → Backup and import): *Download backup* saves everything,
+  images included, into one JSON file, and the same button restores it (what was there before
+  is kept on the server for 30 days). *Download as bookmarks* gives an HTML file any browser
+  can import. *Import* reads bookmarks from Firefox or Chrome (folders become areas), CSV from
+  Pocket, Raindrop or mymind, or a plain list of addresses.
+- **Lock:** on the first visit the app asks for a password (at least 12 characters, a few
+  words work best), an optional hint and gives you a **recovery code** to save. The password
+  never leaves the browser; the server only gets a key derived from it. When signing in you
+  choose *My device* (stays signed in) or *Someone else's device* (signs out after 20 minutes
+  idle or when the tab closes). Settings → Security: sign out, sign out other devices, change
+  password, new recovery code. Forgot the password? *Forgot password* + the recovery code.
+  Sending from the phone, the extension and the widget keeps working without a password (it
+  can only add to To process, never read). Shared links have their own access.
+- **Content encryption:** new installs encrypt from the start; an existing one turns it on in
+  Settings → Security → *Encrypt content* (asks for the password and gives a new recovery code).
+  Names, texts, notes, tasks, goals, To process, saved page text and watcher hits are then
+  encrypted with a key the server never gets, so not even Cloudflare can read them. Link
+  checking, the watcher, saved page text and search keep working. Readable stay: link
+  addresses (the server checks them), watcher phrases and addresses, numbers (amounts), settings
+  and shared areas (the recipient has to read them). **Images** are encrypted too: a pasted image
+  is locked already by the page, one from the phone or the extension by the server on arrival (it
+  sees it for a moment, doesn't store it readable); older ones get locked in batches. When sharing
+  you choose whether the images are readable for the recipient (then they are readable on the
+  server too, and the app warns that Cloudflare gets them) or stay encrypted (the recipient sees
+  "🔒 encrypted image"). **Private area** (area ⋯ menu)
+  encrypts its addresses too; the server then doesn't check them, save their text or watch
+  them, and the app shows only a letter instead of the site icon and no page previews, so the
+  address never reaches the server. Watcher alerts via ntfy or e-mail then only say "match found", with no content. The
+  backup is encrypted; only this app with your password opens it.
 - Quick task: the box above the board drops a task straight to the top of the list — type and hit **+**.
 - Areas: add, rename, move ◀ ▶.
 - Links: drag on desktop, arrows ▲ ▼ on the phone.
@@ -142,9 +189,39 @@ To save links by sharing, set `"type":"link"` and put the shared link in `"url"`
   the time zone you set in Settings** (the Worker cron ticks hourly and fires the cleanup once 6 a.m.
   has passed there).
 
+## Look and desk
+Settings → **Look**: theme (*Current* black and white, *Dune* warm paper and aubergine ink with
+soft corners, *Golden hour* parchment), **dark mode** (follow system / on / off), corners, density
+and font (system fonts only, nothing is downloaded).
+
+- **Header and footer image:** like Dune, across the full width, fading into the page. Choose in
+  the gallery: 16 public-domain paintings stored inside the app (Mánes, Kaván, Mařák, Monet, Pissarro,
+  Sisley, Hokusai, Hiroshige, Turner, Aivazovsky, Friedrich), drawn gradients, or your own photo
+  (stored encrypted with content encryption). Top and bottom, top only, bottom only, or none.
+  The header shows the upper part of the painting and the footer the lower part; their edge is
+  not a straight cut but follows a line in the painting (horizon, ridge, wave crest, slope), so
+  the page sits inside the picture. Optionally: **tab colours from the painting** (areas take
+  the painting's palette) and a **painting detail next to the title** (Monet's red sun, Turner's
+  ship, Friedrich's figures…).
+- **Tidy up** (button next to the quick task): every section and module goes into the top bar;
+  only the image, the bar, search and the quick task stay. Pressing it again brings the desk back
+  as it was. *To process · N* shows waiting items.
+- **Sort links by use:** what you click most moves up in its area (old clicks fade). The ▲▼
+  arrows or the area's ⋯ menu switch that area to manual order.
+- **Tasks** can be dragged by the ⠿ handle above another task (mouse and finger).
+- **By time of day** (optional): mornings put tasks on top, evenings golden hour, nights dark mode;
+  the painting changes with the part of the day.
+- Settings show only Look and Desk; everything else is under **Advanced**. The ⚙ next to Tasks and
+  Links jumps straight to their settings.
+
 ## Layout: sections, tabs and panels
 The page is modular. The main sections (**Goals & periods**, **Tasks & notes**, **Links &
 reminders**, **To process**) and the tools in the top bar all follow the same rules:
+
+- **Remove grid** (button above the areas): no rules at all. Grab an area by its header and drop
+  it anywhere, even half over another one; the one you grabbed last is on top. Areas don't jump
+  when you switch, *Back to grid* returns to the previous layout (your free positions are kept
+  for next time). On a phone the areas stay one below the other.
 
 - **Top bar tabs.** Goals, Tasks and Links have their own tabs next to Calendar, Watcher and the
   rest. Each of those three sections can be **expanded on the page**, **collapsed on the page**
@@ -224,11 +301,15 @@ and leaves the amounts unconverted rather than guessing.
 A ticked **Settled** debt or **Returned** item stays visible until the next cleanup; at 06:00 it
 moves to the Trash, where it waits 30 days and can be restored.
 
-> Both lists live on the main board, which is open by address — so names and amounts are visible to
-> anyone who has your address. Unlike the cycle they are **not** behind the PIN. Shares never carry
-> them: a share link only ever contains the areas, goals and tasks you ticked.
+> Both lists live on the main board, behind the app password. With content encryption on, names
+> and notes are encrypted; amounts and currencies stay readable. Shares never carry them: a share link only
+> ever contains the areas, goals and tasks you ticked.
 
 ## Watcher (tell me when it shows up)
+
+> This is an outsourced service via Cloudflare, so the link will be known to them. The watcher
+> runs on the server (in your Cloudflare), so the watched addresses and phrases stay readable
+> there even with content encryption; the app shows this note when you create a watch.
 
 The **Watcher** button in the toolbar keeps an eye on other people's pages for you. A watch is
 four things: what to look for, where to look, how often, and what to do when it turns up.
@@ -343,8 +424,18 @@ points to `…/s/<code>`.
 > alerts) — see Notes.
 
 ## Optional: Google Calendar (two-way, behind a PIN)
-The app can read, create, change and delete events in your Google Calendar. Because the rest
-of the app is open by URL, the calendar is **hidden behind a PIN** and the whole feature is
+The app can read, create, change and delete events in your Google Calendar.
+
+- **Views:** month, week, **day** and list. Week and day can show **hours** (6–23, events placed
+  by time, overlapping ones side by side) or **days only**; a week can have the days **side by
+  side** or **below each other** (then the hours run left to right).
+- **Drag an event** to another day to move it; in the hours view also to another time (15-minute
+  steps). Its length stays. **Delete** is in the event's form (click the event).
+- **Tasks:** *Show tasks too* puts tasks with a deadline into the calendar (dashed); dragging one
+  to another day changes its deadline, clicking it edits the deadline. The 📆 button next to a task
+  creates an all-day event for it in Google Calendar (on its deadline, or asks for a day).
+
+The calendar is **hidden behind a PIN** and the whole feature is
 **off until you set the PIN**. The Google token lives only on your Worker (in KV); it never
 goes anywhere else and is not sent to the browser.
 
@@ -423,7 +514,7 @@ R2 has 10 GB free and no download fees (thousands of epubs). A "Save file to app
 appears for public-domain works. This is optional — without R2 the search and link inserting
 still work.
 
-## Optional: Menstrual cycle tracker (behind the PIN)
+## Menstrual cycle tracker (encrypted with its own password)
 The toolbar has a **Cycle** button. You log period start (and optional end) dates; the app
 computes your **average cycle and period length** and **predicts** upcoming periods, the
 fertile window and ovulation, shown in a compact month calendar (weekday columns, like a small Google-Calendar month) (logged days, predicted days, the
@@ -432,10 +523,15 @@ To cope with irregular cycles (stress, moving, illness…) it uses a **median** 
 cycles instead of a plain average (so one odd cycle barely moves it), shows the prediction as a
 **window, not a single day**, labels how **regular** your cycles are and widens/flags the
 estimate when they vary a lot, and lets you mark any record as **atypical** so it's excluded
-from the stats. Because this is sensitive health data, it is **not**
-stored in the open board — it lives in a separate key and is **locked behind the same PIN as the
-calendar** (`CAL_PIN`); without the PIN no one can read it via the address. It stays only in your
-Cloudflare and is never sent anywhere. You can recolor each phase, and optionally project the
+from the stats. Because this is sensitive health data, it is **encrypted in the browser** with its
+own **cycle password** (AES-GCM, key from PBKDF2 with 600,000 iterations) before it leaves the page.
+The server stores only the ciphertext, so neither the server, Cloudflare nor anyone who gets the
+data can read it. The first time you open the panel you set the password and an optional hint;
+older unencrypted records are encrypted then and the plain copy is deleted. The password
+**cannot be recovered**: without it the records can only be deleted. Closing the panel locks it;
+on your own device you can tick *Remember on this device* (the key is kept in IndexedDB as a
+non-extractable key, which scripts can use but not read); 🔒 Lock and signing out forget it.
+It goes into the backup only encrypted. The cycle no longer needs `CAL_PIN`. You can recolor each phase, and optionally project the
 phases either into the app's own calendar view (nothing leaves your Cloudflare) or push the
 prediction into Google Calendar — which shares this sensitive data with Google as a third party;
 the app warns you before that. The predictions are a rough estimate from a calendar
@@ -460,19 +556,23 @@ MIT — see [`LICENSE`](LICENSE). Do what you like with it; there is no warranty
 - `public/manifest.webmanifest`, `public/sw.js`, `public/icon-*.png` — install as an app
 - `src/index.js` — API, link checking, calendar, sharing, exchange rates, the watcher
 - `extension/` — browser add-on, `android/` — Android app (wrapper, sharing, widget)
+- `tests/` — tests without libraries, run `node tests/run.js`
+- `docs/HANDOVER.md` — project state, decisions and pitfalls (Czech)
 - `wrangler.toml.example` — config template; the installer copies it to `wrangler.toml`
 - `wrangler.toml` — KV, cron schedule, push, optional secrets/R2 (yours, not in the repo)
 After changes run `wrangler deploy` again.
 
 ## Notes
 - Rename & wipe: rename the page in Settings (default "Rozcestník"); the footer links to your Cloudflare dashboard; Settings has a **Danger zone** that permanently and irreversibly deletes all data, and the Cycle panel has its own button to wipe only cycle data.
-- **No password:** anyone with the address sees and edits the content. For a personal list
-  that's usually fine — just don't post the address publicly.
+- **Password and encryption:** the app is locked with a password (the server only gets a key
+  derived from it), the content is encrypted in the browser (see *Content encryption*), and the
+  cycle has its own password on top.
 - **Broken-link push:** fill `NTFY_TOPIC` in `wrangler.toml` and in the phone subscribe to the
   same topic in the *ntfy* app.
-- **Data sovereignty:** everything lives in your Cloudflare (KV/R2). Exceptions: favicons load
-  from Google, link checking visits your saved links, and Google Calendar (if connected) talks
-  to Google. Nothing goes to the app's author.
+- **Data sovereignty:** everything lives in your Cloudflare (KV/R2). Exceptions: favicons are fetched by your own server straight from the sites (cached for
+  30 days, Google learns nothing), link checking visits your saved links, Google Calendar (if connected) talks
+  to Google, and reading text from images downloads Tesseract.js once from jsdelivr (the images
+  themselves never leave the browser). Nothing goes to the app's author.
 
 ---
 
@@ -482,9 +582,10 @@ Hostovaná stránka na vlastní adrese, dostupná odkudkoliv. Na telefonu se nai
 appka (ikona na ploše, běh na celou obrazovku). Drží odkazy, úkoly, bloky cílů, čtecí oblast,
 citáty, volitelně Google Kalendář a výběrové sdílení. Data zůstávají v **tvém** Cloudflare účtu.
 
-Tahle verze je u hlavní desky **bez hesla** — web i zápis jsou otevřené komukoli, kdo zná
-adresu. Kalendář je za PINem, sdílení může být veřejné přes odkaz nebo chráněné heslem. Hlavní
-adresu si nech pro sebe.
+Při prvním otevření si appka řekne o **heslo**; bez něj se k tvým datům nikdo nedostane
+(podrobnosti v *Použití → Zámek*). **Cyklus** je navíc šifrovaný v prohlížeči vlastním heslem,
+takže ho nepřečte ani server, ani Cloudflare. Kalendář je za PINem, sdílení může být veřejné
+přes odkaz nebo chráněné heslem.
 
 ## Nasazení
 **Nejjednodušeji:** rozbal a dvojklikni na **`Click this to install the app.bat`** (Windows) nebo **`Click this to install the app (Mac).command`** (macOS) — průvodce tě provede vším. Viz [`INSTALL.md`](INSTALL.md). Ruční postup níže.
@@ -585,6 +686,50 @@ Pro ukládání odkazů sdílením nastav `"type":"link"` a do `"url"` vlož sd�
 
 ## Použití
 - Co přijde z telefonu, je nahoře v „Ke zpracování" — odtud zařadíš do oblasti nebo mezi úkoly.
+- **Ctrl+V kdekoli** vloží obrázek ze schránky (třeba po Win+Shift+S) do „Ke zpracování",
+  zmenšený zhruba na 300 kB. Odkaz nebo text vložený mimo políčko se uloží taky.
+- V „Ke zpracování" přepíná **Seznam / Mřížka** řádky a karty s náhledy. **Roztřídit** projde
+  věci po jedné: klávesy 1–9 zařadí věc do očíslované oblasti, U pošle poznámku mezi úkoly,
+  Enter přeskočí, Delete smaže, Esc konec.
+- **Hledání najde všechno:** oblasti (i schované, počet nalezených je vidět v liště schovaných),
+  Ke zpracování, uložený text stránek i text na screenshotech. Na diakritice nezáleží
+  (`svickova` najde *Svíčková*) a víc slov může být v libovolném pořadí.
+- **Uložený text stránky:** ke každému odkazu si appka uschová čitelný text stránky, takže
+  zůstane, i když web zmizí. Otevře ho 📄 u odkazu. Nové odkazy ho dostanou hned, starší
+  doplňuje hodinový běh po pár kusech.
+- **Text z obrázků:** screenshoty a fotky přečte tvůj prohlížeč (Tesseract.js, zdarma, nic se
+  nikam neposílá; jednou se stáhne asi 10 MB). Vypnout jde v Nastavení.
+- **Duplicity:** Ke zpracování ukáže „Už máš v oblasti …“, ruční přidání odkazu, který už
+  máš, se napřed zeptá, a import už uložené odkazy přeskočí.
+- **Karty s náhledem:** menu ⋯ oblasti → *Karty s náhledem* ukáže odkazy jako karty
+  s obrázkem stránky.
+- **Záloha a import** (Nastavení → Záloha a import): *Stáhnout zálohu* uloží všechno i
+  s obrázky do jednoho souboru JSON a stejný soubor přes Import zase obnoví (co bylo předtím,
+  zůstane 30 dní uschované na serveru). *Stáhnout jako záložky* dá HTML, které naimportuje
+  každý prohlížeč. *Import* načte záložky z Firefoxu nebo Chromu (složky se stanou
+  oblastmi), CSV z Pocketu, Raindropu nebo mymind, nebo obyčejný seznam adres.
+- **Zámek:** při prvním otevření appka chce heslo (aspoň 12 znaků, nejlepší je pár slov),
+  nepovinnou nápovědu a dá ti **záchranný kód** k uložení. Heslo neopustí prohlížeč, server
+  dostane jen klíč z něj odvozený. Při přihlášení vybereš *Moje zařízení* (pamatuje
+  přihlášení), nebo *Cizí zařízení* (odhlásí se po 20 minutách nečinnosti a po zavření karty).
+  Nastavení → Zabezpečení: odhlásit, odhlásit ostatní zařízení, změnit heslo, nový záchranný
+  kód. Zapomenuté heslo: *Zapomenuté heslo* + záchranný kód. Posílání z telefonu, rozšíření
+  a widgetu jde dál bez hesla (umí jen přidat do Ke zpracování, nic nepřečte). Sdílené
+  odkazy mají vlastní přístup.
+- **Šifrování obsahu:** nová instalace šifruje od začátku, stávající si ho zapne v Nastavení →
+  Zabezpečení → *Zašifrovat obsah* (chce heslo a dá nový záchranný kód). Názvy, texty, poznámky,
+  úkoly, cíle, Ke zpracování, uložený text stránek a nálezy hlídače se pak šifrují klíčem, který
+  server nikdy nedostane, takže je nepřečte ani Cloudflare. Kontrola odkazů, hlídač, uložený
+  text stránek i hledání jedou dál. Čitelné zůstávají: adresy odkazů (server je kontroluje),
+  fráze a adresy hlídače, čísla (částky), nastavení a sdílené oblasti (příjemce je musí přečíst).
+  **Obrázky** se šifrují taky: vložený obrázek zamkne už stránka, obrázek z telefonu nebo
+  rozšíření server hned při příchodu (na chvilku ho vidí, čitelně ho neuloží), starší se zamknou
+  po dávkách. U sdílení si vybereš, jestli budou obrázky pro příjemce čitelné (pak jsou čitelné
+  i na serveru a appka upozorní, že je dostane Cloudflare), nebo zůstanou šifrované (příjemce
+  uvidí „🔒 šifrovaný obrázek“). **Soukromá oblast** (menu ⋯ oblasti) šifruje i adresy; server je pak nekontroluje,
+  neukládá jejich text a nehlídá je a appka místo ikonky webu ukáže jen písmeno a žádné
+  náhledy, aby se adresa na server nedostala ani tak. Upozornění hlídače přes ntfy nebo e-mail pak píše jen
+  „našel shodu“, bez obsahu. Záloha je šifrovaná a otevře ji jen tahle appka s tvým heslem.
 - Rychlý úkol: políčko nad deskou hodí úkol rovnou na začátek seznamu — napiš a zmáčkni **+**.
 - Oblasti: přidat, přejmenovat, posouvat ◀ ▶.
 - Odkazy: na počítači přetažením, na telefonu šipkami ▲ ▼.
@@ -600,9 +745,38 @@ Pro ukládání odkazů sdílením nastav `"type":"link"` a do `"url"` vlož sd�
 - „Zkontrolovat vše" spustí kontrolu hned; jinak proběhne sama v rámci denního úklidu v **6:00 podle
   časového pásma z Nastavení** (cron Workeru tiká každé hodinu a úklid spustí, jakmile je tam po šesté).
 
+## Vzhled a plocha
+Nastavení → **Vzhled**: téma (*Současné* černobílé, *Duna* teplý papír a lilkově černá s měkkými
+rohy, *Zlatá hodina* pergamen), **tmavý režim** (podle systému / zapnutý / vypnutý), zaoblení,
+hustota a písmo (jen systémová písma, nic se nestahuje).
+
+- **Obrázek v záhlaví a zápatí:** jako u Duny, přes celou šířku, do stránky se rozplyne. Vybíráš
+  v galerii: 16 volných děl uložených přímo v appce (Mánes, Kaván, Mařák, Monet, Pissarro, Sisley,
+  Hokusai, Hiroshige, Turner, Ajvazovskij, Friedrich), kreslené přechody, nebo vlastní fotka
+  (se šifrováním obsahu uložená zašifrovaně). Nahoře i dole, jen nahoře, jen dole, nebo žádný.
+  Záhlaví ukáže horní část obrazu a zápatí spodní; jejich hrana není rovný řez, ale jde po linii
+  v obraze (horizont, hřeben, vlna, svah), takže stránka leží uvnitř obrazu. Volitelně:
+  **barvy záložek podle obrazu** (oblasti dostanou paletu obrazu) a **detail z obrazu u názvu**
+  (Monetovo slunce, Turnerova loď, Friedrichovy postavy…).
+- **Uklidit** (tlačítko vedle rychlého úkolu): všechny sekce a moduly jdou do horní lišty, zůstane
+  jen obrázek, lišta, hledání a rychlý zápis. Druhé kliknutí vrátí plochu, jak byla.
+  *Ke zpracování · N* ukáže, co čeká.
+- **Řadit odkazy podle používání:** na co klikáš nejvíc, jde v oblasti nahoru (staré klikání
+  slábne). Šipky ▲▼ nebo menu ⋯ oblasti přepnou oblast na ruční pořadí.
+- **Úkoly** chytíš za úchyt ⠿ a přesuneš nad jiný úkol (myší i prstem).
+- **Podle denní doby** (volitelné): ráno jsou nahoře úkoly, večer zlatá hodina, v noci tmavý
+  režim; obraz se mění podle části dne.
+- V Nastavení je nahoře jen Vzhled a Plocha, zbytek je pod **Pokročilé**. ⚙ u Úkolů a Odkazů
+  skočí rovnou na jejich nastavení.
+
 ## Rozložení: sekce, záložky a panely
 Plocha je modulární. Hlavní sekce (**Cíle a období**, **Úkoly a poznámky**, **Odkazy a
 připomínky**, **Ke zpracování**) i nástroje v horní liště se řídí stejnými pravidly:
+
+- **Zrušit mřížku** (tlačítko nad oblastmi): žádná pravidla. Oblast chytneš za hlavičku a položíš
+  kamkoli, klidně napůl přes jinou; navrch je ta naposled chycená. Při přepnutí nic neposkočí,
+  *Zpět do mřížky* vrátí předchozí rozložení (volné pozice si appka pamatuje na příště). Na
+  telefonu zůstávají oblasti pod sebou.
 
 - **Záložky v horní liště.** Cíle, Úkoly a Odkazy mají svoje tlačítka vedle Kalendáře, Hlídače
   a dalších. Každá z těch tří sekcí může být **rozbalená na ploše**, **sbalená na ploše** (jen
@@ -682,11 +856,15 @@ a částky nechá nepřepočtené, místo aby si něco domýšlela.
 Zaškrtnutý **Vyrovnáno** u dluhu nebo **Vráceno** u věci zůstane vidět do dalšího úklidu; ten v 6:00
 záznam přesune do Koše, kde leží 30 dní a dá se vrátit zpět.
 
-> Oba seznamy jsou součástí hlavní desky, a ta je otevřená po adrese — jména i částky vidí každý, kdo
-> zná tvoji adresu. Na rozdíl od cyklu **nejsou** za PINem. Do sdílení se nikdy nedostanou: sdílený
+> Oba seznamy jsou součástí hlavní desky, a ta je za heslem appky. Se zapnutým šifrováním jsou
+> jména a poznámky šifrované, částky a měny zůstávají čitelné. Do sdílení se nikdy nedostanou: sdílený
 > odkaz nese jen ty oblasti, cíle a úkoly, které do něj vybereš.
 
 ## Hlídač (dej vědět, až se to objeví)
+
+> Tohle je outsourced služba přes Cloudflare, takže odkaz bude jim známý. Hlídač běží na
+> serveru (v tvém Cloudflare), takže hlídané adresy a fráze tam zůstávají čitelné i se
+> šifrováním obsahu; appka tuhle připomínku ukáže při zakládání hlídání.
 
 Tlačítko **Hlídač** v liště sleduje cizí stránky za tebe. Jedno hlídání jsou čtyři věci: co
 hledat, kde hledat, jak často a co udělat, až se to najde.
@@ -796,8 +974,18 @@ nebo ho úplně zrušit (×). Odkaz vede na `…/s/<kód>`.
 > odkazů) – viz Poznámky.
 
 ## Volitelné: Google Kalendář (obousměrný, za PINem)
-Appka umí číst, zakládat, měnit i mazat události v tvém Google Kalendáři. Protože zbytek appky je
-otevřený po URL, je kalendář **schovaný za PINem** a celá funkce je **vypnutá, dokud PIN
+Appka umí číst, zakládat, měnit i mazat události v tvém Google Kalendáři.
+
+- **Pohledy:** měsíc, týden, **den** a seznam. Týden a den umí **hodiny** (6–23, události podle
+  času, překrývající se vedle sebe), nebo **jen dny**; týden může mít dny **vedle sebe**, nebo
+  **pod sebou** (hodiny pak běží zleva doprava).
+- **Událost přetáhneš** na jiný den a tím ji přesuneš; v hodinách i na jiný čas (po 15 minutách).
+  Délka zůstává. **Smazat** je ve formuláři události (klikni na ni).
+- **Úkoly:** *Propisovat i úkoly* ukáže úkoly s termínem v kalendáři (čárkovaně); přetažením na
+  jiný den změníš termín, kliknutím ho upravíš. Tlačítko 📆 u úkolu z něj udělá celodenní událost
+  v Google Kalendáři (v den termínu, bez termínu se zeptá).
+
+Kalendář je **schovaný za PINem** a celá funkce je **vypnutá, dokud PIN
 nenastavíš**. Token ke Googlu leží jen na tvém Workeru (v KV), nikam jinam neteče a do prohlížeče
 se neposílá.
 
@@ -873,7 +1061,7 @@ R2 má 10 GB zdarma a bez poplatků za stahování (řádově tisíce epubů). U
 tlačítko „Uložit soubor do appky". Tahle volba je nepovinná – kdo si R2 nezaloží, má pořád funkční
 hledání i vkládání odkazů.
 
-## Volitelné: Sledování menstruačního cyklu (za PINem)
+## Sledování menstruačního cyklu (šifrované vlastním heslem)
 V liště je tlačítko **Cyklus**. Zaznamenáváš začátky menstruace (a volitelně konce); appka
 spočítá **průměrnou délku cyklu a menstruace** a **předpoví** další menstruace, plodné okno
 a ovulaci, to vše v kompaktním měsíčním kalendáři (sloupce = dny v týdnu, jako malý Google-kalendář) (zaznamenané dny, předpověď, okno nejistoty, plodné okno
@@ -881,9 +1069,15 @@ a ovulace mají různé značení). Aby zvládl nepravidelné cykly (stres, stě
 z **mediánu** posledních cyklů místo prostého průměru (jeden divný cyklus jím skoro nehne),
 předpověď ukazuje jako **okno, ne jediný den**, označí, jak **pravidelné** cykly jsou, a při
 velkém kolísání odhad rozšíří a upozorní na to; každý záznam můžeš označit jako **atypický**, aby
-se do statistik nezapočítával. Protože jde o citlivá zdravotní data, **neukládají se do otevřené desky** —
-leží v samostatném klíči a jsou **schovaná za stejným PINem jako kalendář** (`CAL_PIN`); bez PINu
-je nikdo přes adresu nenačte. Zůstávají jen v tvém Cloudflare a nikam se neodesílají. Barvy jednotlivých fází si můžeš změnit a fáze volitelně promítnout buď do appkového kalendáře (nic neopustí tvůj Cloudflare), nebo poslat předpověď do Google Kalendáře — to ale tato citlivá data sdílí s Googlem (třetí strana); appka tě předtím varuje. Předpovědi
+se do statistik nezapočítával. Protože jde o citlivá zdravotní data, **šifrují se přímo
+v prohlížeči** vlastním **heslem k cyklu** (AES-GCM, klíč z PBKDF2 s 600 000 iteracemi), ještě než
+opustí stránku. Server má jen šifru, takže je nepřečte server, Cloudflare ani nikdo, kdo by data
+získal. Při prvním otevření panelu nastavíš heslo a nepovinnou nápovědu; starší nešifrované
+záznamy se tehdy zašifrují a čitelná kopie se smaže. Heslo **nejde obnovit**: bez něj jdou
+záznamy jen smazat. Zavřením panelu se cyklus zamkne; na svém zařízení můžeš zaškrtnout
+*Pamatovat na tomhle zařízení* (klíč se uloží do IndexedDB jako nevyexportovatelný, skript ho
+umí použít, ale ne přečíst); 🔒 Zamknout a odhlášení ho zapomenou. Do zálohy jde jen
+zašifrovaný. Cyklus už nepotřebuje `CAL_PIN`. Barvy jednotlivých fází si můžeš změnit a fáze volitelně promítnout buď do appkového kalendáře (nic neopustí tvůj Cloudflare), nebo poslat předpověď do Google Kalendáře — to ale tato citlivá data sdílí s Googlem (třetí strana); appka tě předtím varuje. Předpovědi
 jsou orientační odhad z kalendářního algoritmu — **ne lékařská rada a ne antikoncepce**; přesnost
 roste s počtem zaznamenaných cyklů a u nepravidelných cyklů je nižší.
 
@@ -905,16 +1099,20 @@ MIT, viz [`LICENSE`](LICENSE). Dělej si s tím, co chceš; bez jakékoli záruk
 - `public/manifest.webmanifest`, `public/sw.js`, `public/icon-*.png` — instalace jako appka
 - `src/index.js` — API, kontrola odkazů, kalendář, sdílení, kurzy měn, hlídač
 - `extension/` — rozšíření do prohlížeče, `android/` — appka pro Android (obal, sdílení, widget)
+- `tests/` — testy bez knihoven, pouštět `node tests/run.js`
+- `docs/HANDOVER.md` — stav projektu, rozhodnutí a pasti
 - `wrangler.toml.example` — šablona configu, průvodce z ní vyrobí `wrangler.toml`
 - `wrangler.toml` — KV, plán kontroly, push, volitelné secrety/R2 (tvůj, v repozitáři není)
 Po úpravách znovu `wrangler deploy`.
 
 ## Poznámky
 - Přejmenování a mazání: název stránky změníš v Nastavení (výchozí „Rozcestník"); zápatí odkazuje na tvůj Cloudflare; v Nastavení je **Nebezpečná zóna**, která trvale a nevratně smaže všechna data, a panel Cyklus má vlastní tlačítko, které smaže jen data cyklu.
-- **Bez hesla:** kdokoli s adresou vidí i mění obsah. Na osobní seznam to obvykle stačí — jen
-  adresu nedávej veřejně.
+- **Heslo a šifrování:** appka je zamčená heslem (server dostane jen klíč z něj odvozený),
+  obsah je šifrovaný v prohlížeči (viz *Šifrování obsahu*) a cyklus má navíc vlastní heslo.
+
 - **Push na rozbité odkazy:** vyplň `NTFY_TOPIC` v `wrangler.toml` a v telefonu se v appce *ntfy*
   přihlas ke stejnému tématu.
-- **Data zůstávají u tebe:** vše leží v tvém Cloudflare (KV/R2). Výjimky: favicony se načítají
-  z Googlu, kontrola odkazů navštěvuje tvé uložené odkazy a Google Kalendář (když ho propojíš)
-  komunikuje s Googlem. K autorovi appky neteče nic.
+- **Data zůstávají u tebe:** vše leží v tvém Cloudflare (KV/R2). Výjimky: ikonky webů stahuje tvůj server přímo z těch webů (drží je 30 dní, Google
+  se nedozví nic), kontrola odkazů navštěvuje tvé uložené odkazy, Google Kalendář (když ho propojíš)
+  komunikuje s Googlem a čtení textu z obrázků si jednou stáhne Tesseract.js z jsdelivr
+  (obrázky samotné prohlížeč neopustí). K autorovi appky neteče nic.

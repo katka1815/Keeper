@@ -4,7 +4,7 @@
 # TOOLS = složka s přenosným JDK 17 a Android SDK (platforms/android-34, build-tools/34.0.0).
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd -W 2>/dev/null || pwd)"
-TOOLS="${TOOLS:-C:/Users/42073/android-build}"
+TOOLS="${TOOLS:-$(cd ~ && (pwd -W 2>/dev/null || pwd))/android-build}"
 OUT="$TOOLS/build-rozcestnik"
 export JAVA_HOME="$(ls -d "$TOOLS"/jdk-17* | head -1)"
 export PATH="$(cygpath -u "$JAVA_HOME")/bin:$PATH"

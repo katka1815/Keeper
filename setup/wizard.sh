@@ -82,7 +82,7 @@ else
 fi
 
 echo ""; echo "$(t '[5/6] Nepovinne (Enter = preskocit).' '[5/6] Optional (Enter to skip).')"
-read -r -p "$(t '  PIN pro kalendar a cyklus: ' '  PIN for calendar and cycle: ')" PIN
+read -r -p "$(t '  PIN pro Google kalendar: ' '  PIN for Google Calendar: ')" PIN
 [ -n "$PIN" ] && printf '%s' "$PIN" | WR secret put CAL_PIN || true
 read -r -p "$(t '  ntfy.sh tema pro upozorneni: ' '  ntfy.sh topic for alerts: ')" NTFY
 [ -n "$NTFY" ] && { sed -i.bak -E "s/^NTFY_TOPIC = \".*\"/NTFY_TOPIC = \"$NTFY\"/" wrangler.toml && rm -f wrangler.toml.bak; }

@@ -2,7 +2,7 @@
  * Data v KV (klíče "board", "inbox"). Cron běží hodinově a v 6:00 místního času
  * (dle settings.tz) provede denní úklid, promazání "Hotovo", kontrolu odkazů a úklid koše.
  */
-const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8" } });
+const json = (o, s = 200, h = {}) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8", ...h } });
 const rid = () => crypto.randomUUID();
 const DAY = 86400000;
 
@@ -41,14 +41,98 @@ function parseDataUrl(d) {
   const bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return { type: m[1], bytes };
 }
+// img.e = bajty jsou zamčené veřejným klíčem (šifrování obsahu); type je typ obrázku uvnitř.
 async function putImg(env, id, img) {
-  if (env.BOOKS) await env.BOOKS.put("img/" + id, img.bytes, { httpMetadata: { contentType: img.type } });
-  else await env.KV.put("img:" + id, img.bytes, { metadata: { type: img.type } });
+  if (env.BOOKS) await env.BOOKS.put("img/" + id, img.bytes, { httpMetadata: { contentType: img.type }, customMetadata: img.e ? { e: "1" } : {} });
+  else await env.KV.put("img:" + id, img.bytes, { metadata: { type: img.type, t: Date.now(), ...(img.e ? { e: 1 } : {}) } });
+}
+// Obrázek z telefonu nebo rozšíření se se zapnutým šifrováním hned zamkne.
+async function putImgSealed(env, id, img) {
+  const seal = await sealer(env);
+  if (seal) img = { type: img.type, bytes: await seal.bytes(img.bytes), e: 1 };
+  await putImg(env, id, img);
+}
+// Obrázky ve sdílení, kde si uživatelka zvolila „čitelné obrázky“: ty se nezamykají.
+async function publicImgIds(env) {
+  const ids = new Set(); let board = null;
+  for (const s of await getShareIndex(env)) {
+    const rec = await getShare(env, s.token);
+    if (!rec || !rec.images || shareExpired(rec)) continue;
+    board = board || (await getBoard(env));
+    const txt = JSON.stringify((board.areas || []).filter((a) => (rec.areas || []).includes(a.id)));
+    for (const m of txt.match(/\/api\/img\/[a-z0-9-]{4,40}/gi) || []) ids.add(m.slice(9));
+  }
+  return ids;
+}
+// Zamkne obrázky, které ještě zamčené nejsou (po zapnutí šifrování, po zrušení sdílení).
+async function sealImages(env, max) {
+  const seal = await sealer(env); if (!seal) return 0;
+  const pub = await publicImgIds(env), todo = [];
+  if (env.BOOKS) { const l = await env.BOOKS.list({ prefix: "img/", limit: 1000, include: ["customMetadata"] }); for (const o of l.objects) { const id = o.key.slice(4); if (!(o.customMetadata && o.customMetadata.e) && !pub.has(id)) todo.push(id); } }
+  else { const k = await env.KV.list({ prefix: "img:", limit: 1000 }); for (const o of k.keys) { const id = o.name.slice(4); if (!(o.metadata && o.metadata.e) && !pub.has(id)) todo.push(id); } }
+  for (const id of todo.slice(0, max)) {
+    const img = await getImg(env, id); if (!img || img.e) continue;
+    const buf = img.body instanceof ArrayBuffer ? img.body : await new Response(img.body).arrayBuffer();
+    await putImg(env, id, { type: img.type, bytes: await seal.bytes(new Uint8Array(buf)), e: 1 });
+  }
+  return Math.max(0, todo.length - max);
+}
+// Osiřelé obrázky: položka s obrázkem se zařadí do oblasti (adresa /api/img/<id>),
+// pak se smaže a po 30 dnech vypadne z Koše, ale obrázek v úložišti zůstane.
+// Jednou denně z cronu se smažou obrázky, jejichž id není nikde v desce (včetně
+// Koše) ani v Ke zpracování. Nové obrázky mají dva dny lhůtu (zápis desky ze
+// stránky může přijít až po nahrání) a smaže se nejvýš 25 za běh kvůli limitu.
+async function gcImages(env, board, inbox) {
+  // Se šifrováním odkazy na obrázky v textu nejsou vidět: stránka je vypisuje do meta.imgRefs.
+  // Bez toho seznamu se nesmaže nic.
+  if (JSON.stringify(board).includes("enc1.") && !Array.isArray(board.meta && board.meta.imgRefs)) return 0;
+  const refs = JSON.stringify(board) + JSON.stringify(inbox) + JSON.stringify((board.meta && board.meta.imgRefs) || []), old = Date.now() - 2 * DAY, gone = new Set();
+  if (env.BOOKS) { const l = await env.BOOKS.list({ prefix: "img/", limit: 1000 }); for (const o of l.objects) { const id = o.key.slice(4); if (id && !refs.includes(id) && +new Date(o.uploaded) < old) gone.add(id); } }
+  const k = await env.KV.list({ prefix: "img:", limit: 1000 }); for (const o of k.keys) { const id = o.name.slice(4); if (id && !refs.includes(id) && !(o.metadata && o.metadata.t > old)) gone.add(id); }
+  const del = [...gone].slice(0, 25); for (const id of del) await delImg(env, id);
+  return del.length;
 }
 async function getImg(env, id) {
-  if (env.BOOKS) { const o = await env.BOOKS.get("img/" + id); if (o) return { body: o.body, type: (o.httpMetadata && o.httpMetadata.contentType) || "image/webp" }; }
+  if (env.BOOKS) { const o = await env.BOOKS.get("img/" + id); if (o) return { body: o.body, type: (o.httpMetadata && o.httpMetadata.contentType) || "image/webp", e: !!(o.customMetadata && o.customMetadata.e) }; }
   const r = await env.KV.getWithMetadata("img:" + id, "arrayBuffer");
-  return r && r.value ? { body: r.value, type: (r.metadata && r.metadata.type) || "image/webp" } : null;
+  return r && r.value ? { body: r.value, type: (r.metadata && r.metadata.type) || "image/webp", e: !!(r.metadata && r.metadata.e) } : null;
+}
+// ---- ikonky webů bez Googlu ----
+// Server si ikonku stáhne přímo z toho webu (<link rel="icon"> na hlavní stránce, jinak
+// /favicon.ico) a drží ji 30 dní v KV (fav:<doména>); nenalezenou taky, jako prázdnou.
+const FAV_UA = "Mozilla/5.0 (compatible; RozcestnikBot/1.0)", FAV_MAX = 100000;
+async function favicon(env, domain) {
+  domain = String(domain || "").toLowerCase().replace(/^www\./, "");
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(domain) || domain.length > 253) return null;
+  const key = "fav:" + domain, hit = await env.KV.getWithMetadata(key, "arrayBuffer");
+  if (hit && hit.value) return hit.value.byteLength ? { body: hit.value, type: (hit.metadata && hit.metadata.type) || "image/x-icon" } : null;
+  const cands = [];
+  try {
+    const r = await fetch("https://" + domain + "/", { redirect: "follow", signal: AbortSignal.timeout(6000), headers: { "user-agent": FAV_UA, accept: "text/html" } });
+    if (r.ok && /html/i.test(r.headers.get("content-type") || "")) {
+      const head = (await r.text()).slice(0, 300000).split(/<\/head>/i)[0];
+      for (const m of head.matchAll(/<link\b[^>]*>/gi)) {
+        if (!/\brel=["']?[^"'>]*\bicon\b/i.test(m[0])) continue;
+        const h = m[0].match(/\bhref=["']([^"']+)["']/i);
+        if (h) { try { cands.push(new URL(decodeEnt(h[1]), r.url || "https://" + domain + "/").href); } catch (e) {} }
+      }
+    }
+  } catch (e) {}
+  cands.push("https://" + domain + "/favicon.ico");
+  let found = null;
+  for (const u of cands.slice(0, 4)) {
+    if (!/^https?:\/\//i.test(u)) continue;
+    try {
+      const r = await fetch(u, { redirect: "follow", signal: AbortSignal.timeout(5000), headers: { "user-agent": FAV_UA } });
+      const t = (r.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+      if (!r.ok || !(/^image\//.test(t) || /\.ico(\?|$)/i.test(u))) continue;
+      const b = await r.arrayBuffer();
+      if (!b.byteLength || b.byteLength > FAV_MAX) continue;
+      found = { body: b, type: /^image\//.test(t) ? t : "image/x-icon" }; break;
+    } catch (e) {}
+  }
+  await env.KV.put(key, found ? found.body : new Uint8Array(0), { expirationTtl: 30 * 86400, metadata: { type: found ? found.type : "" } });
+  return found;
 }
 // Náhled odkazu pro Pořádek: z hlavičky stránky vytáhne og:image, název a popis.
 // Žádná cizí služba, jen jeden fetch Workeru; výsledek se drží týden v KV.
@@ -99,6 +183,118 @@ async function linkPreview(env, u) {
   return out;
 }
 async function delImg(env, id) { if (env.BOOKS) await env.BOOKS.delete("img/" + id); await env.KV.delete("img:" + id); }
+
+// ---- duplicity: tentýž odkaz zapsaný jinak (www, http, utm_…, # nebo lomítko na konci) ----
+// Stejná funkce je i ve stránce (dupKey v index.html), test hlídá, že dávají totéž.
+const TRACK_RE = /^(utm_|fbclid$|gclid$|dclid$|mc_cid$|mc_eid$|igshid$|si$|spm$|_hs)/i;
+function dupKey(u) {
+  let x; try { x = new URL(/^[a-z]+:\/\//i.test(String(u || "").trim()) ? String(u).trim() : "https://" + String(u || "").trim()); } catch (e) { return ""; }
+  if (!/^https?:$/.test(x.protocol) || !x.hostname.includes(".")) return "";
+  let h = x.hostname.toLowerCase().replace(/^(www|m)\./, ""), p = x.pathname.replace(/\/+$/, "");
+  if (h === "youtu.be" && p.length > 1) { x.searchParams.set("v", p.slice(1)); h = "youtube.com"; p = "/watch"; }
+  const yt = h === "youtube.com", q = [...x.searchParams].filter(([k]) => !TRACK_RE.test(k) && !(yt && /^(t|feature|pp|ab_channel|list|index)$/.test(k))).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+  return h + p + (q.length ? "?" + new URLSearchParams(q).toString() : "");
+}
+
+// ---- uložené články: text stránky zůstane, i když web zmizí nebo článek smažou ----
+// Celý text je v art:<klíč>. Pro hledání je v jednom klíči artidx výtah: různá slova
+// celého článku bez diakritiky (do ART_SNIP znaků), takže se najde i slovo z konce
+// článku a stránka si celý výtah stáhne jednou, až začneš hledat. Když se stránka
+// stáhnout nedá, zapíše se to taky (f), ať to cron nezkouší pořád; po 30 dnech znovu.
+const ART_MAX = 200000, ART_SNIP = 6000;
+function artWords(t) {
+  const seen = new Set(), out = []; let n = 0;
+  for (const x of normText(t).split(/[^\p{L}\p{N}]+/u)) { if (x.length < 3 || seen.has(x)) continue; seen.add(x); out.push(x); n += x.length + 1; if (n > ART_SNIP) break; }
+  return out.join(" ");
+}
+async function artKey(u) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(dupKey(u) || u));
+  return [...new Uint8Array(d)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function extractArticle(html) {
+  const t = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const body = html.replace(/<!--[\s\S]*?-->/g, " ").replace(/<(script|style|noscript|svg|nav|header|footer|aside|form|iframe|template|button)\b[\s\S]*?<\/\1>/gi, " ");
+  const pick = (tag) => { const m = body.match(new RegExp("<" + tag + "\\b[^>]*>([\\s\\S]*)<\\/" + tag + ">", "i")); return m ? m[1] : ""; };
+  let core = pick("article"); if (stripHtml(core).length < 400) core = pick("main"); if (stripHtml(core).length < 400) core = pick("body") || body;
+  const text = decodeEnt(core.replace(/<(br|\/p|\/h[1-6]|\/li|\/div|\/tr|\/blockquote|\/section|\/pre)\b[^>]*>/gi, "\n").replace(/<li\b[^>]*>/gi, "• ").replace(/<[^>]+>/g, " "))
+    .split("\n").map((s) => s.replace(/[ \t\u00a0]+/g, " ").trim()).filter(Boolean).join("\n");
+  return { title: decodeEnt((t ? t[1] : "").replace(/\s+/g, " ").trim()).slice(0, 300), text: text.slice(0, ART_MAX) };
+}
+async function getArtIdx(env) { const r = await env.KV.get("artidx"); return r ? JSON.parse(r) : {}; }
+async function fetchArticleHtml(u) {
+  try {
+    const r = await fetch(u, { redirect: "follow", signal: AbortSignal.timeout(10000), headers: { "user-agent": "Mozilla/5.0 (compatible; RozcestnikBot/1.0)", accept: "text/html" } });
+    if (!r.ok || !/html|text\/plain/i.test(r.headers.get("content-type") || "")) return null;
+    const rd = r.body.getReader(), dec = new TextDecoder(); let html = "";
+    while (html.length < 3000000) { const { done, value } = await rd.read(); if (done) break; html += dec.decode(value, { stream: true }); }
+    try { rd.cancel(); } catch (e) {}
+    return html;
+  } catch (e) { return null; }
+}
+// idx předaný zvenku si volající uloží sám (cron jich ukládá víc najednou)
+async function saveArticle(env, u, idx) {
+  const own = !idx; idx = idx || (await getArtIdx(env));
+  const k = await artKey(u), html = await fetchArticleHtml(u);
+  let rec = null;
+  if (html) { const a = extractArticle(html); if (a.text.length >= 200) rec = { u, title: a.title, text: a.text, saved: Date.now() }; }
+  if (rec) {
+    const seal = await sealer(env), words = artWords(rec.title + " " + rec.text), out = { ...rec };
+    await sealFields(seal, out, ["title", "text"]);
+    await env.KV.put("art:" + k, JSON.stringify(out));
+    idx[k] = { u, s: seal ? await seal(words) : words, t: rec.saved };
+    rec = out;
+  }
+  else idx[k] = { u, f: Date.now() };
+  if (own) await env.KV.put("artidx", JSON.stringify(idx));
+  return rec;
+}
+const artable = (u) => /^https?:\/\//i.test(u || "") && !/\/api\/img\//.test(u);
+// Cron doplňuje články k odkazům v oblastech, po pár kusech, kvůli limitu stažení na běh.
+async function artBackfill(env, board, max) {
+  const idx = await getArtIdx(env); let n = 0;
+  for (const a of board.areas || []) {
+    if (a.type === "text") continue;
+    for (const l of a.links || []) {
+      if (n >= max) break;
+      if (!artable(l.url)) continue;
+      const e = idx[await artKey(l.url)];
+      if (e && (!e.f || Date.now() - e.f < 30 * DAY)) continue;
+      n++; await saveArticle(env, l.url, idx);
+    }
+  }
+  if (n) await env.KV.put("artidx", JSON.stringify(idx));
+  return n;
+}
+// Články k odkazům, které už nikde nejsou (ani v Koši), se jednou denně smažou.
+async function gcArticles(env, board, inbox) {
+  const idx = await getArtIdx(env), live = new Set();
+  const add = (u) => { if (u) live.add(dupKey(u) || u); };
+  for (const a of board.areas || []) for (const l of a.links || []) add(l.url);
+  for (const i of inbox || []) add(i.url);
+  for (const t of board.trash || []) { const it = t.payload && t.payload.item; if (it) add(it.url); }
+  let n = 0;
+  for (const k of Object.keys(idx)) { if (n >= 25) break; if (!live.has(dupKey(idx[k].u) || idx[k].u)) { await env.KV.delete("art:" + k); delete idx[k]; n++; } }
+  if (n) await env.KV.put("artidx", JSON.stringify(idx));
+  return n;
+}
+
+// ---- záloha: celá deska, Ke zpracování a obrázky v jednom souboru JSON ----
+function b64(buf) { const u = new Uint8Array(buf); let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+async function exportAll(env) {
+  const board = await getBoard(env), inbox = await getInbox(env), images = {}, imagesEnc = {};
+  const ids = new Set((JSON.stringify(board) + JSON.stringify(inbox)).match(/\/api\/img\/[a-z0-9-]{4,40}/gi) || []);
+  // se šifrováním jsou odkazy v textu zašifrované, seznam drží stránka v meta.imgRefs
+  const all = [...ids].map((s) => s.slice(9)).concat(inbox.filter((i) => i && i.img).map((i) => i.img), (board.meta && board.meta.imgRefs) || []);
+  for (const id of new Set(all)) {
+    const img = await getImg(env, id); if (!img) continue;
+    const buf = img.body instanceof ArrayBuffer ? img.body : await new Response(img.body).arrayBuffer();
+    if (img.e) imagesEnc[id] = { type: img.type, d: b64(buf) }; else images[id] = "data:" + img.type + ";base64," + b64(buf);
+  }
+  // Cyklus jde do zálohy jen zašifrovaný (bez hesla k cyklu je k ničemu).
+  const ce = await env.KV.get("cycle_enc");
+  const au = await getAuth(env);
+  return { app: "rozcestnik", v: 1, exportedAt: Date.now(), board, inbox, images, imagesEnc, ...(ce ? { cycleEnc: JSON.parse(ce) } : {}), ...(au && au.kid ? { kid: au.kid } : {}) };
+}
 
 // ---- směnné kurzy (denní, základ EUR) ----
 async function fetchRates() {
@@ -151,12 +347,18 @@ async function checkOne(url) {
   try { const r = await fetch(url, { method: "GET", redirect: "follow", signal: c.signal, headers: { "user-agent": "RozcestnikBot/1.0" } }); clearTimeout(t); return { status: r.status < 400 ? "ok" : "broken", code: r.status }; }
   catch (e) { clearTimeout(t); return { status: e.name === "AbortError" ? "unknown" : "broken", code: 0 }; }
 }
-async function checkBoard(board) {
-  for (const a of board.areas) {
-    if (a.type === "text") continue;
-    for (const l of a.links) { if (!l.url) continue; const r = await checkOne(l.url); l.status = r.status; l.code = r.code; l.lastChecked = Date.now(); }
-  }
-  board.meta = board.meta || {}; board.meta.lastCheckedAll = Date.now();
+// Bezplatný Cloudflare dovolí jen 50 stažení na jeden běh, takže se kontroluje po
+// dávkách: nejdřív odkazy, které se nekontrolovaly nejdéle. Vrací, kolik jich
+// zkontrolovaných dřív než "since" ještě zbývá.
+async function checkBoard(board, max, since) {
+  const all = [];
+  for (const a of board.areas) { if (a.type === "text") continue; for (const l of a.links) if (artable(l.url)) all.push(l); }
+  const due = all.filter((l) => (l.lastChecked || 0) < since).sort((x, y) => (x.lastChecked || 0) - (y.lastChecked || 0));
+  const todo = due.slice(0, max);
+  for (const l of todo) { const r = await checkOne(l.url); l.status = r.status; l.code = r.code; l.lastChecked = Date.now(); }
+  const left = due.length - todo.length;
+  if (!left) { board.meta = board.meta || {}; board.meta.lastCheckedAll = Date.now(); }
+  return left;
 }
 
 // ---- hlídač: sleduje frázi na zadaných stránkách ----
@@ -351,8 +553,14 @@ async function sendEmail(env, to, subject, text) {
   } catch (e) { return false; }
 }
 
-async function notifyHit(w, hit, env, to) {
+async function notifyHit(w, hit, env, to, quiet) {
   const origin = (await env.KV.get("app_origin")) || "";
+  if (quiet) {
+    const msg = "Hlidac nasel shodu." + (origin ? "\n" + origin : "");
+    if (env.NTFY_TOPIC) { try { await fetch("https://ntfy.sh/" + env.NTFY_TOPIC, { method: "POST", headers: { Title: "Rozcestnik" }, body: msg }); } catch (e) {} }
+    await sendEmail(env, to, "Rozcestnik: Hlidac nasel shodu", msg);
+    return;
+  }
   const name = w.name || w.phrase || "";
   const when = (hit.dates || []).map((d) => d.d + ". " + d.m + ". " + d.y + (d.hh == null ? "" : " " + d.hh + ":" + String(d.mm).padStart(2, "0"))).join(", ");
   const body = name + "\n" + hit.url
@@ -485,9 +693,12 @@ async function runWatches(board, env, only) {
         dates: datesForPhrase(hit.text, w.phrase, s.tz),
         ticketUrl: findTicketUrl(hit.html, hit.url),
       };
+      const seal = await sealer(env);
+      // Se šifrováním jde ven (ntfy, e-mail) jen obecná zpráva bez obsahu.
+      await notifyHit(w, rec, env, s.watchEmail || "", !!seal);
+      await sealFields(seal, rec, ["name", "snippet"]);
       board.watchHits.unshift(rec);
       found++;
-      await notifyHit(w, rec, env, s.watchEmail || "");
     }
   }
   return found;
@@ -511,8 +722,7 @@ async function maybeDaily(board) {
       const boundary = r === "week" ? L.wd === 0 : r === "month" ? L.d === 1 : false;
       if (boundary && b.done.length) { for (const it of b.done) toTrash(board, "done", it.text, { block: b.id, item: it }); b.done = []; }
     }
-    // 3) kontrola odkazů
-    await checkBoard(board);
+    // 3) kontrola odkazů jede po dávkách v hodinovém cronu (checkBoard)
     // 4) vrácené věci a vyrovnané dluhy do koše
     board.loans = board.loans || { out: [], in: [] };
     for (const dir of ["out", "in"]) {
@@ -641,9 +851,23 @@ async function hashPass(pass, salt) {
   const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: enc.encode(salt), iterations: 100000, hash: "SHA-256" }, key, 256);
   return bufToHex(bits);
 }
+// Co je právě sdílené (oblasti, bloky, úkoly): stránka to nešifruje, ať to příjemce přečte.
+async function sharedScope(env) {
+  const out = { areas: [], blocks: [], tasks: false };
+  for (const s of await getShareIndex(env)) {
+    const rec = await getShare(env, s.token);
+    if (!rec || shareExpired(rec)) continue;
+    out.areas.push(...(rec.areas || [])); out.blocks.push(...(rec.blocks || [])); if (rec.includeTasks) out.tasks = true;
+  }
+  return out;
+}
 async function getShareIndex(env) { const r = await env.KV.get("shares_index"); return r ? JSON.parse(r) : []; }
-async function getCycle(env) { const r = await env.KV.get("cycle"); return r ? JSON.parse(r) : { periods: [] }; }
-const putCycle = (env, o) => env.KV.put("cycle", JSON.stringify(o));
+// Cyklus: KV cycle_enc = { salt, iter, iv, ct, hint }; AES-GCM, klíč z hesla k cyklu vzniká jen ve stránce.
+// Starý nešifrovaný klíč "cycle" se smaže při prvním uložení šifrovaného.
+function cycleRecOk(b) {
+  return HEX32.test(b.salt || "") && Number.isInteger(b.iter) && b.iter >= 100000 && b.iter <= 5000000
+    && /^[a-f0-9]{24}$/.test(b.iv || "") && typeof b.ct === "string" && b.ct.length > 0 && b.ct.length <= 400000 && /^[A-Za-z0-9+/=]+$/.test(b.ct);
+}
 const putShareIndex = (env, x) => env.KV.put("shares_index", JSON.stringify(x));
 async function getShare(env, t) { const r = await env.KV.get("share:" + t); return r ? JSON.parse(r) : null; }
 const putShare = (env, rec) => env.KV.put("share:" + rec.token, JSON.stringify(rec));
@@ -678,9 +902,199 @@ function applyShareEdit(board, rec, b) {
   return { error: "badop" };
 }
 
+// ---- Zámek appky: heslo a sezení (důvěryhodné / cizí zařízení) ----
+// Heslo server nikdy nedostane: stránka z něj PBKDF2 vyrobí 512 bitů, první polovinu pošle
+// jako přihlašovací klíč a druhá zůstane ve stránce na šifrování. Server ukládá jen SHA-256
+// přihlašovacího klíče. Dokud heslo není nastavené, appka je otevřená jako dřív.
+const FOREIGN_IDLE = 20 * 60000, TRUSTED_TTL = 365 * DAY, AUTH_FAILS = 10, AUTH_BLOCK = 15 * 60000;
+const HEX64 = /^[a-f0-9]{64}$/, HEX32 = /^[a-f0-9]{32}$/;
+async function sha256hex(s) { return bufToHex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s))); }
+async function getAuth(env) { const r = await env.KV.get("auth"); return r ? JSON.parse(r) : null; }
+const putAuth = (env, a) => env.KV.put("auth", JSON.stringify(a));
+const sessTtl = (k) => Math.round((k === "f" ? FOREIGN_IDLE : TRUSTED_TTL) / 1000);
+function cookieTok(request) { const m = (request.headers.get("cookie") || "").match(/(?:^|;\s*)rz_s=([a-f0-9]{64})/); return m ? m[1] : ""; }
+function sessCookie(url, tok, kind) {
+  const base = "rz_s=" + tok + "; Path=/; HttpOnly; SameSite=Lax" + (url.protocol === "https:" ? "; Secure" : "");
+  if (!tok) return base + "; Max-Age=0";
+  return kind === "t" ? base + "; Max-Age=" + sessTtl("t") : base; // cizí zařízení: cookie zmizí se zavřením prohlížeče
+}
+async function newSession(env, kind) {
+  const tok = bufToHex(crypto.getRandomValues(new Uint8Array(32))), now = Date.now();
+  await env.KV.put("sess:" + await sha256hex(tok), JSON.stringify({ k: kind, c: now, s: now }), { expirationTtl: sessTtl(kind) });
+  return tok;
+}
+// Platné sezení, nebo null. Prodlužuje se nejvýš jednou za minutu (cizí) / týden (důvěryhodné),
+// aby se nepálily zápisy do KV (bezplatný plán jich má 1000 denně).
+async function getSession(request, env, auth) {
+  const tok = cookieTok(request); if (!tok) return null;
+  const key = "sess:" + await sha256hex(tok), r = await env.KV.get(key); if (!r) return null;
+  const s = JSON.parse(r), now = Date.now();
+  if (s.c < (auth.since || 0) || (s.k === "f" && now - s.s > FOREIGN_IDLE)) { await env.KV.delete(key); return null; }
+  if (now - s.s > (s.k === "f" ? 60000 : 7 * DAY)) { s.s = now; await env.KV.put(key, JSON.stringify(s), { expirationTtl: sessTtl(s.k) }); }
+  return { ...s, key, tok };
+}
+async function dropSessions(env) {
+  const l = await env.KV.list({ prefix: "sess:", limit: 1000 });
+  await Promise.all(l.keys.map((k) => env.KV.delete(k.name)));
+}
+// Hrubá síla: po 10 špatných pokusech 15 minut nic.
+async function authBlocked(env) { const r = await env.KV.get("authfail"); const f = r ? JSON.parse(r) : null; return !!(f && f.until > Date.now()); }
+async function authFail(env) {
+  const r = await env.KV.get("authfail"), f = r ? JSON.parse(r) : { n: 0 };
+  f.n = (f.n || 0) + 1; if (f.n >= AUTH_FAILS) { f.n = 0; f.until = Date.now() + AUTH_BLOCK; }
+  await env.KV.put("authfail", JSON.stringify(f), { expirationTtl: 86400 });
+}
+async function keyOk(key, hash) { return HEX64.test(key || "") && timingSafeEqual(await sha256hex(key), hash || ""); }
+function cleanHint(h) { return String(h || "").trim().slice(0, 120); }
+function validCreds(b) { return HEX64.test(b.key || "") && HEX32.test(b.salt || "") && Number.isInteger(b.iter) && b.iter >= 100000 && b.iter <= 5000000; }
+// ---- Šifrování obsahu (krok 3) ----
+// Stránka šifruje obsah datovým klíčem (tokeny enc1.…), který server nikdy nedostane:
+// v auth leží jen zabalený heslem (wdk) a záchranným kódem (rwdk). Server má veřejný
+// klíč (pub, ECDH P-256) a obsah, který vyrobí sám (věci z telefonu, text stránek,
+// nálezy hlídače), jím zamkne do tokenu pk1.<efemérní klíč>.<iv>.<šifra>. Odemknout
+// ho umí jen stránka soukromým klíčem (wpriv, zabalený datovým klíčem).
+const B64U = /^[A-Za-z0-9_-]+$/, TOKEN_RE = /^(?:enc1|pk1)\./;
+const b64u = (u8) => b64(u8).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+function wrapOk(w) { return !!w && typeof w === "object" && B64U.test(w.iv || "") && B64U.test(w.ct || "") && w.ct.length <= 20000; }
+function keysOk(b) {
+  return /^[a-f0-9]{16}$/.test(b.kid || "") && wrapOk(b.wdk) && wrapOk(b.wpriv) && !!b.pub && b.pub.kty === "EC" && b.pub.crv === "P-256" && B64U.test(b.pub.x || "") && B64U.test(b.pub.y || "");
+}
+const keyFields = (b) => ({ kid: b.kid, pub: { kty: "EC", crv: "P-256", x: b.pub.x, y: b.pub.y }, wdk: { iv: b.wdk.iv, ct: b.wdk.ct }, wpriv: { iv: b.wpriv.iv, ct: b.wpriv.ct } });
+// Zamykač veřejným klíčem: vrátí funkci, která řetězec zamkne (už zamčený nechá být).
+// Bez zapnutého šifrování vrací řetězec beze změny.
+async function sealer(env) {
+  const a = await getAuth(env);
+  if (!a || !a.pub) return null;
+  const pub = await crypto.subtle.importKey("jwk", { ...a.pub, ext: true }, { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const core = async (data) => {
+    const eph = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+    const epk = new Uint8Array(await crypto.subtle.exportKey("raw", eph.publicKey));
+    const shared = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: pub }, eph.privateKey, 256));
+    const raw = await crypto.subtle.digest("SHA-256", new Uint8Array([...shared, ...epk]));
+    const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt"]);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    return { epk, iv, ct: new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, data)) };
+  };
+  const seal = async (s) => {
+    if (typeof s !== "string" || !s || TOKEN_RE.test(s)) return s;
+    const { epk, iv, ct } = await core(new TextEncoder().encode(s));
+    return "pk1." + b64u(epk) + "." + b64u(iv) + "." + b64u(ct);
+  };
+  // Obrázek: bajty = efemérní klíč (65) + iv (12) + šifra.
+  seal.bytes = async (u8) => { const { epk, iv, ct } = await core(u8); const out = new Uint8Array(77 + ct.length); out.set(epk); out.set(iv, 65); out.set(ct, 77); return out; };
+  return seal;
+}
+async function sealFields(seal, o, keys) { if (seal && o) for (const k of keys) if (typeof o[k] === "string" && o[k]) o[k] = await seal(o[k]); return o; }
+// Po zapnutí šifrování zamkne už uložené články a výtah pro hledání (po dávkách).
+async function sealArticles(env, max) {
+  const seal = await sealer(env); if (!seal) return 0;
+  const idx = await getArtIdx(env); let n = 0, left = 0;
+  for (const [k, e] of Object.entries(idx)) {
+    if (!e.s || TOKEN_RE.test(e.s)) continue;
+    if (n >= max) { left++; continue; }
+    const r = await env.KV.get("art:" + k);
+    if (r) { const rec = JSON.parse(r); await sealFields(seal, rec, ["title", "text"]); await env.KV.put("art:" + k, JSON.stringify(rec)); }
+    e.s = await seal(e.s); n++;
+  }
+  if (n) await env.KV.put("artidx", JSON.stringify(idx));
+  return left;
+}
+// API, které jde i bez přihlášení: zámek sám, sdílení (má vlastní token), zápis z telefonu
+// a rozšíření (jen přidává, nic nevrací), kurzy a obrázky (id je náhodné UUID, potřebuje je sdílení).
+function apiPublic(path, method) {
+  return path.startsWith("/api/auth/") || path === "/api/cal/callback" || path === "/api/share/view" || path === "/api/share/edit"
+    || path === "/api/capture" || path === "/api/fx" || (path.startsWith("/api/img/") && method === "GET");
+}
+async function authRoute(request, env, url, path, auth) {
+  const m = request.method, b = m === "POST" ? await request.json().catch(() => ({})) : {};
+  const kind = b.kind === "f" ? "f" : "t";
+  const withSess = async (body, k) => { const tok = await newSession(env, k); return json(body, 200, { "set-cookie": sessCookie(url, tok, k) }); };
+  if (path === "/api/auth/status") {
+    if (!auth) return json({ set: false });
+    const s = await getSession(request, env, auth);
+    const out = { set: true, ok: !!s, kind: s ? s.k : null, salt: auth.salt, iter: auth.iter, hint: auth.hint || "", kid: auth.kid || null };
+    // zabalené klíče jen přihlášenému; bez hesla jsou k ničemu, ale nemusí se rozdávat
+    if (s && auth.kid) out.keys = { kid: auth.kid, pub: auth.pub, wdk: auth.wdk, wpriv: auth.wpriv };
+    return s && s.k === "t" ? json(out, 200, { "set-cookie": sessCookie(url, s.tok, "t") }) : json(out);
+  }
+  if (m !== "POST") return json({ error: "not found" }, 404);
+  if (path === "/api/auth/setup") {
+    if (auth) return json({ error: "already" }, 409);
+    if (!validCreds(b) || !HEX64.test(b.rkey || "") || !HEX32.test(b.rsalt || "")) return json({ error: "bad" }, 400);
+    const now = Date.now();
+    const a = { v: 1, salt: b.salt, iter: b.iter, h: await sha256hex(b.key), rsalt: b.rsalt, rh: await sha256hex(b.rkey), hint: cleanHint(b.hint), since: now, created: now };
+    if (keysOk(b) && wrapOk(b.rwdk)) Object.assign(a, keyFields(b), { rwdk: { iv: b.rwdk.iv, ct: b.rwdk.ct } });
+    await putAuth(env, a);
+    return withSess({ ok: true }, kind);
+  }
+  if (!auth) return json({ error: "noauth" }, 400);
+  if (path === "/api/auth/logout") {
+    const s = await getSession(request, env, auth); if (s) await env.KV.delete(s.key);
+    return json({ ok: true }, 200, { "set-cookie": sessCookie(url, "", "t") });
+  }
+  if (path === "/api/auth/recover-salt") return json({ rsalt: auth.rsalt, iter: auth.iter });
+  if (await authBlocked(env)) return json({ error: "blocked" }, 429);
+  if (path === "/api/auth/login") {
+    if (!(await keyOk(b.key, auth.h))) { await authFail(env); return json({ error: "wrong" }, 403); }
+    return withSess({ ok: true }, kind);
+  }
+  // Záchranný kód: nejdřív vydá datový klíč zabalený kódem (stránka ho přebalí novým heslem),
+  // pak nové heslo a všechna ostatní zařízení se odhlásí.
+  if (path === "/api/auth/recover-keys") {
+    if (!(await keyOk(b.rkey, auth.rh))) { await authFail(env); return json({ error: "wrong" }, 403); }
+    return json(auth.kid ? { kid: auth.kid, rwdk: auth.rwdk } : {});
+  }
+  if (path === "/api/auth/recover") {
+    if (!(await keyOk(b.rkey, auth.rh))) { await authFail(env); return json({ error: "wrong" }, 403); }
+    if (!validCreds(b) || (auth.kid && !wrapOk(b.wdk))) return json({ error: "bad" }, 400);
+    Object.assign(auth, { salt: b.salt, iter: b.iter, h: await sha256hex(b.key), since: Date.now() });
+    if (auth.kid) auth.wdk = { iv: b.wdk.iv, ct: b.wdk.ct };
+    if ("hint" in b) auth.hint = cleanHint(b.hint);
+    await putAuth(env, auth); await dropSessions(env);
+    return withSess({ ok: true }, kind);
+  }
+  const s = await getSession(request, env, auth);
+  if (!s) return json({ error: "auth" }, 401, { "x-rz-lock": "1" });
+  if (path === "/api/auth/logout-all") {
+    auth.since = Date.now(); await putAuth(env, auth); await dropSessions(env);
+    return withSess({ ok: true }, s.k);
+  }
+  // Změna hesla a nový záchranný kód chtějí i současné heslo.
+  if (!(await keyOk(b.old, auth.h))) { await authFail(env); return json({ error: "wrong" }, 403); }
+  // Se šifrováním musí přijít i datový klíč přebalený novým heslem / kódem, jinak by se ztratil.
+  if (path === "/api/auth/change") {
+    if (!validCreds(b) || (auth.kid && !wrapOk(b.wdk))) return json({ error: "bad" }, 400);
+    Object.assign(auth, { salt: b.salt, iter: b.iter, h: await sha256hex(b.key), hint: cleanHint(b.hint) });
+    if (auth.kid) auth.wdk = { iv: b.wdk.iv, ct: b.wdk.ct };
+    await putAuth(env, auth); return json({ ok: true });
+  }
+  if (path === "/api/auth/recovery-new") {
+    if (!HEX64.test(b.rkey || "") || !HEX32.test(b.rsalt || "") || (auth.kid && !wrapOk(b.rwdk))) return json({ error: "bad" }, 400);
+    Object.assign(auth, { rsalt: b.rsalt, rh: await sha256hex(b.rkey) });
+    if (auth.kid) auth.rwdk = { iv: b.rwdk.iv, ct: b.rwdk.ct };
+    await putAuth(env, auth); return json({ ok: true });
+  }
+  // Zapnutí šifrování u appky, která už heslo má: klíče + nový záchranný kód (starý kód
+  // datový klíč neumí odemknout). Staré čitelné kopie z obnovy se smažou.
+  if (path === "/api/auth/keys") {
+    if (auth.kid) return json({ error: "already" }, 409);
+    if (!keysOk(b) || !wrapOk(b.rwdk) || !HEX64.test(b.rkey || "") || !HEX32.test(b.rsalt || "")) return json({ error: "bad" }, 400);
+    Object.assign(auth, keyFields(b), { rwdk: { iv: b.rwdk.iv, ct: b.rwdk.ct }, rsalt: b.rsalt, rh: await sha256hex(b.rkey) });
+    await putAuth(env, auth);
+    await Promise.all(["board_prev", "inbox_prev"].map((k) => env.KV.delete(k)));
+    return json({ ok: true });
+  }
+  return json({ error: "not found" }, 404);
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url), path = url.pathname;
+    if (path.startsWith("/api/")) {
+      const auth = await getAuth(env);
+      if (path.startsWith("/api/auth/")) return authRoute(request, env, url, path, auth);
+      if (auth && !apiPublic(path, request.method) && !(await getSession(request, env, auth))) return json({ error: "auth" }, 401, { "x-rz-lock": "1" });
+    }
 
     // OAuth start: ověř PIN, pak přesměruj na Google (PIN v query, jde o navigaci)
     if (path === "/api/cal/auth") {
@@ -727,8 +1141,19 @@ export default {
         const id = path.slice("/api/img/".length);
         if (!/^[a-z0-9-]{4,40}$/i.test(id)) return new Response("nenalezeno", { status: 404 });
         if (request.method === "DELETE") { await delImg(env, id); return json({ ok: true }); }
+        // Čitelná kopie pro sdílení: stránka obrázek odemkne a nahraje ho sem (jen přihlášená).
+        if (request.method === "PUT") {
+          // x-rz-enc: 1 = stránka obrázek už zamkla (vlastní fotka do záhlaví), type je typ uvnitř
+          const type = (request.headers.get("content-type") || "").split(";")[0], sealed = request.headers.get("x-rz-enc") === "1";
+          const bytes = new Uint8Array(await request.arrayBuffer());
+          if (!/^image\/(webp|jpeg|png|gif)$/.test(type) || !bytes.length || bytes.length > IMG_MAX + (sealed ? 200 : 0)) return json({ error: "bad-image" }, 400);
+          await putImg(env, id, { type, bytes, ...(sealed ? { e: 1 } : {}) });
+          return json({ ok: true });
+        }
         const img = await getImg(env, id);
         if (!img) return new Response("nenalezeno", { status: 404 });
+        // Zamčený obrázek: prohlížeč ho jako obrázek neukáže, stránka ho odemkne (x-rz-type = co je uvnitř).
+        if (img.e) return new Response(img.body, { headers: { "content-type": "application/octet-stream", "x-rz-enc": "1", "x-rz-type": img.type, "cache-control": "private, max-age=31536000, immutable" } });
         return new Response(img.body, { headers: { "content-type": img.type, "cache-control": "private, max-age=31536000, immutable" } });
       }
       try {
@@ -784,7 +1209,7 @@ export default {
               const h = await hashPass(pass, rec.salt);
               if (!timingSafeEqual(h, rec.passHash)) return json({ needPassword: true, label: rec.label || "", bad: true }, 401);
             }
-            return json(resolveShare(await getBoard(env), rec));
+            return json({ ...resolveShare(await getBoard(env), rec), images: !!rec.images });
           }
           if (path === "/api/share/list" && request.method === "GET") {
             const idx = await getShareIndex(env);
@@ -813,7 +1238,7 @@ export default {
             if (!areas.length && !blocks.length && !includeTasks) return json({ error: "empty" }, 400);
             const mode = b.mode === "private" ? "private" : "obscure";
             const access = b.access === "edit" ? "edit" : "read";
-            const rec = { token: rid() + rid().slice(0, 8), label: (b.label || "").slice(0, 80), areas, blocks, includeTasks, mode, access, createdAt: Date.now(), expiresAt: expFrom(b), notify: !!b.notify, notifyAheadH: Number(b.notifyAheadH) || 48, lastNotifiedFor: 0 };
+            const rec = { token: rid() + rid().slice(0, 8), label: (b.label || "").slice(0, 80), areas, blocks, includeTasks, images: !!b.images, mode, access, createdAt: Date.now(), expiresAt: expFrom(b), notify: !!b.notify, notifyAheadH: Number(b.notifyAheadH) || 48, lastNotifiedFor: 0 };
             if (mode === "private") { const pass = (b.password || "").trim(); if (!pass) return json({ error: "nopass" }, 400); rec.salt = rid(); rec.passHash = await hashPass(pass, rec.salt); }
             await putShare(env, rec);
             const idx = await getShareIndex(env);
@@ -842,20 +1267,36 @@ export default {
         if (path === "/api/wipe" && request.method === "POST") {
           const idx = await getShareIndex(env);
           await Promise.all((idx || []).map((t) => env.KV.delete("share:" + t)));
-          await Promise.all(["board", "inbox", "shares_index", "app_origin", "gcal_state"].map((k) => env.KV.delete(k)));
-          if (pinOk(request, env)) await Promise.all(["cycle", "gcal"].map((k) => env.KV.delete(k)));
+          await Promise.all(["board", "inbox", "shares_index", "app_origin", "gcal_state", "artidx", "board_prev", "inbox_prev"].map((k) => env.KV.delete(k)));
+          // uložené články (art:<klíč>) jsou taky obsah desky
+          const arts = await env.KV.list({ prefix: "art:", limit: 1000 });
+          await Promise.all(arts.keys.map((k) => env.KV.delete(k.name)));
+          await Promise.all(["cycle", "cycle_enc"].map((k) => env.KV.delete(k)));
+          if (pinOk(request, env)) await env.KV.delete("gcal");
           return json({ ok: true });
         }
-        if (path.startsWith("/api/cycle/")) {
-          if (!pinOk(request, env)) return json({ error: "pin" }, 401);
-          if (path === "/api/cycle/get") return json(await getCycle(env));
-          if (path === "/api/cycle/save" && request.method === "POST") {
+        // ---- Cyklus: jen zašifrovaný blok, klíč z hesla k cyklu zná jen stránka ----
+        if (path === "/api/cycle/blob") {
+          if (request.method === "GET") {
+            const e = await env.KV.get("cycle_enc");
+            // Starý nešifrovaný cyklus vydá jen přihlášenému (zámek) nebo s PINem, aby ho stránka zašifrovala.
+            const old = (await getAuth(env)) || pinOk(request, env) ? await env.KV.get("cycle") : null;
+            return json({ enc: e ? JSON.parse(e) : null, legacy: old ? (JSON.parse(old).periods || []) : null });
+          }
+          if (request.method === "PUT") {
             const b = await request.json().catch(() => ({}));
-            const periods = Array.isArray(b.periods) ? b.periods.filter((p) => p && p.start).map((p) => ({ id: String(p.id || rid()), start: String(p.start).slice(0, 10), end: p.end ? String(p.end).slice(0, 10) : null, skip: !!p.skip })) : [];
-            await putCycle(env, { periods, updatedAt: Date.now() });
+            if (!cycleRecOk(b)) return json({ error: "bad" }, 400);
+            await env.KV.put("cycle_enc", JSON.stringify({ v: 1, salt: b.salt, iter: b.iter, iv: b.iv, ct: b.ct, hint: cleanHint(b.hint), updatedAt: Date.now() }));
+            await env.KV.delete("cycle");
             return json({ ok: true });
           }
-          return json({ error: "not found" }, 404);
+          if (request.method === "DELETE") { await Promise.all(["cycle_enc", "cycle"].map((k) => env.KV.delete(k))); return json({ ok: true }); }
+        }
+        if (path === "/api/favicon" && request.method === "GET") {
+          const f = await favicon(env, url.searchParams.get("d"));
+          if (!f) return new Response("", { status: 404, headers: { "cache-control": "private, max-age=86400" } });
+          // SVG ikonka by otevřená napřímo mohla spustit skript: sandbox a nosniff to zarazí
+          return new Response(f.body, { headers: { "content-type": f.type, "cache-control": "private, max-age=604800", "x-content-type-options": "nosniff", "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox" } });
         }
         if (path === "/api/preview" && request.method === "GET") {
           const p = await linkPreview(env, url.searchParams.get("url") || "");
@@ -870,16 +1311,24 @@ export default {
           const text = (b.text || "").trim(), link = (b.url || "").trim(), note = (b.note || "").trim().slice(0, 2000);
           const id = rid(), item = { id, type: b.type || (link ? "link" : "point"), text, url: link, created: Date.now() };
           if (note) item.note = note;
-          if (b.image) {
+          if (b.imageSealed) {
+            // stránka obrázek zamkla sama, server ho čitelně vůbec neviděl
+            const type = String(b.imageType || ""), bin = /^[A-Za-z0-9+/=]+$/.test(b.imageSealed) ? atob(b.imageSealed) : "";
+            if (!/^image\/(webp|jpeg|png|gif)$/.test(type) || bin.length < 78 || bin.length > IMG_MAX + 200) return json({ error: "bad-image" }, 400);
+            await putImg(env, id, { type, bytes: Uint8Array.from(bin, (c) => c.charCodeAt(0)), e: 1 });
+            item.type = "image"; item.img = id;
+          } else if (b.image) {
             const img = parseDataUrl(b.image);
             if (!img) return json({ error: "bad-image" }, 400);
-            await putImg(env, id, img);
+            await putImgSealed(env, id, img);
             item.type = "image"; item.img = id;
           } else if (!text && !link) return json({ error: "empty" }, 400);
           if (b.src) item.src = String(b.src).slice(0, 2000);
+          await sealFields(await sealer(env), item, ["text", "note", "src"]);
           const inbox = await getInbox(env);
           inbox.unshift(item);
           await putInbox(env, inbox);
+          if (!item.img && artable(link) && ctx) ctx.waitUntil(saveArticle(env, link).catch(() => {}));
           return json({ ok: true });
         }
         if (path === "/api/watch/run" && request.method === "POST") {
@@ -893,17 +1342,62 @@ export default {
           const board = await getBoard(env);
           const changed = await maybeDaily(board);
           if (changed) await putBoard(env, board);
-          return json({ board, inbox: await getInbox(env), r2: !!env.BOOKS });
+          return json({ board, inbox: await getInbox(env), r2: !!env.BOOKS, shared: await sharedScope(env) });
         }
         if (path === "/api/state" && request.method === "PUT") {
           const b = await request.json();
           if (b.board) await putBoard(env, b.board);
-          if (Array.isArray(b.inbox)) await putInbox(env, b.inbox);
+          if (Array.isArray(b.inbox)) {
+            // Položky, které mezitím přišly přes /api/capture a klient je ještě nezná, zůstanou.
+            let inbox = b.inbox;
+            if (Array.isArray(b.inboxKnown)) {
+              const known = new Set(b.inboxKnown);
+              inbox = (await getInbox(env)).filter((i) => i && !known.has(i.id)).concat(inbox);
+            }
+            await putInbox(env, inbox);
+          }
           return json({ ok: true });
         }
         if (path === "/api/check" && request.method === "POST") {
-          const board = await getBoard(env); await checkBoard(board); await putBoard(env, board);
-          return json({ board });
+          const b = await request.json().catch(() => ({}));
+          const board = await getBoard(env), left = await checkBoard(board, 40, Number(b.since) || Date.now()); await putBoard(env, board);
+          return json({ board, left });
+        }
+        if (path === "/api/e2e/seal-images" && request.method === "POST") return json({ left: await sealImages(env, 10) });
+        if (path === "/api/e2e/seal-articles" && request.method === "POST") return json({ left: await sealArticles(env, 40) });
+        if (path === "/api/articles" && request.method === "GET") {
+          const idx = await getArtIdx(env);
+          return json({ items: Object.values(idx).filter((e) => e.s).map((e) => ({ u: e.u, s: e.s })) });
+        }
+        if (path === "/api/article" && request.method === "POST") {
+          const b = await request.json().catch(() => ({}));
+          if (!artable(b.url)) return json({ error: "bad-url" }, 400);
+          const k = await artKey(b.url), hit = !b.refresh && (await env.KV.get("art:" + k));
+          if (hit) return json(JSON.parse(hit));
+          const rec = await saveArticle(env, b.url);
+          return rec ? json(rec) : json({ error: "nothing" }, 404);
+        }
+        if (path === "/api/export" && request.method === "GET") {
+          const day = new Date().toISOString().slice(0, 10);
+          return new Response(JSON.stringify(await exportAll(env)), { headers: { "content-type": "application/json", "content-disposition": 'attachment; filename="rozcestnik-' + day + '.json"' } });
+        }
+        if (path === "/api/restore" && request.method === "POST") {
+          const b = await request.json().catch(() => null);
+          if (!b || b.app !== "rozcestnik" || !b.board || !Array.isArray(b.board.areas)) return json({ error: "not-backup" }, 400);
+          // Co bylo před obnovou, zůstane 30 dní v KV (board_prev, inbox_prev).
+          const ttl = { expirationTtl: 30 * 86400 };
+          await env.KV.put("board_prev", JSON.stringify(await getBoard(env)), ttl);
+          await env.KV.put("inbox_prev", JSON.stringify(await getInbox(env)), ttl);
+          let imgs = 0;
+          for (const [id, d] of Object.entries(b.images || {})) { if (!/^[a-z0-9-]{4,40}$/i.test(id)) continue; const img = parseDataUrl(d); if (img) { await putImg(env, id, img); imgs++; } }
+          for (const [id, x] of Object.entries(b.imagesEnc || {})) {
+            if (!/^[a-z0-9-]{4,40}$/i.test(id) || !x || !/^image\/(webp|jpeg|png|gif)$/.test(x.type || "")) continue;
+            try { await putImg(env, id, { type: x.type, bytes: Uint8Array.from(atob(x.d), (c) => c.charCodeAt(0)), e: 1 }); imgs++; } catch (e) {}
+          }
+          await putBoard(env, b.board);
+          await putInbox(env, Array.isArray(b.inbox) ? b.inbox : []);
+          if (b.cycleEnc && cycleRecOk(b.cycleEnc)) { const c = b.cycleEnc; await env.KV.put("cycle_enc", JSON.stringify({ v: 1, salt: c.salt, iter: c.iter, iv: c.iv, ct: c.ct, hint: cleanHint(c.hint), updatedAt: Date.now() })); }
+          return json({ ok: true, images: imgs });
         }
         if (path === "/api/book/search" && request.method === "GET") {
           return json({ results: await bookSearch(Object.fromEntries(url.searchParams)) });
@@ -932,6 +1426,13 @@ export default {
       const board = await getBoard(env);
       await maybeDaily(board);
       try { await runWatches(board, env, null); } catch (e) {}
+      const s = board.settings || (board.settings = {}), today = Math.floor(Date.now() / DAY);
+      if (s.lastImgGc !== today) { try { const ib = await getInbox(env); await gcImages(env, board, ib); await gcArticles(env, board, ib); s.lastImgGc = today; } catch (e) {} }
+      // Hlídač má až 25 stažení, kontrola odkazů 12 a články 4, aby se běh vešel do limitu 50.
+      try { await checkBoard(board, 12, Date.now() - 20 * 3600000); } catch (e) {}
+      try { await artBackfill(env, board, 4); } catch (e) {}
+      try { await sealArticles(env, 40); } catch (e) {}
+      try { await sealImages(env, 5); } catch (e) {}
       await putBoard(env, board);
       try { await getFx(env); } catch (e) {}
       const broken = board.areas.flatMap((a) => (a.type === "text" ? [] : a.links)).filter((l) => l.status === "broken");
