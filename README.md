@@ -709,10 +709,14 @@ Pro ukládání odkazů sdílením nastav `"type":"link"` a do `"url"` vlož sd�
 
 ## Použití
 - Co přijde z telefonu, je nahoře v „Ke zpracování" — odtud zařadíš do oblasti nebo mezi úkoly.
+  U každé věci (odkaz, obrázek i poznámka) jsou dvě tlačítka: **Mezi úkoly** a **Do oblasti** —
+  to druhé ukáže všechny oblasti a klikem vybereš, kam věc patří. Odkaz mezi úkoly dostane
+  adresu do poznámky úkolu; poznámka v oblasti odkazů je položka bez adresy (adresu jde
+  doplnit přes ✎), a když v poznámce adresa je, stane se z ní rovnou odkaz.
 - **Ctrl+V kdekoli** vloží obrázek ze schránky (třeba po Win+Shift+S) do „Ke zpracování",
   zmenšený zhruba na 300 kB. Odkaz nebo text vložený mimo políčko se uloží taky.
 - V „Ke zpracování" přepíná **Seznam / Mřížka** řádky a karty s náhledy. **Roztřídit** projde
-  věci po jedné: klávesy 1–9 zařadí věc do očíslované oblasti, U pošle poznámku mezi úkoly,
+  věci po jedné: klávesy 1–9 zařadí věc do očíslované oblasti, U pošle cokoli mezi úkoly,
   Enter přeskočí, Delete smaže, Esc konec.
 - **Hledání najde všechno:** oblasti (i schované, počet nalezených je vidět v liště schovaných),
   Ke zpracování, uložený text stránek i text na screenshotech. Na diakritice nezáleží
@@ -796,6 +800,14 @@ hustota a písmo (jen systémová písma, nic se nestahuje).
 Plocha je modulární. Hlavní sekce (**Cíle a období**, **Úkoly a poznámky**, **Odkazy a
 připomínky**, **Ke zpracování**) i nástroje v horní liště se řídí stejnými pravidly:
 
+- **Rozdělit desku** (výběr ▦ nad oblastmi): deska se rozdělí na **poloviny**, **třetiny**,
+  **čtvrtiny vedle sebe** nebo **čtvrtiny 2 × 2**. Každá část má svůj **název** (klikni na něj),
+  **barvu pozadí** (barevný čtvereček, × ji zruší) a vlastní rozložení: **Volně (chaoticky)** —
+  oblasti v ní chytneš za hlavičku a položíš kamkoli — nebo **1–4 stejně široké sloupce**.
+  Oblast přestěhuješ do jiné části přetažením (za ⠿, ve volné části i za hlavičku), nebo
+  v menu ⋯ oblasti → *Do části*. Tlačítko + v hlavičce části založí oblast rovnou v ní.
+  *Nerozdělovat* vrátí původní desku; části, jejich názvy i rozmístění zůstanou uložené na příště.
+  Na telefonu jsou části pod sebou.
 - **Zrušit mřížku** (tlačítko nad oblastmi): žádná pravidla. Oblast chytneš za hlavičku a položíš
   kamkoli, klidně napůl přes jinou; navrch je ta naposled chycená. Při přepnutí nic neposkočí,
   *Zpět do mřížky* vrátí předchozí rozložení (volné pozice si appka pamatuje na příště). Na

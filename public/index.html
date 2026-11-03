@@ -176,7 +176,7 @@
   .ix-type{font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--lineSoft);color:var(--muted);padding:2px 7px;border-radius:var(--r)}
   .ix-text{flex:1;min-width:140px;font-size:14px;word-break:break-word}.ix-text a{color:var(--ink)}
   .ix-tools{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap}
-  .ix-chips{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 10px}
+  .ix-chips{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 10px}.ix-pick{padding:4px 0 2px 8px;display:flex;flex-direction:column;gap:4px}.ix-pick .ix-chips{margin:0}.ix-card .ix-pick{padding:4px 0 0}
   .ix-chip{font:inherit;font-size:12px;border:1px solid var(--lineStrong);background:var(--panel);color:var(--caption);border-radius:var(--r);padding:2px 8px;cursor:pointer}
   .ix-chip.on{border-color:var(--ink);color:var(--ink);background:var(--lineSoft)}.ix-chip b{font-weight:500;color:var(--ink)}
   .ix-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
@@ -201,6 +201,26 @@
 .board.gridded{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));align-items:start;gap:18px}
 .board.gridded .area{width:auto;min-width:0;max-width:none}
 @media(max-width:640px){.board.gridded{grid-template-columns:minmax(0,1fr)}.board.gridded .area{grid-column:auto!important;width:auto!important}}
+/* Části desky: poloviny/třetiny/čtvrtiny, v každé volně nebo stejně široké sloupce. */
+.board.zoned{display:grid;grid-template-columns:repeat(var(--zn),minmax(0,1fr));gap:14px;align-items:stretch}
+.zone{min-width:0;display:flex;flex-direction:column;border:1px dashed var(--lineStrong);border-radius:var(--r);padding:8px 10px 12px;background:transparent}
+.zone.tinted{background:color-mix(in srgb,var(--zc) 16%,transparent);border-color:color-mix(in srgb,var(--zc) 55%,transparent);border-style:solid}
+.zone.zover{outline:2px dashed var(--ink);outline-offset:2px}
+.zone-head{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;padding:0 0 8px}
+.zone-name{font:inherit;font-weight:600;font-size:14px;letter-spacing:.02em;color:var(--ink);background:none;border:0;border-left:4px solid var(--zc,var(--lineStrong));padding:2px 8px;cursor:text;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.zone-tools{display:flex;align-items:center;gap:4px}.zone-tools select{font-size:12px;padding:2px 4px;max-width:150px}
+.zone-tools input[type=color]{width:26px;height:22px;padding:0;border:1px solid var(--lineStrong);border-radius:4px;background:none;cursor:pointer}
+.zone-body{flex:1 1 auto;min-height:120px}
+.zone-body.zcols{display:grid;grid-template-columns:repeat(var(--zcols),minmax(0,1fr));gap:14px;align-items:start;align-content:start}
+.zone-body.zcols>.area{width:auto!important;min-width:0;max-width:none}
+.zone-body.zfree{position:relative}
+.zone-body.zfree>.area{position:absolute;margin:0;max-width:100%}
+.zone-body.zfree .area-head{cursor:grab}.zone-body.zfree .area.moving{opacity:.92;outline:2px solid var(--ink);cursor:grabbing}
+.zone-body.zfree .area-move-arrows{display:none!important}
+.zone-empty{color:var(--muted);font-size:13px;padding:24px 12px;text-align:center;line-height:1.5}
+.zone-body.zcols>.zone-empty{grid-column:1/-1}
+.zone-split{display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:13px}.zone-split select{font-size:13px}
+@media(max-width:640px){.board.zoned{grid-template-columns:minmax(0,1fr)}.zone-body.zcols{grid-template-columns:minmax(0,1fr)}.zone-body.zfree{height:auto!important;display:flex;flex-direction:column;gap:14px}.zone-body.zfree>.area{position:static;width:auto!important}}
 .board.unified .area{display:inline-block;width:100%!important;height:auto!important;margin:0 0 18px;vertical-align:top;break-inside:avoid;-webkit-column-break-inside:avoid;resize:none}
 .area{flex:0 0 auto;width:290px;min-width:200px;max-width:100%;overflow:hidden;display:flex;flex-direction:column;position:relative}
 .area>.links{flex:1 1 auto;min-height:0;overflow:auto}
@@ -403,7 +423,7 @@ const DICT={
   search:"Hledat ve všem…",onlyBroken:"jen rozbité",quotesBtn:"✎ citáty",myQuotes:"Moje citáty",bulkPh:"Vlož citáty, každý na svůj řádek…",
   bulkAuthor:"Autor (volitelně, pro celý seznam)",addQuotes:"Přidat citáty",noQuotes:"Zatím žádné citáty.",
   blocksTitle:"Cíle a období",addBlock:"+ Nový blok",want:"Chci zvládnout",doing:"Probíhá",toDoing:"Začít (do Probíhá)",toWant:"Zpět do Chci",done:"Hotovo",addGoal:"+ Přidat cíl",addDone:"+ Přidat splněné",clearDone:"vyčistit",
-  inbox:"Ke zpracování",ixList:"Seznam",ixGrid:"Mřížka",ixSort:"Roztřídit",ixDel:"Smazat",ixPrev:"← Zpět",ixNext:"Další →",ixSortEnd:"Konec",ixSortDone:"Hotovo, všechno roztříděné.",ixSortKeys:"Klávesy: 1–9 zařadit do oblasti, U mezi úkoly, Enter další, ← zpět, Delete smazat, Esc konec.",ixPasting:"Ukládám obrázek…",ixPasted:"Uloženo do Ke zpracování",ixPasteErr:"Nepovedlo se uložit:",file:"Zařadit",toTasks:"Mezi úkoly",newArea:"Nová oblast",createArea:"+ Vytvořit oblast",addLink:"+ Přidat odkaz",addItem:"+ Přidat položku",emptyArea:"Zatím prázdné",
+  inbox:"Ke zpracování",ixList:"Seznam",ixGrid:"Mřížka",ixSort:"Roztřídit",ixDel:"Smazat",ixPrev:"← Zpět",ixNext:"Další →",ixSortEnd:"Konec",ixSortDone:"Hotovo, všechno roztříděné.",ixSortKeys:"Klávesy: 1–9 zařadit do oblasti, U mezi úkoly, Enter další, ← zpět, Delete smazat, Esc konec.",ixPasting:"Ukládám obrázek…",ixPasted:"Uloženo do Ke zpracování",ixPasteErr:"Nepovedlo se uložit:",file:"Zařadit",toTasks:"Mezi úkoly",toArea:"Do oblasti",toAreaPick:"Vyber oblast:",newArea:"Nová oblast",createArea:"+ Vytvořit oblast",addLink:"+ Přidat odkaz",addItem:"+ Přidat položku",emptyArea:"Zatím prázdné",
   tasks:"Úkoly a poznámky",addTask:"+ Přidat úkol",sortDue:"Seřadit dle termínu",sortManual:"Ruční pořadí",dailyNote:"Hotové úkoly v 6:00:",move:"přesunout do hotových",del:"smazat",applyNow:"udělat teď",
   quickTaskPh:"Rychlý úkol…",watchDates:"Termíny",watchTickets:"Vstupenky",watchCalHere:"Do kalendáře tady",watchCalGoogle:"Do Google kalendáře",watchCalOk:"Vloženo do kalendáře.",watchCalPin:"Nejdřív si otevři panel Kalendář a odemkni ho PINem.",watchCalErr:"Vložit do kalendáře se nepovedlo.",watchAllDay:"celý den",watchBtn:"Hlídač",watchTitle:"Hlídač stránek",watchNew:"Nové hlídání",watchOutsourced:"Tohle je outsourced služba přes Cloudflare, takže odkaz bude jim známý.",watchName:"Název (pro tebe)",watchPhrase:"Co hledat",watchUrls:"Kde hledat — jedna adresa na řádek",watchUrlsShort:"adres",watchEvery:"Jak často",watchDaily:"denně",watchWeekly:"týdně",watchMonthly:"měsíčně",watchDeep:"Hledat i o úroveň hlouběji",watchDeepShort:"do hloubky",watchAdd:"+ Přidat hlídání",watchEmpty:"Zatím nic nehlídáš.",watchRunNow:"Zkontrolovat teď",watchChecking:"Kontroluju…",watchPause:"Pozastavit",watchResume:"Spustit",watchDelAsk:"Smazat tohle hlídání?",watchLast:"Naposled",watchNever:"zatím nikdy",watchPages:"stránek",watchHitsTitle:"Nálezy k potvrzení",watchAsk:"Tohle jsi hledala?",watchYes:"Ano, je to ono",watchNo:"Ne, to není ono",watchAfter:"Po potvrzení",watchSleep:"pozastavit hlídání",watchDelete:"smazat hlídání",watchKeep:"hlídat dál",faqMore:"Podrobně",resizeReset:"Táhni za kraj nebo roh; dvojklik na roh vrátí původní velikost",areaMenu:"Možnosti",tabColor:"Barva záložky",bodyColor:"Barva těla",clearColors:"Zrušit barvy",watchEditBtn:"Upravit",watchSave:"Uložit změny",watchCancel:"Zrušit",watchEditTitle:"Úprava hlídání",watchFromLink:"Hlídat, jestli to někde hrají",watchAlready:"Tohle už se hlídá — otevřít Hlídač",watchMadeFromLink:"Založeno hlídání „{p}“. Kouká se na adresu té položky, jednou týdně. V Hlídači si můžeš upravit frázi, přidat další adresy nebo změnit interval.",watchLinkArea:"Prolinkovat s oblastí",watchLinkNone:"— nepropojovat —",watchLinked:"Napojeno na oblast",watchLinkedNote:"Termín, který vybereš, se zapíše do popisku téhle položky a po termínu se položka sama smaže do Koše.",watchLinkNoMatch:"V oblasti {a} jsem nenašel položku, jejíž název by odpovídal hlídání.",watchNoteStamp:"Hraje se {d}",watchStamped:"Termín zapsán do oblasti.",watchSrcArea:"Hlídač: výchozí zdroj adres",watchSrcNone:"— žádná —",watchEmail:"Hlídač: e-mail pro upozornění",watchNoneFound:"Nic nenašel.",watchFoundOne:"Našel! Podívej se nahoru.",watchNeedPhrase:"Vyplň co hledat a aspoň jednu adresu.",watchQuiet:"Upozornění nejsou nastavená — nálezy uvidíš jen tady v panelu.",lendBtn:"Věci",moneyBtn:"Peníze",lendTitle:"Půjčené věci",lendOut:"Půjčeno ode mě",lendIn:"Půjčeno mně",lendWhoOut:"Komu",lendWhoIn:"Od koho",lendItem:"Co (kniha, věc…)",lendAdd:"+ Přidat",lendReturned:"Vráceno",lendEmpty:"Zatím nic.",lendDelAsk:"Smazat tento záznam?",
   moneyTitle:"Půjčené peníze",moneyBase:"Měna souhrnu",moneyRates:"kurzy k",moneyNoRates:"kurzy se nepodařilo načíst",moneyWho:"Jméno",moneyAmount:"Částka",moneyLent:"půjčeno ode mě (dluží mi)",moneyBorrowed:"půjčeno mně (dlužím)",moneyNote:"Poznámka (volitelně)",moneyAdd:"+ Přidat",moneySettle:"Vyrovnáno",moneyDelAsk:"Smazat tento záznam?",moneyEmpty:"Zatím žádné záznamy.",moneyOwesYou:"dluží ti",moneyYouOwe:"dlužíš",moneyEven:"vyrovnáno",
@@ -425,7 +445,7 @@ const DICT={
   search:"Search everything…",onlyBroken:"broken only",quotesBtn:"✎ quotes",myQuotes:"My quotes",bulkPh:"Paste quotes, one per line…",
   bulkAuthor:"Author (optional, for whole list)",addQuotes:"Add quotes",noQuotes:"No quotes yet.",
   blocksTitle:"Goals & periods",addBlock:"+ New block",want:"Want to do",doing:"Doing",toDoing:"Start (to Doing)",toWant:"Back to Want",done:"Done",addGoal:"+ Add goal",addDone:"+ Add done",clearDone:"clear",
-  inbox:"To process",ixList:"List",ixGrid:"Grid",ixSort:"Sort",ixDel:"Delete",ixPrev:"← Back",ixNext:"Next →",ixSortEnd:"Done",ixSortDone:"Done, everything is sorted.",ixSortKeys:"Keys: 1–9 file into area, U to tasks, Enter next, ← back, Delete delete, Esc stop.",ixPasting:"Saving image…",ixPasted:"Saved to To process",ixPasteErr:"Could not save:",file:"File",toTasks:"To tasks",newArea:"New area",createArea:"+ Create area",addLink:"+ Add link",addItem:"+ Add item",emptyArea:"Empty",
+  inbox:"To process",ixList:"List",ixGrid:"Grid",ixSort:"Sort",ixDel:"Delete",ixPrev:"← Back",ixNext:"Next →",ixSortEnd:"Done",ixSortDone:"Done, everything is sorted.",ixSortKeys:"Keys: 1–9 file into area, U to tasks, Enter next, ← back, Delete delete, Esc stop.",ixPasting:"Saving image…",ixPasted:"Saved to To process",ixPasteErr:"Could not save:",file:"File",toTasks:"To tasks",toArea:"To area",toAreaPick:"Pick an area:",newArea:"New area",createArea:"+ Create area",addLink:"+ Add link",addItem:"+ Add item",emptyArea:"Empty",
   tasks:"Tasks & notes",addTask:"+ Add task",sortDue:"Sort by deadline",sortManual:"Manual order",dailyNote:"Done tasks at 6:00:",move:"move to done",del:"delete",applyNow:"do now",
   quickTaskPh:"Quick task…",watchDates:"Dates",watchTickets:"Tickets",watchCalHere:"Add to calendar here",watchCalGoogle:"Add to Google Calendar",watchCalOk:"Added to your calendar.",watchCalPin:"Open the Calendar panel and unlock it with your PIN first.",watchCalErr:"Could not add it to the calendar.",watchAllDay:"all day",watchBtn:"Watcher",watchTitle:"Page watcher",watchNew:"New watch",watchOutsourced:"This is an outsourced service via Cloudflare, so the link will be known to them.",watchName:"Name (for you)",watchPhrase:"What to look for",watchUrls:"Where to look — one address per line",watchUrlsShort:"addresses",watchEvery:"How often",watchDaily:"daily",watchWeekly:"weekly",watchMonthly:"monthly",watchDeep:"Also look one level deeper",watchDeepShort:"deep",watchAdd:"+ Add watch",watchEmpty:"Nothing watched yet.",watchRunNow:"Check now",watchChecking:"Checking…",watchPause:"Pause",watchResume:"Resume",watchDelAsk:"Delete this watch?",watchLast:"Last run",watchNever:"never yet",watchPages:"pages",watchHitsTitle:"Findings to confirm",watchAsk:"Is this what you were looking for?",watchYes:"Yes, that is it",watchNo:"No, not this",watchAfter:"After confirming",watchSleep:"pause the watch",watchDelete:"delete the watch",watchKeep:"keep watching",faqMore:"In detail",resizeReset:"Drag an edge or the corner; double-click the corner to reset",areaMenu:"Options",tabColor:"Tab colour",bodyColor:"Body colour",clearColors:"Clear colours",watchEditBtn:"Edit",watchSave:"Save changes",watchCancel:"Cancel",watchEditTitle:"Editing a watch",watchFromLink:"Watch for performances",watchAlready:"Already watched — open the Watcher",watchMadeFromLink:"Created the watch \u201e{p}\u201c. It looks at this item's address once a week. In the Watcher you can edit the phrase, add more addresses or change the interval.",watchLinkArea:"Link to an area",watchLinkNone:"— don't link —",watchLinked:"Linked to area",watchLinkedNote:"The date you pick is written into this item's note, and the item deletes itself to the Trash once the date has passed.",watchLinkNoMatch:"No item in {a} has a name matching this watch.",watchNoteStamp:"Playing {d}",watchStamped:"Date written into the area.",watchSrcArea:"Watcher: default source of addresses",watchSrcNone:"— none —",watchEmail:"Watcher: e-mail for alerts",watchNoneFound:"Found nothing.",watchFoundOne:"Found something! See above.",watchNeedPhrase:"Fill in what to look for and at least one address.",watchQuiet:"Alerts are not configured — findings will only show up here in the panel.",lendBtn:"Items",moneyBtn:"Money",lendTitle:"Borrowed & lent items",lendOut:"Lent by me",lendIn:"Lent to me",lendWhoOut:"To whom",lendWhoIn:"From whom",lendItem:"What (book, item…)",lendAdd:"+ Add",lendReturned:"Returned",lendEmpty:"Nothing yet.",lendDelAsk:"Delete this record?",
   moneyTitle:"Money owed",moneyBase:"Summary currency",moneyRates:"rates as of",moneyNoRates:"couldn't load rates",moneyWho:"Name",moneyAmount:"Amount",moneyLent:"I lent (they owe me)",moneyBorrowed:"I borrowed (I owe)",moneyNote:"Note (optional)",moneyAdd:"+ Add",moneySettle:"Settled",moneyDelAsk:"Delete this record?",moneyEmpty:"No records yet.",moneyOwesYou:"owes you",moneyYouOwe:"you owe",moneyEven:"even",
@@ -608,7 +628,7 @@ function syncDoneHeights(){
    Sem padá všechno nové: z rozšíření, z telefonu, z widgetu i přes Ctrl+V.
    Třídí se rovnou do oblastí, štítky nejsou (oblasti stačí). Roztřídit jde
    po jedné věci a klávesa 1–9 ji zařadí do očíslované oblasti. */
-let ixSort=null,ixDupMap=new Map(),pvT=null;const ixPv={};
+let ixSort=null,ixPick=null,ixDupMap=new Map(),pvT=null;const ixPv={};
 // Náhled dorazí později; překreslí se, až nikdo nepíše do políčka.
 function pvRerender(){clearTimeout(pvT);pvT=setTimeout(()=>{const ae=document.activeElement;if(editing||(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=="search")){pvRerender();return;}renderInbox();if(state.board.areas.some(a=>a.view==="cards"))renderAreas();},300);}
 function ixIsImg(it){return !!(it.type==="image"&&it.img);}
@@ -619,7 +639,11 @@ function ixPreview(url){if(!url||!/^https?:/i.test(url))return null;if(ixPv[url]
 function ixTitle(it){return ixIsLink(it)&&it.url?`<a href="${esc(it.url)}" target="_blank" rel="noreferrer">${esc(it.text||host(it.url))}</a>`:esc(it.text||"");}
 function ixDupHtml(it){const a=it.url&&ixDupMap.get(dupKey(it.url));return a?`<div class="note ix-dup">${esc(lbT().dupIn)} „${esc(a.name)}“</div>`:"";}
 function ixNote(it){return ixDupHtml(it)+libArtHint(it)+(it.note?`<div class="note">${esc(it.note)}</div>`:"")+(it.src?`<div class="note"><a href="${esc(it.src)}" target="_blank" rel="noreferrer">${esc(host(it.src))}</a></div>`:"");}
-function ixAction(it,opts){return ixIsLink(it)?`<select data-sel="${it.id}">${opts}</select><button class="btn" data-act="file-link" data-id="${it.id}">${L.file}</button>`:`<button class="btn" data-act="file-task" data-id="${it.id}">${L.toTasks}</button>`;}
+// U každé věci (odkaz, obrázek i poznámka) jsou dvě tlačítka: Mezi úkoly, nebo Do oblasti —
+// to druhé rozbalí oblasti jako čipy a klik na jednu věc zařadí.
+function ixAction(it){return `<button class="btn" data-act="file-task" data-id="${it.id}">${L.toTasks}</button><button class="btn${ixPick===it.id?" on":""}" data-act="ix-pick" data-id="${it.id}">${L.toArea} ▾</button>`;}
+function ixAreaChips(it,num){return ixTargets(it).map((a,n)=>`<button class="ix-chip" data-act="ix-to-area" data-id="${it.id}" data-area="${a.id}"${a.color?` style="border-left:4px solid ${esc(a.color)}"`:""}>${num&&n<9?`<b>${n+1}</b> `:""}${esc(a.name)}</button>`).join("");}
+function ixPickHtml(it){return ixPick===it.id?`<div class="ix-pick"><span class="note">${esc(L.toAreaPick)}</span><div class="ix-chips">${ixAreaChips(it,false)||`<span class="note">—</span>`}</div></div>`:"";}
 function ixThumb(it){
   if(ixIsImg(it))return `<a class="ix-media" href="/api/img/${esc(it.img)}" target="_blank" rel="noreferrer"><img src="/api/img/${esc(it.img)}" alt="" loading="lazy"/></a>`;
   if(ixIsLink(it)&&it.url){const pv=ixPreview(it.url),p=pv&&pv!=="loading"?pv:null,h=host(it.url);
@@ -627,23 +651,34 @@ function ixThumb(it){
       :`<a class="ix-media ix-noimg" href="${esc(it.url)}" target="_blank" rel="noreferrer"><img src="/api/favicon?d=${encodeURIComponent(h)}" alt="" onerror="this.style.visibility='hidden'"/><span>${esc(h)}</span></a>`;}
   return `<div class="ix-media ix-txt">${esc((it.text||"").slice(0,280))}</div>`;}
 function ixRow(it,opts){const body=ixIsImg(it)?`<a href="/api/img/${esc(it.img)}" target="_blank" rel="noreferrer"><img class="ix-thumb" src="/api/img/${esc(it.img)}" alt="" loading="lazy"/></a> ${ixTitle(it)}`:ixTitle(it);
-  return `<div class="inbox-item"><span class="ix-type">${ixIsImg(it)?"img":ixIsLink(it)?"link":"note"}</span><span class="ix-text">${body}${ixNote(it)}</span>${ixAction(it,opts)}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>`;}
-function ixCard(it,opts){return `<div class="ix-card">${ixThumb(it)}<div class="ix-cb">${ixIsLink(it)?`<div class="ix-ct">${ixTitle(it)}</div>`:""}${ixNote(it)}<div class="ix-act">${ixAction(it,opts)}<button class="icon danger" data-act="discard" data-id="${it.id}" title="${esc(L.ixDel)}">×</button></div></div></div>`;}
-// Zařazení do oblasti. Poznámka bez adresy jde jen do textové oblasti.
+  return `<div class="inbox-item"><span class="ix-type">${ixIsImg(it)?"img":ixIsLink(it)?"link":"note"}</span><span class="ix-text">${body}${ixNote(it)}</span>${ixAction(it)}<button class="icon danger" data-act="discard" data-id="${it.id}">×</button></div>${ixPickHtml(it)}`;}
+function ixCard(it,opts){return `<div class="ix-card">${ixThumb(it)}<div class="ix-cb">${ixIsLink(it)?`<div class="ix-ct">${ixTitle(it)}</div>`:""}${ixNote(it)}<div class="ix-act">${ixAction(it)}<button class="icon danger" data-act="discard" data-id="${it.id}" title="${esc(L.ixDel)}">×</button></div>${ixPickHtml(it)}</div></div>`;}
+// Zařazení do oblasti. Cokoli jde kamkoli: do textové oblasti jako text, do oblasti
+// odkazů jako odkaz. Poznámka bez adresy v ní bude položka bez adresy (jen text);
+// když v poznámce adresa je, stane se z ní odkaz a zbytek textu je název.
 function ixFile(it,a){if(!it||!a)return false;const img=ixIsImg(it)?location.origin+"/api/img/"+it.img:"";
   const ocr=it.ocr!==undefined?{ocr:it.ocr}:{};
   if(a.type==="text")a.links.push({id:uid(),text:[it.text||it.url,img,it.note].filter(Boolean).join("\n"),...ocr});
+  else if(!img&&!it.url){const t=(it.text||"").trim(),m=t.match(/https?:\/\/\S+/i);if(!t&&!it.note)return false;
+    if(m){const rest=t.replace(m[0],"").trim();a.links.push({id:uid(),title:rest||host(m[0]),url:normUrl(m[0]),note:it.note||"",status:"unknown",lastChecked:null,code:0,...ocr});}
+    else a.links.push({id:uid(),title:t||it.note,url:"",note:t?it.note||"":"",status:"unknown",lastChecked:null,code:0,...ocr});}
   else{const u=img||normUrl(it.url);if(!u)return false;a.links.push({id:uid(),title:it.text&&!/^https?:/i.test(it.text)?it.text:host(it.url||u),url:u,note:[it.note,img&&it.url].filter(Boolean).join(" · "),status:"unknown",lastChecked:null,code:0,...ocr});}
-  state.inbox=state.inbox.filter(i=>i.id!==it.id);return true;}
-function ixTargets(it){return state.board.areas.filter(a=>ixIsLink(it)||a.type==="text");}
+  state.inbox=state.inbox.filter(i=>i.id!==it.id);if(ixPick===it.id)ixPick=null;return true;}
+// Mezi úkoly jde taky cokoli: název je text úkolu, adresa a poznámka do poznámky úkolu.
+function ixToTask(it){if(!it)return false;const img=ixIsImg(it)?location.origin+"/api/img/"+it.img:"",u=img||it.url||"";
+  const t=(it.text&&!/^https?:/i.test(it.text)?it.text:"")||(u?host(u):"")||it.text||"";
+  const note=[u,it.note].filter(Boolean).join(" · ");
+  state.board.tasks=state.board.tasks||[];state.board.tasks.unshift({id:uid(),text:t,done:false,...(note?{note}:{})});
+  state.inbox=state.inbox.filter(i=>i.id!==it.id);if(ixPick===it.id)ixPick=null;return true;}
+function ixTargets(it){return state.board.areas.slice();}
 function ixSortList(){const ids=new Set(state.inbox.map(i=>i.id));ixSort.ids=ixSort.ids.filter(id=>ids.has(id));if(ixSort.i>=ixSort.ids.length)ixSort.i=Math.max(0,ixSort.ids.length-1);return ixSort.ids;}
 function ixSortHtml(opts){const ids=ixSortList();if(!ids.length){ixSort=null;return `<div class="empty">${L.ixSortDone}</div>`;}
   const it=state.inbox.find(i=>i.id===ids[ixSort.i]);
-  const areaBtns=ixTargets(it).map((a,n)=>`<button class="ix-chip" data-act="ix-sort-area" data-id="${it.id}" data-area="${a.id}">${n<9?`<b>${n+1}</b> `:""}${esc(a.name)}</button>`).join("");
-  const task=ixIsLink(it)?"":`<button class="ix-chip" data-act="file-task" data-id="${it.id}"><b>U</b> ${L.toTasks}</button>`;
+  const areaBtns=ixTargets(it).map((a,n)=>`<button class="ix-chip" data-act="ix-sort-area" data-id="${it.id}" data-area="${a.id}"${a.color?` style="border-left:4px solid ${esc(a.color)}"`:""}>${n<9?`<b>${n+1}</b> `:""}${esc(a.name)}</button>`).join("");
+  const task=`<button class="ix-chip" data-act="file-task" data-id="${it.id}"><b>U</b> ${L.toTasks}</button>`;
   return `<div class="ix-sort"><div class="ix-sort-top"><span class="when">${ixSort.i+1} / ${ids.length}</span><span class="note">${L.ixSortKeys}</span></div>
     <div class="ix-card ix-big">${ixThumb(it)}<div class="ix-cb">${ixIsLink(it)?`<div class="ix-ct">${ixTitle(it)}</div>`:""}${ixNote(it)}</div></div>
-    <div class="ix-chips">${areaBtns}${task}</div>
+    <div class="ix-chips">${task}<span class="note" style="align-self:center">${esc(L.toArea)}:</span>${areaBtns}</div>
     <div class="ix-act"><button class="btn" data-act="ix-sort-prev" ${ixSort.i?"":"disabled"}>${L.ixPrev}</button><button class="btn primary" data-act="ix-sort-next">${L.ixNext}</button><button class="btn danger" data-act="discard" data-id="${it.id}">${L.ixDel}</button><button class="btn" data-act="ix-sort-end">${L.ixSortEnd}</button></div></div>`;}
 function renderInbox(){const ib=$("inbox");if(!state.inbox.length){ib.style.display="none";ixSort=null;return;}ib.style.display="";
   const s=state.board.settings,grid=s.inboxView==="grid",q=libQuery(),list=q?state.inbox.filter(libMatch):state.inbox;ixDupMap=dupIndex();
@@ -658,7 +693,8 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act^
   else if(act==="ix-sort-end"){ixSort=null;}
   else if(act==="ix-sort-next"){if(!ixSort)return;if(ixSort.i<ixSort.ids.length-1)ixSort.i++;else ixSort=null;}
   else if(act==="ix-sort-prev"){if(!ixSort)return;ixSort.i=Math.max(0,ixSort.i-1);}
-  else if(act==="ix-sort-area"){if(!ixFile(it,A(el.dataset.area)))return;save();render();return;}
+  else if(act==="ix-sort-area"||act==="ix-to-area"){if(!ixFile(it,A(el.dataset.area)))return;save();render();return;}
+  else if(act==="ix-pick"){ixPick=ixPick===el.dataset.id?null:el.dataset.id;}
   else return;
   renderInbox();});
 // Roztřídit z klávesnice: 1–9 oblast, U mezi úkoly, Enter/→ další, ←/Backspace zpět, Delete smazat, Esc konec.
@@ -694,12 +730,15 @@ document.addEventListener("paste",async e=>{const items=[...(e.clipboardData?e.c
 
 function renderAreas(){
   const visible=state.board.areas.filter(a=>!a.hidden), hiddenAreas=state.board.areas.filter(a=>a.hidden);
-  const free=!!state.board.settings.areaFree,cols=free||state.board.settings.gridUnified?0:(state.board.settings.areaCols||0);$("boardEl").className="board"+(free?" free":state.board.settings.gridUnified?" unified":"")+(cols?" gridded":"");$("boardEl").style.setProperty("--cols",cols||1);
-  $("boardEl").innerHTML=visible.map((a,ai)=>{
+  const zoned=zonesOn(),free=!zoned&&!!state.board.settings.areaFree,unified=!zoned&&!!state.board.settings.gridUnified,cols=zoned||free||unified?0:(state.board.settings.areaCols||0);$("boardEl").className="board"+(zoned?" zoned":free?" free":unified?" unified":"")+(cols?" gridded":"");$("boardEl").style.setProperty("--cols",cols||1);
+  const areaHtml=(a,ai,zfree)=>{
     const isText=a.type==="text";
     const items=useSorted(a).map(l=>{
       if(isText){const k="txt:"+a.id+":"+l.id;if(!matches(l))return"";const textHtml=editing===k?inp(k,l.text):`<span class="t" style="font-size:14px">${esc(l.text)}</span>`;return `<div class="item"><div style="flex:1;min-width:0">${textHtml}${l.note?`<div class="note">${esc(l.note)}</div>`:""}${libArtHint(l)}</div><button class="icon" data-act="edit-txt" data-area="${a.id}" data-id="${l.id}" title="${L.editTxt}">✎</button><button class="icon" data-act="note-txt" data-area="${a.id}" data-id="${l.id}" title="${L.fNote}">📝</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button></div>`;}
-      if(!matches(l))return"";const h=host(l.url),letter=(h[0]||"?").toUpperCase();
+      if(!matches(l))return"";
+      // položka bez adresy (poznámka zařazená do oblasti odkazů) je jen text
+      if(!l.url)return `<div class="link nourl" draggable="true" data-id="${l.id}" data-area="${a.id}"><div class="fav">✎</div><div style="flex:1;min-width:0"><span class="lk-title" style="white-space:pre-wrap">${esc(l.title||"")}</span>${l.note?`<div class="note">${esc(l.note)}</div>`:""}</div><div class="lk-tools"><button class="icon" data-act="link-up" data-area="${a.id}" data-id="${l.id}">▲</button><button class="icon" data-act="link-down" data-area="${a.id}" data-id="${l.id}">▼</button><button class="icon" data-act="edit-link" data-area="${a.id}" data-id="${l.id}">✎</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button></div></div>`;
+      const h=host(l.url),letter=(h[0]||"?").toUpperCase();
       const tools=`${a.private?"":libReadBtn(l)}${a.private?"":(()=>{const w=watchForLink(a.id,l);return `<button class="icon${w?" good":""}" data-act="watch-from-link" data-area="${a.id}" data-id="${l.id}" title="${w?esc(L.watchAlready):esc(L.watchFromLink+" "+L.watchOutsourced)}">👁</button>`;})()}<button class="icon" data-act="link-up" data-area="${a.id}" data-id="${l.id}" ${0?'':''}>▲</button><button class="icon" data-act="link-down" data-area="${a.id}" data-id="${l.id}">▼</button><button class="icon" data-act="edit-link" data-area="${a.id}" data-id="${l.id}">✎</button><button class="icon danger" data-act="del-link" data-area="${a.id}" data-id="${l.id}">×</button>`;
       if(a.view==="cards")return libCard(a,l,tools);
       return `<div class="link" draggable="true" data-id="${l.id}" data-area="${a.id}"><div class="fav" style="border-color:${ring(l.status)}">${a.private?esc(letter):`<img src="/api/favicon?d=${encodeURIComponent(h)}" onerror="this.replaceWith(document.createTextNode('${letter}'))"/>`}</div>
@@ -712,19 +751,72 @@ function renderAreas(){
     // se po nasazení nic samo nepřebarví.
     const bodyBg=a.bodyColor&&!lookDark()?`background-image:linear-gradient(180deg,${safeTint(a.bodyColor)},var(--panel));`:"";
     const headBg=a.color||look().tabPal?`background-image:linear-gradient(180deg,${acol}22,transparent)`:"";
-    const sized=free||!state.board.settings.gridUnified;const szStyle=(sized?`${(a.w&&!cols)?`width:${a.w}px;`:""}${(a.h&&!collapsed)?`height:${a.h}px;`:""}${cols&&a.span?gridW(a.span,cols):""}`:"")+(free?`left:${a.fx||0}px;top:${a.fy||0}px;z-index:${a.fz||1};`:"");
+    const sized=!unified;const szStyle=(sized?`${(a.w&&!cols)?`width:${a.w}px;`:""}${(a.h&&!collapsed)?`height:${a.h}px;`:""}${cols&&a.span?gridW(a.span,cols):""}`:"")+(free?`left:${a.fx||0}px;top:${a.fy||0}px;z-index:${a.fz||1};`:"")+(zfree?`left:${a.zx||0}px;top:${a.zy||0}px;z-index:${a.fz||1};`:"");
     return `<section class="area${collapsed?" collapsed":""}" data-area-id="${a.id}" style="border-left:5px solid ${acol};${bodyBg}${szStyle}"><div class="area-head" style="${headBg}"><div style="display:flex;align-items:center;gap:4px;min-width:0"><span class="areagrip" draggable="true" data-areagrip="${a.id}" title="↕">⠿</span><button class="caret" data-act="toggle-area" data-id="${a.id}">${collapsed?'▸':'▾'}</button><h2 class="area-name" style="color:${lookDark()?"var(--ink)":readableInk(acol)}">${esc(a.name)}<span class="count">${a.links.length}</span><span class="ty">${isText?L.optText.split(" ")[0]:L.optLinks}</span></h2></div>
       <div class="tools"><span class="area-move-arrows"><button class="icon" data-act="area-left" data-id="${a.id}" ${ai===0?"disabled":""}>◀</button><button class="icon" data-act="area-right" data-id="${a.id}" ${ai===visible.length-1?"disabled":""}>▶</button></span><button class="icon" data-act="area-menu" data-id="${a.id}" title="${esc(L.areaMenu)}">⋯</button></div></div>
       <div class="links${a.view==="cards"&&!isText?" lib-cards":""}">${items||`<div class="empty">${L.emptyArea}</div>`}</div>
       <button class="add" data-act="add-link" data-id="${a.id}">${isText?L.addItem:L.addLink}</button><div class="area-rz-x" data-rz="${a.id}" data-axis="x"></div><div class="area-rz-y" data-rz="${a.id}" data-axis="y"></div><div class="area-rz" data-rz="${a.id}" data-axis="both" title="${L.resize||""}"></div></section>`;
-  }).join("")+`<section class="area" style="border-style:dashed;background:transparent"><div class="area-head"><h2 class="area-name" style="color:var(--muted)">${L.newArea}</h2></div><button class="add" data-act="add-area">${L.createArea}</button></section>`;
+  };
+  if(zoned)$("boardEl").innerHTML=zonesHtml(visible,areaHtml);
+  else $("boardEl").innerHTML=visible.map((a,ai)=>areaHtml(a,ai,false)).join("")+`<section class="area" style="border-style:dashed;background:transparent"><div class="area-head"><h2 class="area-name" style="color:var(--muted)">${L.newArea}</h2></div><button class="add" data-act="add-area">${L.createArea}</button></section>`;
   renderHiddenBar(hiddenAreas);
   applyAreaScroll();
   applySecSizes();
   if(free)freeLayout();
+  if(zoned)zoneFreeLayout();
   placeAreaMenu(true);
-  const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`<button class="btn" data-act="toggle-free" title="${esc(L.freeHelp)}">${esc(state.board.settings.areaFree?L.freeOff:L.freeOn)}</button><button class="btn" id="tidyBtn" data-act="toggle-tidy">${esc(tdT().title)}</button><button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
+  const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`${zoneSplitSel()}${zoned?"":`<button class="btn" data-act="toggle-free" title="${esc(L.freeHelp)}">${esc(state.board.settings.areaFree?L.freeOff:L.freeOn)}</button>`}<button class="btn" id="tidyBtn" data-act="toggle-tidy">${esc(tdT().title)}</button><button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
 }
+/* ---------- Části desky (settings.zoneSplit, settings.zones) ----------
+   Deska se dá rozdělit na poloviny, třetiny, čtvrtiny vedle sebe nebo čtvrtiny 2 × 2.
+   Každá část má název, barvu pozadí a vlastní rozložení: oblasti volně (chaoticky,
+   a.zx/a.zy vůči části) nebo ve 1–4 stejně širokých sloupcích. Oblast patří do části
+   a.zone; bez platné části padne do první. Zrušením rozdělení se nic neztratí —
+   části i pozice v nich zůstanou uložené na příště. */
+const ZONE_T={cs:{split:"Rozdělit desku",none:"Nerozdělovat",halves:"Na poloviny",thirds:"Na třetiny",quarters:"Na čtvrtiny vedle sebe",quad:"Na čtvrtiny 2 × 2",part:"Část",free:"Volně (chaoticky)",col1:"1 sloupec",cols:"sloupce",
+  empty:"Prázdná část. Přetáhni sem oblast za ⠿, nebo přidej novou tlačítkem +.",color:"Barva pozadí části",clear:"Bez barvy",rename:"Název části",moveTo:"Do části",add:"Nová oblast v této části"},
+ en:{split:"Split the board",none:"No split",halves:"Halves",thirds:"Thirds",quarters:"Quarters side by side",quad:"Quarters 2 × 2",part:"Part",free:"Free (loose)",col1:"1 column",cols:"columns",
+  empty:"Empty part. Drag an area here by ⠿, or add a new one with +.",color:"Part background colour",clear:"No colour",rename:"Part name",moveTo:"Move to part",add:"New area in this part"}};
+function zT(){return ZONE_T[(L===DICT.en)?"en":"cs"];}
+const ZSPLIT={"2":2,"3":3,"4":4,"2x2":4};
+function zonesOn(){return ZSPLIT[state.board.settings.zoneSplit]||0;}
+function zoneList(){const s=state.board.settings,n=zonesOn();if(!Array.isArray(s.zones))s.zones=[];
+  while(s.zones.length<n)s.zones.push({id:uid(),name:zT().part+" "+(s.zones.length+1),color:"",mode:"cols",cols:s.zoneSplit==="2"?2:1});
+  return s.zones.slice(0,n);}
+function zoneById(id){return (state.board.settings.zones||[]).find(z=>z.id===id);}
+function areaZoneId(a,zones){return (zones.find(z=>z.id===a.zone)||zones[0]).id;}
+function zoneSplitSel(){const v=state.board.settings.zoneSplit||"",t=zT(),o=[["",t.none],["2",t.halves],["3",t.thirds],["4",t.quarters],["2x2",t.quad]];
+  return `<label class="zone-split" title="${esc(t.split)}">▦ <select data-act="set-zones" aria-label="${esc(t.split)}">${o.map(([k,l])=>`<option value="${k}"${k===v?" selected":""}>${esc(l)}</option>`).join("")}</select></label>`;}
+function zonesHtml(visible,areaHtml){const zones=zoneList(),t=zT(),q=state.board.settings.zoneSplit==="2x2";
+  const bd=$("boardEl");bd.classList.toggle("z2x2",q);bd.style.setProperty("--zn",q?2:zones.length);
+  return zones.map(z=>{const mine=visible.filter(a=>areaZoneId(a,zones)===z.id),fr=z.mode==="free",c=Math.max(1,Math.min(4,z.cols||1));
+    const opts=[["free",t.free],["1",t.col1],["2","2 "+t.cols],["3","3 "+t.cols],["4","4 "+t.cols]].map(([k,l])=>`<option value="${k}"${(fr?"free":String(c))===k?" selected":""}>${esc(l)}</option>`).join("");
+    const col=/^#[0-9a-f]{6}$/i.test(z.color||"")?z.color:"";
+    return `<div class="zone${col?" tinted":""}" data-zone="${z.id}"${col?` style="--zc:${col}"`:""}><div class="zone-head"><button class="zone-name" data-act="zone-rename" data-zone="${z.id}" title="${esc(t.rename)}">${esc(z.name||t.part)}</button><span class="zone-tools"><select data-act="zone-mode" data-zone="${z.id}">${opts}</select><input type="color" data-act="zone-color" data-zone="${z.id}" value="${col||"#ffffff"}" title="${esc(t.color)}"/>${col?`<button class="icon" data-act="zone-color-clear" data-zone="${z.id}" title="${esc(t.clear)}">×</button>`:""}<button class="icon" data-act="add-area" data-zone="${z.id}" title="${esc(t.add)}">+</button></span></div>
+      <div class="zone-body ${fr?"zfree":"zcols"}" data-zone-body="${z.id}" style="--zcols:${c}">${mine.map(a=>areaHtml(a,visible.indexOf(a),fr)).join("")||`<div class="zone-empty">${esc(t.empty)}</div>`}</div></div>`;}).join("");}
+// Volná část: oblast bez místa jde dolů pod ostatní, část je vysoká jako nejnižší oblast.
+function zoneFreeLayout(){let moved=false;
+  document.querySelectorAll("#boardEl .zone-body.zfree").forEach(zb=>{const els=[...zb.querySelectorAll(":scope > .area[data-area-id]")];let bottom=0;
+    if(els.length&&getComputedStyle(els[0]).position!=="absolute"){zb.style.height="";return;}
+    for(const el of els){const a=A(el.dataset.areaId);if(a&&a.zx!==undefined)bottom=Math.max(bottom,el.offsetTop+el.offsetHeight);}
+    for(const el of els){const a=A(el.dataset.areaId);if(!a||a.zx!==undefined)continue;a.zx=0;a.zy=bottom?bottom+14:0;el.style.left="0px";el.style.top=a.zy+"px";bottom=a.zy+el.offsetHeight;moved=true;}
+    zb.style.height=Math.max(120,bottom+14)+"px";});
+  if(moved)save();}
+// Přepnutí části na volné rozložení zapamatuje, kde oblasti právě jsou (nic neposkočí).
+function zoneCapture(zid){const zb=document.querySelector('#boardEl [data-zone-body="'+zid+'"]');if(!zb)return;const b=zb.getBoundingClientRect();
+  zb.querySelectorAll(":scope > .area[data-area-id]").forEach(el=>{const a=A(el.dataset.areaId);if(!a)return;const r=el.getBoundingClientRect();
+    a.zx=Math.max(0,Math.round(r.left-b.left));a.zy=Math.max(0,Math.round(r.top-b.top));if(!a.w)a.w=Math.round(el.offsetWidth);});}
+function zoneFromPoint(x,y,skip){for(const el of document.elementsFromPoint(x,y)){if(skip&&skip.contains(el))continue;const z=el.closest&&el.closest("#boardEl [data-zone]");if(z)return z;}return null;}
+document.body.addEventListener("change",e=>{const el=e.target.closest("[data-act^='zone-'],[data-act='set-zones'],[data-act='area-zone']");if(!el)return;const act=el.dataset.act,s=state.board.settings;
+  if(act==="set-zones"){s.zoneSplit=el.value;if(zonesOn())zoneList();}
+  else if(act==="zone-mode"){const z=zoneById(el.dataset.zone);if(!z)return;if(el.value==="free"){if(z.mode!=="free")zoneCapture(z.id);z.mode="free";}else{z.mode="cols";z.cols=+el.value||1;}}
+  else if(act==="zone-color"){const z=zoneById(el.dataset.zone);if(!z)return;z.color=el.value;}
+  else if(act==="area-zone"){const a=A(el.dataset.id);if(!a)return;a.zone=el.value;delete a.zx;delete a.zy;closeAreaMenu();}
+  else return;
+  save();renderAreas();});
+document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act='zone-rename'],[data-act='zone-color-clear']");if(!el)return;const z=zoneById(el.dataset.zone);if(!z)return;
+  if(el.dataset.act==="zone-rename"){const n=prompt(zT().rename,z.name||"");if(n===null||!n.trim())return;z.name=n.trim();}else z.color="";
+  save();renderAreas();});
 function renderHiddenBar(hiddenAreas){const bar=$("hiddenBar");if(!bar)return;
   if(!hiddenAreas.length){bar.style.display="none";bar.innerHTML="";return;}
   const pos=state.board.settings.hiddenPos==="side"?"side":"top";
@@ -1176,8 +1268,8 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
   else if(act==="share-extend-cancel"){shareState.extendToken=null;renderShare();}
   else if(act==="share-extend-do"){extendShare(el.dataset.token);}
   /* areas */
-  else if(act==="add-area"){renderNewArea();$("newAreaPanel").style.display="block";$("newAreaPanel").scrollIntoView({behavior:"smooth",block:"nearest"});}
-  else if(act==="create-area"){const name=($("naName").value||"").trim();if(!name){$("naName").focus();return;}const type=$("naType").value;const color=$("naColor").value||"#5B3A57";state.board.areas.push({id:uid(),name,type,color,links:[]});$("newAreaPanel").style.display="none";save();render();}
+  else if(act==="add-area"){newAreaZone=el.dataset.zone||null;renderNewArea();$("newAreaPanel").style.display="block";$("newAreaPanel").scrollIntoView({behavior:"smooth",block:"nearest"});}
+  else if(act==="create-area"){const name=($("naName").value||"").trim();if(!name){$("naName").focus();return;}const type=$("naType").value;const color=$("naColor").value||"#5B3A57";state.board.areas.push({id:uid(),name,type,color,links:[],...(newAreaZone&&zonesOn()?{zone:newAreaZone}:{})});newAreaZone=null;$("newAreaPanel").style.display="none";save();render();}
   else if(act==="rename-area"){const a=A(id);const n=prompt(L.pName,a.name);if(n&&n.trim()){a.name=n.trim();save();render();}}
   else if(act==="toggle-type"){const a=A(id);a.type=a.type==="text"?"links":"text";save();render();}
   else if(act==="hide-area"){const a=A(id);if(a){a.hidden=true;save();render();}}
@@ -1189,7 +1281,7 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
   else if(act==="del-area"){const a=A(id);if(a.links.length===0||confirm("Smazat oblast „"+a.name+"“?")){toTrash("area",a.name,{item:a});state.board.areas=state.board.areas.filter(x=>x.id!==id);save();render();}}
   else if(act==="area-left"||act==="area-right"){const i=state.board.areas.findIndex(a=>a.id===id),j=i+(act==="area-left"?-1:1),ar=state.board.areas;if(j>=0&&j<ar.length){[ar[i],ar[j]]=[ar[j],ar[i]];save();render();}}
   else if(act==="add-link"){const a=A(id);if(a.type==="text"){const t=prompt(L.pItem);if(t&&t.trim()){const no=prompt(L.pNote,"")||"";a.links.push({id:uid(),text:t.trim(),note:no.trim()});save();render();}}else{const u=normUrl(prompt(L.pUrl));if(!u)return;const d=dupOf(u);if(d&&!confirm(lbT().dupAsk.replace("{a}",d.name)))return;const ti=prompt(L.pTitle,"")||"",no=prompt(L.pNote,"")||"";a.links.push({id:uid(),title:ti.trim()||host(u),url:u,note:no.trim(),status:"unknown",lastChecked:null,code:0});save();render();}}
-  else if(act==="edit-link"){const a=A(areaId),l=a.links.find(x=>x.id===id);const u=normUrl(prompt(L.pEditU,l.url));if(!u)return;const ti=prompt(L.pTitle,l.title)||"",no=prompt(L.pNote,l.note||"")||"";const ch=u!==l.url;l.url=u;l.title=ti.trim()||host(u);l.note=no.trim();if(ch){l.status="unknown";l.code=0;}save();render();}
+  else if(act==="edit-link"){const a=A(areaId),l=a.links.find(x=>x.id===id);if(!l.url){const ti=prompt(L.pTitle,l.title||"");if(ti===null)return;const nu=normUrl((prompt(L.pEditU,"")||"").trim());l.title=ti.trim()||l.title;if(nu){l.url=nu;l.status="unknown";l.code=0;}save();render();return;}const u=normUrl(prompt(L.pEditU,l.url));if(!u)return;const ti=prompt(L.pTitle,l.title)||"",no=prompt(L.pNote,l.note||"")||"";const ch=u!==l.url;l.url=u;l.title=ti.trim()||host(u);l.note=no.trim();if(ch){l.status="unknown";l.code=0;}save();render();}
   else if(act==="edit-txt")startEdit("txt:"+areaId+":"+id);
   else if(act==="note-txt"){const a=A(areaId),l=a.links.find(x=>x.id===id);if(!l)return;const no=prompt(L.pNote,l.note||"");if(no===null)return;l.note=no.trim();save();render();}
   else if(act==="del-link"){const a=A(areaId);const it=a.links.find(x=>x.id===id);toTrash(a.type==="text"?"txt":"link",it.text||it.title||it.url,{area:a.id,item:it});a.links=a.links.filter(x=>x.id!==id);save();render();}
@@ -1260,7 +1352,7 @@ document.body.addEventListener("click",e=>{const el=e.target.closest("[data-act]
   else if(act==="del-quote"){const it=state.board.quotes.find(x=>x.id===id);toTrash("quote",it.text,{item:it});state.board.quotes=state.board.quotes.filter(x=>x.id!==id);save();renderQuotesList();}
   /* inbox */
   else if(act==="file-link"){const it=state.inbox.find(i=>i.id===id);if(ixFile(it,A(document.querySelector('[data-sel="'+id+'"]').value))){save();render();}}
-  else if(act==="file-task"){const it=state.inbox.find(i=>i.id===id);state.board.tasks.unshift({id:uid(),text:it.text,done:false});state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
+  else if(act==="file-task"){if(ixToTask(state.inbox.find(i=>i.id===id))){save();render();}}
   else if(act==="discard"){const it=state.inbox.find(i=>i.id===id);if(it&&it.type==="image"&&it.img)fetch("/api/img/"+it.img,{method:"DELETE"}).catch(()=>{});state.inbox=state.inbox.filter(i=>i.id!==id);save();render();}
   /* trash */
   else if(act==="restore"){const t=(state.board.trash||[]).find(x=>x.id===id);if(t){const pl=t.payload||{};
@@ -1312,7 +1404,7 @@ window.addEventListener("resize",()=>{if(!editing)syncDoneHeights();});
 $("checkAll").onclick=async()=>{const b=$("checkAll"),since=Date.now();b.disabled=true;b.textContent=L.checking;try{for(let i=0;i<100;i++){const r=await api("/api/check",{method:"POST",body:JSON.stringify({since})});if(r.board){const keep={quotes:state.board.quotes,blocks:state.board.blocks,tasks:state.board.tasks,trash:state.board.trash,settings:state.board.settings,loans:state.board.loans,debts:state.board.debts};state.board=r.board;Object.assign(state.board,keep);render();}if(!r.left)break;b.disabled=true;b.textContent=L.checking+" "+r.left;}}finally{b.disabled=false;render();}};
 
 /* drag odkazů + oblastí */
-const board=$("boardEl");let areaDrag=null;
+const board=$("boardEl");let areaDrag=null,newAreaZone=null;
 // Šířka v mřížce je a.span v sloupcích, klidně necelých (1.6). Necelá oblast zabere
 // celé sloupce do nejbližšího vyššího a šířkou se zkrátí; 18px je mezera desky.
 function gridWp(span,cols){const sp=Math.min(span,cols),n=Math.ceil(sp-1e-6);return {n,w:sp<n-1e-6?`calc((100% + 18px) * ${+(sp/n).toFixed(4)} - 18px)`:""};}
@@ -1331,12 +1423,18 @@ function freeLayout(){const bd=$("boardEl");if(!bd||getComputedStyle(bd).display
   const add=bd.querySelector(":scope > .area:not([data-area-id])");if(add){add.style.left="0px";add.style.top=(bottom+18)+"px";bottom+=18+add.offsetHeight;}
   bd.style.height=(bottom+18)+"px";if(moved)save();}
 let fmv=null;
-board.addEventListener("pointerdown",e=>{if(!state.board.settings.areaFree||e.button!==0)return;const hd=e.target.closest(".area-head");if(!hd||e.target.closest("button,input,select,textarea,a"))return;
-  const ae=hd.closest(".area[data-area-id]");if(!ae||getComputedStyle(ae).position!=="absolute")return;e.preventDefault();
+board.addEventListener("pointerdown",e=>{if(e.button!==0)return;const hd=e.target.closest(".area-head");if(!hd||e.target.closest("button,input,select,textarea,a"))return;
+  const ae=hd.closest(".area[data-area-id]");if(!ae)return;const zb=ae.parentElement&&ae.parentElement.classList.contains("zfree")?ae.parentElement:null;
+  if(!zb&&!state.board.settings.areaFree)return;if(getComputedStyle(ae).position!=="absolute")return;e.preventDefault();
   const top=Math.max(0,...state.board.areas.map(x=>x.fz||1))+1;ae.style.zIndex=top;ae.classList.add("moving");
-  fmv={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,x:ae.offsetLeft,y:ae.offsetTop,z:top};try{hd.setPointerCapture(e.pointerId);}catch(_){}});
-window.addEventListener("pointermove",e=>{if(!fmv)return;fmv.el.style.left=Math.max(0,fmv.x+e.clientX-fmv.sx)+"px";fmv.el.style.top=Math.max(0,fmv.y+e.clientY-fmv.sy)+"px";});
+  fmv={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,x:ae.offsetLeft,y:ae.offsetTop,z:top,zb,px:e.clientX,py:e.clientY};try{hd.setPointerCapture(e.pointerId);}catch(_){}});
+window.addEventListener("pointermove",e=>{if(!fmv)return;fmv.px=e.clientX;fmv.py=e.clientY;if(fmv.zb){const t=zoneFromPoint(e.clientX,e.clientY,fmv.el);document.querySelectorAll("#boardEl .zone.zover").forEach(x=>{if(x!==t)x.classList.remove("zover");});if(t&&t.dataset.zone!==fmv.zb.dataset.zoneBody)t.classList.add("zover");}fmv.el.style.left=Math.max(0,fmv.x+e.clientX-fmv.sx)+"px";fmv.el.style.top=Math.max(0,fmv.y+e.clientY-fmv.sy)+"px";});
 window.addEventListener("pointerup",()=>{if(!fmv)return;const g=fmv,a=A(g.id);fmv=null;g.el.classList.remove("moving");if(!a)return;
+  if(g.zb){document.querySelectorAll("#boardEl .zone.zover").forEach(x=>x.classList.remove("zover"));a.fz=g.z;
+    // puštěno nad jinou částí: oblast se do ní přestěhuje na místo, kam ji uživatelka dala
+    const t=zoneFromPoint(g.px,g.py,g.el),tb=t&&t.querySelector("[data-zone-body]");
+    if(tb&&tb!==g.zb){const r=tb.getBoundingClientRect(),er=g.el.getBoundingClientRect();a.zone=t.dataset.zone;a.zx=Math.max(0,Math.min(Math.round(er.left-r.left),Math.round(r.width-er.width)));a.zy=Math.max(0,Math.round(er.top-r.top));save();renderAreas();return;}
+    a.zx=Math.max(0,Math.min(Math.round(g.el.offsetLeft),Math.round(g.zb.clientWidth-g.el.offsetWidth)));a.zy=Math.round(g.el.offsetTop);g.el.style.left=a.zx+"px";save();zoneFreeLayout();return;}
   a.fx=Math.round(g.el.offsetLeft);a.fy=Math.round(g.el.offsetTop);a.fz=g.z;save();freeLayout();});
 let rz=null;
 function rzSnap(val,cands,th){let best=val,bd=th;for(const c of cands){const d=Math.abs(c-val);if(d<bd){bd=d;best=c;}}return best;}
@@ -1367,11 +1465,17 @@ board.addEventListener("dragstart",e=>{
   const g=e.target.closest("[data-areagrip]");
   if(g){areaDrag=g.dataset.areagrip;const ae=e.target.closest(".area");if(ae)ae.classList.add("dragging");e.dataTransfer.effectAllowed="move";return;}
   const l=e.target.closest(".link");if(!l)return;drag={area:l.dataset.area,id:l.dataset.id};l.classList.add("dragging");e.dataTransfer.effectAllowed="move";});
-board.addEventListener("dragend",()=>{document.querySelectorAll("#boardEl .dragging,#boardEl .over,#boardEl .bover").forEach(x=>x.classList.remove("dragging","over","bover"));drag=null;areaDrag=null;});
+board.addEventListener("dragend",()=>{document.querySelectorAll("#boardEl .dragging,#boardEl .over,#boardEl .bover,#boardEl .zover").forEach(x=>x.classList.remove("dragging","over","bover","zover"));drag=null;areaDrag=null;});
 board.addEventListener("dragover",e=>{
-  if(areaDrag){const ae=e.target.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();document.querySelectorAll("#boardEl .bover").forEach(x=>x.classList.remove("bover"));ae.classList.add("bover");return;}
+  if(areaDrag){const ae=e.target.closest(".area[data-area-id]"),zn=e.target.closest(".zone[data-zone]");if(!ae&&!zn)return;e.preventDefault();document.querySelectorAll("#boardEl .bover,#boardEl .zover").forEach(x=>x.classList.remove("bover","zover"));(ae||zn).classList.add(ae?"bover":"zover");return;}
   if(!drag)return;const a=e.target.closest(".area[data-area-id]");if(!a)return;e.preventDefault();document.querySelectorAll(".area.over").forEach(x=>x.classList.remove("over"));a.classList.add("over");});
 board.addEventListener("drop",e=>{
+  if(areaDrag&&zonesOn()){const zn=e.target.closest(".zone[data-zone]"),m=A(areaDrag);if(zn&&m){const ae=e.target.closest(".area[data-area-id]"),zb=zn.querySelector("[data-zone-body]");
+      if(!ae||ae.dataset.areaId===areaDrag||zb.classList.contains("zfree")){e.preventDefault();const moved=m.zone!==zn.dataset.zone;m.zone=zn.dataset.zone;
+        if(zb.classList.contains("zfree")){const r=zb.getBoundingClientRect();m.zx=Math.max(0,Math.round(e.clientX-r.left-20));m.zy=Math.max(0,Math.round(e.clientY-r.top-12));}
+        else if(moved){const arr=state.board.areas;arr.splice(arr.indexOf(m),1);arr.push(m);}
+        areaDrag=null;save();render();return;}
+      m.zone=zn.dataset.zone;}}
   if(areaDrag){const ae=e.target.closest(".area[data-area-id]");if(!ae){areaDrag=null;return;}e.preventDefault();const toId=ae.dataset.areaId;if(toId===areaDrag){areaDrag=null;return;}const arr=state.board.areas;const from=arr.findIndex(x=>x.id===areaDrag);if(from<0){areaDrag=null;return;}const[m]=arr.splice(from,1);let ti=arr.findIndex(x=>x.id===toId);const r=ae.getBoundingClientRect();if(e.clientX>r.left+r.width/2)ti+=1;if(ti<0)ti=0;if(ti>arr.length)ti=arr.length;arr.splice(ti,0,m);areaDrag=null;save();render();return;}
   if(!drag)return;const ae=e.target.closest(".area[data-area-id]");if(!ae)return;e.preventDefault();const to=A(ae.dataset.areaId),src=A(drag.area);const si=src.links.findIndex(x=>x.id===drag.id);if(si<0){drag=null;return;}const[m]=src.links.splice(si,1);const ol=e.target.closest(".link");let idx=to.links.length;if(ol&&ol.dataset.id!==drag.id){const ti=to.links.findIndex(x=>x.id===ol.dataset.id);const r=ol.getBoundingClientRect();idx=(e.clientY>r.top+r.height/2)?ti+1:ti;}if(idx<0)idx=0;if(idx>to.links.length)idx=to.links.length;to.links.splice(idx,0,m);drag=null;save();render();});
 
@@ -1933,6 +2037,7 @@ function areaMenuHtml(a,collapsed){
     <label>${esc(L.bodyColor)}<input type="color" data-act="area-bodycolor" data-id="${a.id}" value="${body}"/></label>
     ${item("clear-colors",L.clearColors)}
     ${(a.w||a.h||a.span)?item("reset-size",L.resetSize):""}
+    ${zonesOn()?(()=>{const zs=zoneList(),cur=areaZoneId(a,zs);return `<div class="sep"></div><label>${esc(zT().moveTo)}<select data-act="area-zone" data-id="${a.id}">${zs.map(z=>`<option value="${z.id}"${z.id===cur?" selected":""}>${esc(z.name||zT().part)}</option>`).join("")}</select></label>`;})():""}
     <div class="sep"></div>
     <button class="danger" data-act="del-area" data-id="${a.id}">${esc(L.del)}</button>
   </div>`;}

@@ -17,7 +17,7 @@ const L = {
   hideArea: "Schovat", rename: "Přejmenovat", optLinks: "Odkazy", optText: "Text a poznámky",
   resetSize: "Vrátit velikost", del: "Smazat", minAreas: "Sbalit", expandAreas: "Rozbalit",
 };
-const lbT = () => ({ viewCards: "Karty", viewList: "Seznam" }), e2e = null, lkT = () => ({}), lookT = () => ({}), state = { board: { settings: {} } };
+const lbT = () => ({ viewCards: "Karty", viewList: "Seznam" }), e2e = null, lkT = () => ({}), lookT = () => ({}), state = { board: { settings: {} } }, zonesOn = () => 0;
 eval(grab("areaMenuHtml"));
 
 let ok = 0, bad = 0;
