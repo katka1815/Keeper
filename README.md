@@ -147,12 +147,16 @@ To save links by sharing, set `"type":"link"` and put the shared link in `"url"`
 
 ## Using it
 - What comes from the phone appears at the top in "To process" — from there you file it
-  into an area or into tasks.
+  into an area or into tasks. Every item (link, image or note) has two buttons: **To tasks**
+  and **To area** — the second shows all your areas and a click picks where it goes. A link
+  sent to tasks keeps its address in the task's note; a note filed into a links area becomes
+  an item without an address (add one later with ✎), and if the note contains an address it
+  becomes a proper link.
 - **Ctrl+V anywhere** puts a clipboard image (e.g. Win+Shift+S) into "To process", shrunk to
   ~300 kB. Pasting a link or text outside a text box saves it there too.
 - In "To process", **List / Grid** switches between rows and cards with previews. **Sort**
-  goes through the items one by one: keys 1–9 file the item into the numbered area, U moves a
-  note to tasks, Enter skips, Delete removes, Esc stops.
+  goes through the items one by one: keys 1–9 file the item into the numbered area, U moves
+  anything to tasks, Enter skips, Delete removes, Esc stops.
 - **Search finds everything:** areas (hidden ones too, the matches show as a number in the
   hidden bar), To process, the saved text of web pages and the text in screenshots. Accents
   don't matter (`svickova` finds *Svíčková*) and several words may be in any order.
@@ -240,6 +244,17 @@ and font (system fonts only, nothing is downloaded).
 The page is modular. The main sections (**Goals & periods**, **Tasks & notes**, **Links &
 reminders**, **To process**) and the tools in the top bar all follow the same rules:
 
+- **Split the board** (the ▦ picker above the areas): into **halves**, **thirds**, **quarters
+  side by side** or **quarters 2 × 2**. Each part has its own **name** (click it), **background
+  colour** (the colour square, × clears it) and its own layout: **Free (loose)** — grab areas by
+  the header and drop them anywhere inside — or **1–4 columns**. **Sizes are yours to set:** drag
+  the edge between parts (width), the bottom edge of a part (row height; in 2 × 2 the top and
+  bottom rows separately) or the divider between columns inside a part. Double-clicking a handle
+  evens the widths out again or returns the height to fit the content. Move an area to another
+  part by dragging (by ⠿, or by the header in a free part) or via the area's ⋯ menu → *Move to
+  part*; the + in a part's header creates a new area right there. *No split* brings back the
+  plain board; the parts, their names, colours, sizes and positions are kept for next time.
+  On a phone the parts stack one below the other.
 - **Remove grid** (button above the areas): no rules at all. Grab an area by its header and drop
   it anywhere, even half over another one; the one you grabbed last is on top. Areas don't jump
   when you switch, *Back to grid* returns to the previous layout (your free positions are kept
@@ -810,7 +825,7 @@ připomínky**, **Ke zpracování**) i nástroje v horní liště se řídí ste
   (výška řady, u 2 × 2 zvlášť horní a dolní) nebo za předěl mezi sloupci uvnitř části.
   Dvojklik na úchyt vrátí stejné šířky nebo výšku podle obsahu.
   *Nerozdělovat* vrátí původní desku; části, jejich názvy i rozmístění zůstanou uložené na příště.
-  Na telefonu jsou části pod sebou.
+  Na telefonu jsou části pod sebou (úchyty velikosti tam nejsou).
 - **Zrušit mřížku** (tlačítko nad oblastmi): žádná pravidla. Oblast chytneš za hlavičku a položíš
   kamkoli, klidně napůl přes jinou; navrch je ta naposled chycená. Při přepnutí nic neposkočí,
   *Zpět do mřížky* vrátí předchozí rozložení (volné pozice si appka pamatuje na příště). Na

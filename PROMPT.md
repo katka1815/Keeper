@@ -52,7 +52,10 @@ výběrové sdílení (ke čtení/úpravám, veřejné/heslo, platnost, ntfy upo
 rozšíření do prohlížeče (složka extension/, Firefox napřed: stránka, výběr, odkaz, obrázek,
 screenshot do Ke zpracování přes /api/capture), obrázky v KV/R2 (/api/img/<id>),
 Pořádek (mřížka oblastí settings.areaCols, schování/rozbalení oblastí, procházení odkazů
-nechat/smazat s náhledem webu z /api/preview), moduly: každý panel z lišty může ležet
+nechat/smazat s náhledem webu z /api/preview), Ke zpracování (u každé věci Mezi úkoly / Do
+oblasti, cokoli kamkoli; poznámka v oblasti odkazů = položka s url ""), části desky
+(settings.zoneSplit 2/3/4/2x2, settings.zones s názvem, barvou a režimem volně/1–4 sloupce,
+a.zone, a.zx/a.zy; šířky settings.zoneColW, výšky řad settings.zoneRowH, sloupce z.colW), moduly: každý panel z lišty může ležet
 na ploše (MOD, secMode open/min/tab, obal section.modsec), appka pro Android (složka android/:
 WebView na zadanou adresu, cíl sdílení a widget „Rychlá poznámka", obojí přes /api/capture;
 staví se android/build.sh bez Gradlu).
