@@ -806,6 +806,9 @@ připomínky**, **Ke zpracování**) i nástroje v horní liště se řídí ste
   oblasti v ní chytneš za hlavičku a položíš kamkoli — nebo **1–4 stejně široké sloupce**.
   Oblast přestěhuješ do jiné části přetažením (za ⠿, ve volné části i za hlavičku), nebo
   v menu ⋯ oblasti → *Do části*. Tlačítko + v hlavičce části založí oblast rovnou v ní.
+  **Velikosti jdou měnit libovolně:** táhni za okraj mezi částmi (šířka), za spodní okraj části
+  (výška řady, u 2 × 2 zvlášť horní a dolní) nebo za předěl mezi sloupci uvnitř části.
+  Dvojklik na úchyt vrátí stejné šířky nebo výšku podle obsahu.
   *Nerozdělovat* vrátí původní desku; části, jejich názvy i rozmístění zůstanou uložené na příště.
   Na telefonu jsou části pod sebou.
 - **Zrušit mřížku** (tlačítko nad oblastmi): žádná pravidla. Oblast chytneš za hlavičku a položíš

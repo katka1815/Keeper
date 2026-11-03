@@ -211,7 +211,19 @@
 .zone-tools{display:flex;align-items:center;gap:4px}.zone-tools select{font-size:12px;padding:2px 4px;max-width:150px}
 .zone-tools input[type=color]{width:26px;height:22px;padding:0;border:1px solid var(--lineStrong);border-radius:4px;background:none;cursor:pointer}
 .zone-body{flex:1 1 auto;min-height:120px}
-.zone-body.zcols{display:grid;grid-template-columns:repeat(var(--zcols),minmax(0,1fr));gap:14px;align-items:start;align-content:start}
+.zone{position:relative}
+.zone.zfix{min-height:0}.zone.zfix>.zone-body{min-height:0;overflow:auto}
+.board.zmoving .zone.zfix>.zone-body{overflow:visible}
+.zrz-x,.zrz-y,.zrz-in{position:absolute;z-index:6;touch-action:none}
+.zrz-x{top:0;bottom:0;right:-11px;width:8px;cursor:col-resize}
+.zrz-y{left:0;right:0;bottom:-11px;height:8px;cursor:row-resize}
+.zrz-in{top:0;bottom:0;width:10px;margin-left:-5px;cursor:col-resize}
+.zrz-x::after,.zrz-in::after{content:"";position:absolute;top:8px;bottom:8px;left:50%;width:2px;margin-left:-1px;border-radius:2px;background:var(--lineStrong);opacity:0;transition:opacity .15s}
+.zrz-y::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;margin-top:-1px;border-radius:2px;background:var(--lineStrong);opacity:0;transition:opacity .15s}
+.zone:hover>.zrz-x::after,.zone:hover>.zrz-y::after,.zone-body:hover>.zrz-in::after{opacity:.6}
+.zrz-x:hover::after,.zrz-y:hover::after,.zrz-in:hover::after,.board.zresizing [data-zrz]::after{opacity:1;background:var(--ink)}
+.board.zresizing{user-select:none}
+.zone-body.zcols{display:grid;grid-template-columns:repeat(var(--zcols),minmax(0,1fr));gap:14px;align-items:start;align-content:start;position:relative}
 .zone-body.zcols>.area{width:auto!important;min-width:0;max-width:none}
 .zone-body.zfree{position:relative}
 .zone-body.zfree>.area{position:absolute;margin:0;max-width:100%}
@@ -220,7 +232,7 @@
 .zone-empty{color:var(--muted);font-size:13px;padding:24px 12px;text-align:center;line-height:1.5}
 .zone-body.zcols>.zone-empty{grid-column:1/-1}
 .zone-split{display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:13px}.zone-split select{font-size:13px}
-@media(max-width:640px){.board.zoned{grid-template-columns:minmax(0,1fr)}.zone-body.zcols{grid-template-columns:minmax(0,1fr)}.zone-body.zfree{height:auto!important;display:flex;flex-direction:column;gap:14px}.zone-body.zfree>.area{position:static;width:auto!important}}
+@media(max-width:640px){.board.zoned{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:none!important}.zone-body.zcols{grid-template-columns:minmax(0,1fr)!important}.zrz-x,.zrz-y,.zrz-in{display:none}.zone.zfix>.zone-body{overflow:visible}.zone-body.zfree{height:auto!important;display:flex;flex-direction:column;gap:14px}.zone-body.zfree>.area{position:static;width:auto!important}}
 .board.unified .area{display:inline-block;width:100%!important;height:auto!important;margin:0 0 18px;vertical-align:top;break-inside:avoid;-webkit-column-break-inside:avoid;resize:none}
 .area{flex:0 0 auto;width:290px;min-width:200px;max-width:100%;overflow:hidden;display:flex;flex-direction:column;position:relative}
 .area>.links{flex:1 1 auto;min-height:0;overflow:auto}
@@ -763,7 +775,7 @@ function renderAreas(){
   applyAreaScroll();
   applySecSizes();
   if(free)freeLayout();
-  if(zoned)zoneFreeLayout();
+  if(zoned){zoneFreeLayout();zoneInnerHandles();}else{$("boardEl").style.gridTemplateColumns="";$("boardEl").style.gridTemplateRows="";}
   placeAreaMenu(true);
   const bb=$("boardBar");if(bb&&visible.length){const min=state.board.settings.areasMin;bb.style.display="flex";bb.innerHTML=`${zoneSplitSel()}${zoned?"":`<button class="btn" data-act="toggle-free" title="${esc(L.freeHelp)}">${esc(state.board.settings.areaFree?L.freeOff:L.freeOn)}</button>`}<button class="btn" id="tidyBtn" data-act="toggle-tidy">${esc(tdT().title)}</button><button class="btn" data-act="toggle-areas-min">${min?"⊞ "+L.expandAreas:"⊟ "+L.minAreas}</button>`;}else if(bb){bb.style.display="none";bb.innerHTML="";}
 }
@@ -774,9 +786,9 @@ function renderAreas(){
    a.zone; bez platné části padne do první. Zrušením rozdělení se nic neztratí —
    části i pozice v nich zůstanou uložené na příště. */
 const ZONE_T={cs:{split:"Rozdělit desku",none:"Nerozdělovat",halves:"Na poloviny",thirds:"Na třetiny",quarters:"Na čtvrtiny vedle sebe",quad:"Na čtvrtiny 2 × 2",part:"Část",free:"Volně (chaoticky)",col1:"1 sloupec",cols:"sloupce",
-  empty:"Prázdná část. Přetáhni sem oblast za ⠿, nebo přidej novou tlačítkem +.",color:"Barva pozadí části",clear:"Bez barvy",rename:"Název části",moveTo:"Do části",add:"Nová oblast v této části"},
+  empty:"Prázdná část. Přetáhni sem oblast za ⠿, nebo přidej novou tlačítkem +.",color:"Barva pozadí části",clear:"Bez barvy",rename:"Název části",moveTo:"Do části",add:"Nová oblast v této části",rzW:"Táhni pro šířku, dvojklik srovná",rzH:"Táhni pro výšku, dvojklik vrátí"},
  en:{split:"Split the board",none:"No split",halves:"Halves",thirds:"Thirds",quarters:"Quarters side by side",quad:"Quarters 2 × 2",part:"Part",free:"Free (loose)",col1:"1 column",cols:"columns",
-  empty:"Empty part. Drag an area here by ⠿, or add a new one with +.",color:"Part background colour",clear:"No colour",rename:"Part name",moveTo:"Move to part",add:"New area in this part"}};
+  empty:"Empty part. Drag an area here by ⠿, or add a new one with +.",color:"Part background colour",clear:"No colour",rename:"Part name",moveTo:"Move to part",add:"New area in this part",rzW:"Drag to resize, double-click to even out",rzH:"Drag to resize, double-click to reset"}};
 function zT(){return ZONE_T[(L===DICT.en)?"en":"cs"];}
 const ZSPLIT={"2":2,"3":3,"4":4,"2x2":4};
 function zonesOn(){return ZSPLIT[state.board.settings.zoneSplit]||0;}
@@ -787,13 +799,44 @@ function zoneById(id){return (state.board.settings.zones||[]).find(z=>z.id===id)
 function areaZoneId(a,zones){return (zones.find(z=>z.id===a.zone)||zones[0]).id;}
 function zoneSplitSel(){const v=state.board.settings.zoneSplit||"",t=zT(),o=[["",t.none],["2",t.halves],["3",t.thirds],["4",t.quarters],["2x2",t.quad]];
   return `<label class="zone-split" title="${esc(t.split)}">▦ <select data-act="set-zones" aria-label="${esc(t.split)}">${o.map(([k,l])=>`<option value="${k}"${k===v?" selected":""}>${esc(l)}</option>`).join("")}</select></label>`;}
-function zonesHtml(visible,areaHtml){const zones=zoneList(),t=zT(),q=state.board.settings.zoneSplit==="2x2";
-  const bd=$("boardEl");bd.classList.toggle("z2x2",q);bd.style.setProperty("--zn",q?2:zones.length);
-  return zones.map(z=>{const mine=visible.filter(a=>areaZoneId(a,zones)===z.id),fr=z.mode==="free",c=Math.max(1,Math.min(4,z.cols||1));
+// Šířky částí (settings.zoneColW), výšky řad (settings.zoneRowH, 0 = podle obsahu) a šířky
+// sloupců uvnitř části (z.colW) jsou poměry pro fr; špatná délka = stejně široké.
+function zoneFr(arr,n){return Array.isArray(arr)&&arr.length===n&&arr.every(x=>x>0)?arr.map(x=>`minmax(0,${x}fr)`).join(" "):`repeat(${n},minmax(0,1fr))`;}
+function zoneRows(){const s=state.board.settings,nr=s.zoneSplit==="2x2"?2:1,r=Array.isArray(s.zoneRowH)?s.zoneRowH:[];return Array.from({length:nr},(_,j)=>r[j]>0?r[j]:0);}
+function zoneRowsCss(rows){return rows.some(v=>v>0)?rows.map(v=>v>0?v+"px":"auto").join(" "):"";}
+function zoneInnerHandles(){document.querySelectorAll("#boardEl .zone-body.zcols").forEach(b=>{const hs=b.querySelectorAll(":scope > .zrz-in");if(!hs.length)return;
+  const cs=getComputedStyle(b),w=cs.gridTemplateColumns.split(" ").map(parseFloat),g=parseFloat(cs.columnGap)||0;let x=0;
+  hs.forEach((h,k)=>{x+=w[k]||0;h.style.left=(x+g*k+g/2)+"px";});});}
+function zonesHtml(visible,areaHtml){const zones=zoneList(),t=zT(),q=state.board.settings.zoneSplit==="2x2",nc=q?2:zones.length,rows=zoneRows();
+  const bd=$("boardEl");bd.classList.toggle("z2x2",q);bd.style.setProperty("--zn",nc);
+  bd.style.gridTemplateColumns=zoneFr(state.board.settings.zoneColW,nc);bd.style.gridTemplateRows=zoneRowsCss(rows);
+  return zones.map((z,zi)=>{const ci=q?zi%2:zi,ri=q?(zi<2?0:1):0,mine=visible.filter(a=>areaZoneId(a,zones)===z.id),fr=z.mode==="free",c=Math.max(1,Math.min(4,z.cols||1));
     const opts=[["free",t.free],["1",t.col1],["2","2 "+t.cols],["3","3 "+t.cols],["4","4 "+t.cols]].map(([k,l])=>`<option value="${k}"${(fr?"free":String(c))===k?" selected":""}>${esc(l)}</option>`).join("");
     const col=/^#[0-9a-f]{6}$/i.test(z.color||"")?z.color:"";
-    return `<div class="zone${col?" tinted":""}" data-zone="${z.id}"${col?` style="--zc:${col}"`:""}><div class="zone-head"><button class="zone-name" data-act="zone-rename" data-zone="${z.id}" title="${esc(t.rename)}">${esc(z.name||t.part)}</button><span class="zone-tools"><select data-act="zone-mode" data-zone="${z.id}">${opts}</select><input type="color" data-act="zone-color" data-zone="${z.id}" value="${col||"#ffffff"}" title="${esc(t.color)}"/>${col?`<button class="icon" data-act="zone-color-clear" data-zone="${z.id}" title="${esc(t.clear)}">×</button>`:""}<button class="icon" data-act="add-area" data-zone="${z.id}" title="${esc(t.add)}">+</button></span></div>
-      <div class="zone-body ${fr?"zfree":"zcols"}" data-zone-body="${z.id}" style="--zcols:${c}">${mine.map(a=>areaHtml(a,visible.indexOf(a),fr)).join("")||`<div class="zone-empty">${esc(t.empty)}</div>`}</div></div>`;}).join("");}
+    const hx=ci<nc-1?`<div class="zrz-x" data-zrz="col" data-i="${ci}" title="${esc(t.rzW)}"></div>`:"",hy=`<div class="zrz-y" data-zrz="row" data-i="${ri}" title="${esc(t.rzH)}"></div>`;
+    const hin=!fr&&c>1?Array.from({length:c-1},(_,k)=>`<div class="zrz-in" data-zrz="icol" data-zone="${z.id}" data-i="${k}" title="${esc(t.rzW)}"></div>`).join(""):"";
+    return `<div class="zone${col?" tinted":""}${rows[ri]?" zfix":""}" data-zone="${z.id}"${col?` style="--zc:${col}"`:""}>${hx}${hy}<div class="zone-head"><button class="zone-name" data-act="zone-rename" data-zone="${z.id}" title="${esc(t.rename)}">${esc(z.name||t.part)}</button><span class="zone-tools"><select data-act="zone-mode" data-zone="${z.id}">${opts}</select><input type="color" data-act="zone-color" data-zone="${z.id}" value="${col||"#ffffff"}" title="${esc(t.color)}"/>${col?`<button class="icon" data-act="zone-color-clear" data-zone="${z.id}" title="${esc(t.clear)}">×</button>`:""}<button class="icon" data-act="add-area" data-zone="${z.id}" title="${esc(t.add)}">+</button></span></div>
+      <div class="zone-body ${fr?"zfree":"zcols"}" data-zone-body="${z.id}"${fr?"":` style="grid-template-columns:${zoneFr(z.colW,c)}"`}>${mine.map(a=>areaHtml(a,visible.indexOf(a),fr)).join("")||`<div class="zone-empty">${esc(t.empty)}</div>`}${hin}</div></div>`;}).join("");}
+// Tažení úchytů: mezi částmi (šířka), pod částí (výška řady), mezi sloupci uvnitř části.
+let zrz=null;
+document.addEventListener("pointerdown",e=>{const h=e.target.closest&&e.target.closest("#boardEl [data-zrz]");if(!h||e.button!==0)return;e.preventDefault();e.stopPropagation();
+  const k=h.dataset.zrz,i=+h.dataset.i,bd=$("boardEl");
+  if(k==="row")zrz={k,i,sy:e.clientY,h0:h.closest(".zone").offsetHeight,bd};
+  else{const box=k==="col"?bd:h.closest("[data-zone-body]");zrz={k,i,sx:e.clientX,w:getComputedStyle(box).gridTemplateColumns.split(" ").map(parseFloat),box,zid:h.dataset.zone,min:k==="col"?180:110,bd};}
+  bd.classList.add("zresizing");try{h.setPointerCapture(e.pointerId);}catch(_){}},true);
+window.addEventListener("pointermove",e=>{if(!zrz)return;const g=zrz;
+  if(g.k==="row"){const r=zoneRows();r[g.i]=Math.max(140,Math.round(g.h0+e.clientY-g.sy));g.cur=r;g.bd.style.gridTemplateRows=zoneRowsCss(r);return;}
+  const w=g.w.slice(),a=w[g.i],b=w[g.i+1];if(a===undefined||b===undefined)return;
+  const d=Math.max(g.min-a,Math.min(b-g.min,e.clientX-g.sx));w[g.i]=a+d;w[g.i+1]=b-d;g.cur=w;
+  g.box.style.gridTemplateColumns=w.map(x=>`minmax(0,${x}fr)`).join(" ");zoneInnerHandles();});
+window.addEventListener("pointerup",()=>{if(!zrz)return;const g=zrz;zrz=null;g.bd.classList.remove("zresizing");if(!g.cur)return;const s=state.board.settings;
+  const norm=w=>{const t=w.reduce((x,y)=>x+y,0)||1;return w.map(x=>Math.round(x/t*10000)/100);};
+  if(g.k==="row")s.zoneRowH=g.cur;else if(g.k==="col")s.zoneColW=norm(g.cur);else{const z=zoneById(g.zid);if(z)z.colW=norm(g.cur);}
+  save();renderAreas();});
+document.addEventListener("dblclick",e=>{const h=e.target.closest&&e.target.closest("#boardEl [data-zrz]");if(!h)return;const s=state.board.settings,k=h.dataset.zrz;
+  if(k==="row"){const r=zoneRows();r[+h.dataset.i]=0;s.zoneRowH=r;}else if(k==="col")delete s.zoneColW;else{const z=zoneById(h.dataset.zone);if(z)delete z.colW;}
+  save();renderAreas();});
+addEventListener("resize",()=>{if(zonesOn())zoneInnerHandles();});
 // Volná část: oblast bez místa jde dolů pod ostatní, část je vysoká jako nejnižší oblast.
 function zoneFreeLayout(){let moved=false;
   document.querySelectorAll("#boardEl .zone-body.zfree").forEach(zb=>{const els=[...zb.querySelectorAll(":scope > .area[data-area-id]")];let bottom=0;
@@ -1427,10 +1470,10 @@ board.addEventListener("pointerdown",e=>{if(e.button!==0)return;const hd=e.targe
   const ae=hd.closest(".area[data-area-id]");if(!ae)return;const zb=ae.parentElement&&ae.parentElement.classList.contains("zfree")?ae.parentElement:null;
   if(!zb&&!state.board.settings.areaFree)return;if(getComputedStyle(ae).position!=="absolute")return;e.preventDefault();
   const top=Math.max(0,...state.board.areas.map(x=>x.fz||1))+1;ae.style.zIndex=top;ae.classList.add("moving");
-  fmv={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,x:ae.offsetLeft,y:ae.offsetTop,z:top,zb,px:e.clientX,py:e.clientY};try{hd.setPointerCapture(e.pointerId);}catch(_){}});
+  fmv={id:ae.dataset.areaId,el:ae,sx:e.clientX,sy:e.clientY,x:ae.offsetLeft,y:ae.offsetTop,z:top,zb,px:e.clientX,py:e.clientY};if(zb)board.classList.add("zmoving");try{hd.setPointerCapture(e.pointerId);}catch(_){}});
 window.addEventListener("pointermove",e=>{if(!fmv)return;fmv.px=e.clientX;fmv.py=e.clientY;if(fmv.zb){const t=zoneFromPoint(e.clientX,e.clientY,fmv.el);document.querySelectorAll("#boardEl .zone.zover").forEach(x=>{if(x!==t)x.classList.remove("zover");});if(t&&t.dataset.zone!==fmv.zb.dataset.zoneBody)t.classList.add("zover");}fmv.el.style.left=Math.max(0,fmv.x+e.clientX-fmv.sx)+"px";fmv.el.style.top=Math.max(0,fmv.y+e.clientY-fmv.sy)+"px";});
-window.addEventListener("pointerup",()=>{if(!fmv)return;const g=fmv,a=A(g.id);fmv=null;g.el.classList.remove("moving");if(!a)return;
-  if(g.zb){document.querySelectorAll("#boardEl .zone.zover").forEach(x=>x.classList.remove("zover"));a.fz=g.z;
+window.addEventListener("pointerup",()=>{if(!fmv)return;const g=fmv,a=A(g.id);fmv=null;g.el.classList.remove("moving");board.classList.remove("zmoving");if(!a)return;
+  if(g.zb){board.classList.remove("zmoving");document.querySelectorAll("#boardEl .zone.zover").forEach(x=>x.classList.remove("zover"));a.fz=g.z;
     // puštěno nad jinou částí: oblast se do ní přestěhuje na místo, kam ji uživatelka dala
     const t=zoneFromPoint(g.px,g.py,g.el),tb=t&&t.querySelector("[data-zone-body]");
     if(tb&&tb!==g.zb){const r=tb.getBoundingClientRect(),er=g.el.getBoundingClientRect();a.zone=t.dataset.zone;a.zx=Math.max(0,Math.min(Math.round(er.left-r.left),Math.round(r.width-er.width)));a.zy=Math.max(0,Math.round(er.top-r.top));save();renderAreas();return;}
