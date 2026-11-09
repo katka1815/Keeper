@@ -9,17 +9,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Rozcestník" />
 <title>Rozcestník</title>
+<script>try{var f=localStorage.getItem("rozc_font");if(f)document.documentElement.dataset.font=f;}catch(e){}</script>
 <style>
   :root{--paper:#ffffff;--panel:#ffffff;--ink:#252525;--muted:#666666;--caption:#767676;--line:#ebebeb;--lineStrong:#b5b5b5;--lineSoft:#f3f3f3;--flood:rgba(220,38,38,.35);
     /* --teal a --plum drzely akcent a nadpisy; v monochromu obe padaji na inkoust,
        cimz se jednim tahem zmonochromatizuje ~30 mist, ktera je pouzivala */
     --teal:var(--ink);--plum:var(--ink);--ok:var(--line);--broken:#7a2e2e;--unknown:transparent;--warn:#8e8e8e;--warnBg:var(--lineSoft);
     --r:8px;--gap:18px;--pad:28px;
-    --serif:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace;}
+    --serif:Arial,Helvetica,sans-serif;--sans:Arial,Helvetica,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace;}
   /* Témata (settings.look): výchozí „Současné" je přesně :root výš a drží tvrdá pravidla
      z HANDOVERu. Duna a Zlatá hodina mění jen tokeny; tmavý režim (data-dark) má každé
      téma svůj. Zaoblení, hustota a písmo jsou samostatné přepínače. */
   :root[data-theme="duna"]{--paper:#f7f7f5;--panel:#ffffff;--ink:#1b0624;--muted:#766a7c;--caption:#898683;--line:#edece7;--lineStrong:#bdb8b3;--lineSoft:#f1f0ec}
+  :root[data-theme="ziva"]{--paper:#f5f3f5;--panel:#ffffff;--ink:#3b0d11;--muted:#5c3337;--caption:#5c3337;--line:#c3dfe0;--lineStrong:#2176ae;--lineSoft:#eef5f6;--teal:#1a5f8f;--plum:#3b0d11;--broken:#8f1d24}
+  :root[data-theme="ziva"] .btn.primary,:root[data-theme="ziva"] .quickadd .qa-btn.btn.primary{background:#e3b505;color:#3b0d11;border-color:#3b0d11}
+  :root[data-theme="ziva"] a{color:var(--teal)}
+  :root[data-dark="1"][data-theme="ziva"]{--paper:#1c0709;--panel:#2a1114;--ink:#f5f3f5;--muted:#c9b7b9;--caption:#c9b7b9;--line:#3d2023;--lineStrong:#2176ae;--lineSoft:#241013;--teal:#8cc3e8;--plum:#c3dfe0;--broken:#f0a3a8}
   :root[data-theme="golden"]{--paper:#f2f0eb;--panel:#ffffff;--ink:#292827;--muted:#666666;--caption:#76716b;--line:#e3e3e2;--lineStrong:#b9b4ab;--lineSoft:#ebe8e1;--broken:#421d24}
   :root[data-dark="1"]{--paper:#121212;--panel:#1b1b1b;--ink:#ececec;--muted:#a3a3a3;--caption:#9a9a9a;--line:#2c2c2c;--lineStrong:#4f4f4f;--lineSoft:#232323;--broken:#e3a0a0;--warn:#8a8a8a;color-scheme:dark}
   :root[data-dark="1"][data-theme="duna"]{--paper:#120e14;--panel:#1b161d;--ink:#efe9f1;--muted:#aba1b0;--caption:#9d95a1;--line:#2e2731;--lineStrong:#564b5a;--lineSoft:#241e26}
@@ -28,9 +33,9 @@
   :root[data-radius="sharp"]{--r:2px}
   :root[data-density="compact"]{--gap:10px;--pad:16px}:root[data-density="compact"] .link,:root[data-density="compact"] .item{padding-top:3px;padding-bottom:3px}
   :root[data-density="airy"]{--gap:28px;--pad:40px}:root[data-density="airy"] .link,:root[data-density="airy"] .item{padding-top:10px;padding-bottom:10px}
-  :root[data-font="serif"]{--sans:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;--serif:var(--sans)}
-  :root[data-font="mono"]{--sans:ui-monospace,'Cascadia Mono',Consolas,Menlo,monospace;--serif:var(--sans)}
-  :root[data-font="system"]{--sans:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--serif:var(--sans)}
+  :root[data-font="serif"]{--sans:Literata,Georgia,'Times New Roman',serif;--serif:var(--sans)}
+  :root[data-font="mono"]{--sans:ui-monospace,Consolas,Menlo,monospace;--serif:var(--sans)}
+  :root[data-font="system"]{--sans:system-ui,-apple-system,'Segoe UI',sans-serif;--serif:var(--sans)}
   *{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}
   a{color:inherit} button{font-family:var(--sans);cursor:pointer}
@@ -3089,17 +3094,17 @@ document.head.insertAdjacentHTML("beforeend",`<style>
    Výchozí „Současné" (mono) je přesně původní vzhled. Obrazy jsou volná díla uložená
    v appce (public/art), nic se nenačítá odjinud. Vlastní fotka je obrázek /api/img/<id>
    (se šifrováním zamčený), url drží v nastavení, aby ji nesmazal úklid obrázků. */
-const LOOKT={cs:{look:"Vzhled",desk:"Plocha",theme:"Téma",themes:{mono:"Současné",duna:"Duna",golden:"Zlatá hodina"},dark:"Tmavý režim",darks:{auto:"Podle systému",on:"Zapnutý",off:"Vypnutý"},
+const LOOKT={cs:{look:"Vzhled",desk:"Plocha",theme:"Téma",themes:{mono:"Současné",duna:"Duna",golden:"Zlatá hodina",ziva:"Živá"},dark:"Tmavý režim",darks:{auto:"Podle systému",on:"Zapnutý",off:"Vypnutý"},
   art:"Obrázek v záhlaví a zápatí",artPick:"Vybrat…",artNone:"Žádný",radius:"Zaoblení",radii:{base:"Střední",soft:"Měkké",sharp:"Ostré"},density:"Hustota",densities:{normal:"Běžná",compact:"Hustá",airy:"Vzdušná"},
-  font:"Písmo",fonts:{inter:"Bezpatkové",system:"Systémové",serif:"Patkové",mono:"Strojopis"},clean:"Úklid (všechno do lišty)",cleanBtn:"Uklidit",cleanOff:"Rozbalit",
+  font:"Písmo",fonts:{arial:"Arial (výchozí)",system:"Systémové",serif:"Patkové",mono:"Strojopis"},clean:"Úklid (všechno do lišty)",cleanBtn:"Uklidit",cleanOff:"Rozbalit",
   sortUse:"Řadit odkazy podle používání",sortUseNote:"Na co klikáš nejvíc, jde v oblasti nahoru. Šipkami ▲▼ oblast přepneš na ruční pořadí.",
   daytime:"Podle denní doby",daytimeNote:"Ráno jsou nahoře úkoly, večer zlatá hodina, v noci tmavý režim; obraz se mění podle části dne.",adv:"Pokročilé",
   galTitle:"Obrázek v záhlaví a zápatí",where:"Kde",wheres:{both:"Nahoře i dole",top:"Jen nahoře",bottom:"Jen dole"},sNone:"Bez obrázku",sPaint:"Obrazy (volná díla)",sGrad:"Kreslené přechody",sOwn:"Vlastní fotka",
   upload:"+ Nahrát fotku",ownCur:"Tvoje fotka",uploading:"Nahrávám…",uploadErr:"Fotku se nepodařilo nahrát.",paintNote:"Obrazy jsou volná díla (autorská práva vypršela), uložená přímo v appce. Vlastní fotka se se šifrováním ukládá zašifrovaná.",
   credit:"Obraz",tabPal:"Barvy záložek podle obrazu",tabPalNote:"Oblasti dostanou barvy z palety vybraného obrazu.",artDetail:"Detail z obrazu u názvu",free:"volné dílo",taskDrag:"Chyť a přesuň nad jiný úkol",sortUseArea:"Řadit podle používání",sortManualArea:"Řadit ručně",inbox:"Ke zpracování",close:"Zavřít"},
- en:{look:"Look",desk:"Desk",theme:"Theme",themes:{mono:"Current",duna:"Dune",golden:"Golden hour"},dark:"Dark mode",darks:{auto:"Follow system",on:"On",off:"Off"},
+ en:{look:"Look",desk:"Desk",theme:"Theme",themes:{mono:"Current",duna:"Dune",golden:"Golden hour",ziva:"Vivid"},dark:"Dark mode",darks:{auto:"Follow system",on:"On",off:"Off"},
   art:"Header and footer image",artPick:"Choose…",artNone:"None",radius:"Corners",radii:{base:"Medium",soft:"Soft",sharp:"Sharp"},density:"Density",densities:{normal:"Normal",compact:"Compact",airy:"Airy"},
-  font:"Font",fonts:{inter:"Sans",system:"System",serif:"Serif",mono:"Typewriter"},clean:"Tidy up (everything into the bar)",cleanBtn:"Tidy up",cleanOff:"Unfold",
+  font:"Font",fonts:{arial:"Arial (default)",system:"System",serif:"Serif",mono:"Typewriter"},clean:"Tidy up (everything into the bar)",cleanBtn:"Tidy up",cleanOff:"Unfold",
   sortUse:"Sort links by use",sortUseNote:"What you click most moves up in its area. The ▲▼ arrows switch an area to manual order.",
   daytime:"By time of day",daytimeNote:"Mornings put tasks on top, evenings golden hour, nights dark mode; the painting changes with the part of the day.",adv:"Advanced",
   galTitle:"Header and footer image",where:"Where",wheres:{both:"Top and bottom",top:"Top only",bottom:"Bottom only"},sNone:"No image",sPaint:"Paintings (public domain)",sGrad:"Drawn gradients",sOwn:"Your photo",
@@ -3114,8 +3119,8 @@ const GRAD=[
  {id:"mist",cs:"Mlha",en:"Mist",tags:["morning","day"],css:"radial-gradient(80% 60% at 70% 30%,#ffffff 0%,transparent 70%),linear-gradient(180deg,#f4f2ef 0%,#e3dfd9 55%,#cbc5bd 100%)"},
  {id:"dusk",cs:"Soumrak",en:"Dusk",tags:["evening"],css:"radial-gradient(80% 70% at 20% 100%,#b49ad0 0%,transparent 60%),radial-gradient(70% 60% at 85% 20%,#f6e2d8 0%,transparent 70%),linear-gradient(180deg,#f0e4ef 0%,#d6c3df 50%,#9f93c2 100%)"},
  {id:"night",cs:"Noc",en:"Night",tags:["night"],css:"radial-gradient(40% 35% at 78% 28%,#fdf6d8 0%,#fdf6d8 6%,transparent 40%),radial-gradient(60% 50% at 75% 30%,#3d4173 0%,transparent 70%),linear-gradient(180deg,#121428 0%,#242849 60%,#3a325d 100%)"}];
-const LOOK_DEF={theme:"mono",dark:"off",radius:"base",density:"normal",font:"inter",daytime:false};
-function look(){const s=state.board.settings;if(!s.look||typeof s.look!=="object")s.look={};for(const k in LOOK_DEF)if(s.look[k]===undefined)s.look[k]=LOOK_DEF[k];if(!s.look.art||typeof s.look.art!=="object")s.look.art={kind:"none"};return s.look;}
+const LOOK_DEF={theme:"mono",dark:"off",radius:"base",density:"normal",font:"arial",daytime:false};
+function look(){const s=state.board.settings;if(!s.look||typeof s.look!=="object")s.look={};for(const k in LOOK_DEF)if(s.look[k]===undefined)s.look[k]=LOOK_DEF[k];if(!s.look.art||typeof s.look.art!=="object")s.look.art={kind:"none"};if(s.look.font==="inter")s.look.font="arial";return s.look;}
 const darkMq=window.matchMedia?matchMedia("(prefers-color-scheme: dark)"):null;
 function lookHour(){try{return +new Intl.DateTimeFormat("en-GB",{timeZone:tz(),hour:"2-digit",hourCycle:"h23"}).format(new Date());}catch(e){return new Date().getHours();}}
 function lookPhase(){const h=lookHour();return h>=22||h<6?"night":h>=17?"evening":h<11?"morning":"day";}
@@ -3123,7 +3128,7 @@ function lookDark(){return document.documentElement.dataset.dark==="1";}
 function applyLook(){if(!state||!state.board||!state.board.settings)return;const o=look(),r=document.documentElement,ph=o.daytime?lookPhase():null;
   r.dataset.theme=ph==="evening"?"golden":o.theme;
   r.dataset.dark=(ph==="night"||o.dark==="on"||(o.dark==="auto"&&darkMq&&darkMq.matches))?"1":"0";
-  r.dataset.radius=o.radius;r.dataset.density=o.density;r.dataset.font=o.font;
+  r.dataset.radius=o.radius;r.dataset.density=o.density;r.dataset.font=o.font;try{localStorage.setItem("rozc_font",o.font);}catch(e){}
   document.body.classList.toggle("clean",!!state.board.settings.clean);
   applyArt();}
 if(darkMq&&darkMq.addEventListener)darkMq.addEventListener("change",()=>{if(look().dark==="auto"){applyLook();render();}});
