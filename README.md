@@ -217,8 +217,10 @@ To save links by sharing, set `"type":"link"` and put the shared link in `"url"`
 
 ## Look and desk
 Settings → **Look**: theme (*Current* black and white, *Dune* warm paper and aubergine ink with
-soft corners, *Golden hour* parchment), **dark mode** (follow system / on / off), corners, density
-and font (system fonts only, nothing is downloaded).
+soft corners, *Golden hour* parchment, *Vivid* mahogany ink with saffron buttons and teal links),
+**dark mode** (follow system / on / off), corners, density and font (Arial by default, or system,
+serif, typewriter; nothing is downloaded). The font choice is also kept in the browser so it applies
+before the board loads.
 
 - **Header and footer image:** like Dune, across the full width, fading into the page. Choose in
   the gallery: 16 public-domain paintings stored inside the app (Mánes, Kaván, Mařák, Monet, Pissarro,
@@ -789,8 +791,10 @@ Pro ukládání odkazů sdílením nastav `"type":"link"` a do `"url"` vlož sd�
 
 ## Vzhled a plocha
 Nastavení → **Vzhled**: téma (*Současné* černobílé, *Duna* teplý papír a lilkově černá s měkkými
-rohy, *Zlatá hodina* pergamen), **tmavý režim** (podle systému / zapnutý / vypnutý), zaoblení,
-hustota a písmo (jen systémová písma, nic se nestahuje).
+rohy, *Zlatá hodina* pergamen, *Živá* mahagonový text, šafránová tlačítka a modrozelené odkazy),
+**tmavý režim** (podle systému / zapnutý / vypnutý), zaoblení, hustota a písmo (výchozí Arial,
+nebo systémové, patkové, strojopis; nic se nestahuje). Volbu písma si pamatuje i prohlížeč, takže
+platí hned při načtení, ještě než se načte deska.
 
 - **Obrázek v záhlaví a zápatí:** jako u Duny, přes celou šířku, do stránky se rozplyne. Vybíráš
   v galerii: 16 volných děl uložených přímo v appce (Mánes, Kaván, Mařák, Monet, Pissarro, Sisley,
